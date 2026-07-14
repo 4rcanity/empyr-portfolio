@@ -90,6 +90,8 @@ export const ui: Record<Lang, Record<string, string>> = {
     'portfolio.pricingSubtitle':
       'Begin iets onder de marktprijs om je eerste klanten te winnen, verhoog daarna zodra je referenties hebt.',
     'portfolio.pitch': '"Als deze site je een paar extra klanten per maand oplevert, heeft hij zichzelf terugbetaald."',
+    'portfolio.contactWhatsApp': 'WhatsApp ons',
+    'portfolio.contactEmail': 'Stuur een e-mail',
     'portfolio.footer': 'Gebouwd met Astro · Statisch · Gehost op GitHub Pages',
 
   },
@@ -173,6 +175,8 @@ export const ui: Record<Lang, Record<string, string>> = {
     'portfolio.pricingSubtitle':
       'Start slightly under market to win first clients, then raise as you build references.',
     'portfolio.pitch': '"If this site brings you a few extra customers a month, it\'s paid for itself."',
+    'portfolio.contactWhatsApp': 'WhatsApp us',
+    'portfolio.contactEmail': 'Send an email',
     'portfolio.footer': 'Built with Astro · Static · Hosted on GitHub Pages',
 
   },

@@ -1,0 +1,55 @@
+---
+import type { Lang } from '../../i18n/ui';
+import { languages } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+}
+
+const { lang, title, description } = Astro.props;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
+const canonical = `${siteUrl}/${lang}`;
+const ogImage = `${siteUrl}/favicon.svg`;
+const locale = lang === 'nl' ? 'nl_NL' : 'en_US';
+---
+
+<link rel="canonical" href={canonical} />
+{languages.map((l) => (
+  <link rel="alternate" hreflang={l} href={`${siteUrl}/${l}`} />
+))}
+<link rel="alternate" hreflang="x-default" href={`${siteUrl}/nl`} />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Empyr Portfolio" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={locale} />
+<meta property="og:image" content={ogImage} />
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    name: 'Empyr Portfolio',
+    url: siteUrl,
+    email: 'business@empyr-portfolio.com',
+    description,
+    areaServed: ['NL', 'EU'],
+    availableLanguage: ['Dutch', 'English'],
+    sameAs: [],
+    offers: {
+      '@type': 'Offer',
+      category: 'Website design and development',
+    },
+  })}
+/>
