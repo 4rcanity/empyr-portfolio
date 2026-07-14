@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "build:all": "node scripts/build-with-risale.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

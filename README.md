@@ -1,10 +1,9 @@
 # Empyr Portfolio
 
-Personal portfolio site at [empyr-portfolio.com](https://empyr-portfolio.com) — showcasing web apps and sellable business website templates built with Astro.
+Personal portfolio site at [empyr-portfolio.com](https://empyr-portfolio.com) — showcasing sellable business website templates built with Astro.
 
 ## What's included
 
-- **Featured project:** [Risale-i Nur Reader](/risale/nl) — trilingual (TR/NL/EN) reading platform
 - **Business templates:** restaurants, cafés, barbershops, and more (NL + EN demos)
 
 ## Quick start
@@ -15,12 +14,6 @@ npm run dev
 ```
 
 Open [http://localhost:4321](http://localhost:4321) — redirects to `/nl` (Dutch portfolio home).
-
-Build portfolio + Risale-i Nur subpath:
-
-```bash
-npm run build:all
-```
 
 ## Deployment
 

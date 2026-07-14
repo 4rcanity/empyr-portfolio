@@ -1,17 +1,10 @@
 # Deploying empyr-portfolio.com on GitHub Pages
 
-This repo is the **Empyr Portfolio** site. It deploys to [empyr-portfolio.com](https://empyr-portfolio.com) via GitHub Actions. The Risale-i Nur reader is bundled at `/risale/` when the `risale-i-nur` repo is available.
+This repo is the **Empyr Portfolio** site. It deploys to [empyr-portfolio.com](https://empyr-portfolio.com) via GitHub Actions.
 
 ## 1. Create GitHub repositories
 
-Create two public repos under your GitHub account:
-
-| Repo | Contents |
-|------|----------|
-| `empyr-portfolio` | This project (`restaurant-sites` folder) |
-| `risale-i-nur` | The Risale-i Nur reader project |
-
-Push both projects:
+Create a public `empyr-portfolio` repository under your GitHub account, then push this project:
 
 ```bash
 # Portfolio (from this folder)
@@ -22,14 +15,6 @@ git branch -M main
 git remote add origin https://github.com/YOUR_USERNAME/empyr-portfolio.git
 git push -u origin main
 
-# Risale-i Nur (separate folder)
-cd ../risale-i-nur
-git init
-git add .
-git commit -m "Initial Risale-i Nur reader"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/risale-i-nur.git
-git push -u origin main
 ```
 
 ## 2. Enable GitHub Pages
@@ -67,8 +52,7 @@ DNS can take up to 24 hours to propagate.
 
 ```bash
 npm install
-npm run dev          # portfolio only at http://localhost:4321
-npm run build:all    # portfolio + /risale/ subpath (needs ../risale-i-nur)
+npm run dev
 ```
 
 ## 5. Live URLs after deploy
@@ -77,11 +61,9 @@ npm run build:all    # portfolio + /risale/ subpath (needs ../risale-i-nur)
 |------|-----|
 | Portfolio (NL) | https://empyr-portfolio.com/nl |
 | Portfolio (EN) | https://empyr-portfolio.com/en |
-| Risale-i Nur reader | https://empyr-portfolio.com/risale/tr |
 | Template demos | https://empyr-portfolio.com/nl/barberhouse |
 
 ## Troubleshooting
 
-- **Risale demo 404**: Ensure the `risale-i-nur` repo exists and is named exactly `risale-i-nur` under the same GitHub user/org as `empyr-portfolio`.
 - **Domain not verified**: Wait for DNS, then re-save the custom domain in GitHub Pages settings.
 - **Build fails on Node**: GitHub Actions uses Node 22; match locally with `node -v`.

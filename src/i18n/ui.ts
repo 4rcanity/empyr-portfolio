@@ -83,22 +83,15 @@ export const ui: Record<Lang, Record<string, string>> = {
     'portfolio.title1': 'Websites en webapps die',
     'portfolio.title2': 'echt resultaat opleveren',
     'portfolio.subtitle':
-      'Van meertalige leesplatforms tot kant-en-klare templates voor lokale ondernemers — snel, mobielvriendelijk en gebouwd met Astro.',
-    'portfolio.featuredTitle': 'Uitgelicht project',
-    'portfolio.templatesTitle': 'Business templates',
+      'Professionele templates voor lokale ondernemers — snel, mobielvriendelijk en gebouwd met Astro.',
     'portfolio.viewPricing': 'Bekijk prijzen',
     'portfolio.viewDemo': 'Bekijk live demo →',
-    'portfolio.viewProject': 'Bekijk project →',
     'portfolio.pricingTitle': 'Aanbevolen prijzen (EU)',
     'portfolio.pricingSubtitle':
       'Begin iets onder de marktprijs om je eerste klanten te winnen, verhoog daarna zodra je referenties hebt.',
     'portfolio.pitch': '"Als deze site je een paar extra klanten per maand oplevert, heeft hij zichzelf terugbetaald."',
     'portfolio.footer': 'Gebouwd met Astro · Statisch · Gehost op GitHub Pages',
 
-    'project.risale.name': 'Risale-i Nur Reader',
-    'project.risale.tagline': 'Meertalig leesplatform (TR / NL / EN)',
-    'project.risale.description':
-      'Een quran.com-achtige lezer voor het Risale-i Nur corpus — volledige catalogus, zij-aan-zij vertalingen, zoeken en importpipeline voor gelicenseerde teksten.',
   },
   en: {
     'nav.menu': 'Menu',
@@ -173,21 +166,14 @@ export const ui: Record<Lang, Record<string, string>> = {
     'portfolio.title1': 'Websites and web apps that',
     'portfolio.title2': 'deliver real results',
     'portfolio.subtitle':
-      'From trilingual reading platforms to ready-to-customize templates for local businesses — fast, mobile-first, and built with Astro.',
-    'portfolio.featuredTitle': 'Featured project',
-    'portfolio.templatesTitle': 'Business templates',
+      'Professional, ready-to-customize templates for local businesses — fast, mobile-first, and built with Astro.',
     'portfolio.viewPricing': 'View Pricing',
     'portfolio.viewDemo': 'View Live Demo →',
-    'portfolio.viewProject': 'View project →',
     'portfolio.pricingTitle': 'Suggested Pricing (EU)',
     'portfolio.pricingSubtitle':
       'Start slightly under market to win first clients, then raise as you build references.',
     'portfolio.pitch': '"If this site brings you a few extra customers a month, it\'s paid for itself."',
     'portfolio.footer': 'Built with Astro · Static · Hosted on GitHub Pages',
 
-    'project.risale.name': 'Risale-i Nur Reader',
-    'project.risale.tagline': 'Trilingual reading platform (TR / NL / EN)',
-    'project.risale.description':
-      'A quran.com-style reader for the Risale-i Nur corpus — full catalog, side-by-side translations, search, and an import pipeline for licensed text.',
   },
 };

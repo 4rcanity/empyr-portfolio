@@ -21,13 +21,6 @@ jobs:
       - name: Checkout portfolio
         uses: actions/checkout@v4
 
-      - name: Checkout Risale-i Nur
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/risale-i-nur
-          path: risale-i-nur
-        continue-on-error: true
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -37,10 +30,8 @@ jobs:
       - name: Install portfolio dependencies
         run: npm ci
 
-      - name: Build combined site
-        run: node scripts/build-with-risale.mjs
-        env:
-          RISALE_DIR: ${{ github.workspace }}/risale-i-nur
+      - name: Build site
+        run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
