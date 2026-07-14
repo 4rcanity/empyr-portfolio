@@ -1,0 +1,149 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  content: LocalizedContent;
+  lang: Lang;
+  layout?: 'cards' | 'list' | 'minimal' | 'photo-grid';
+  variant?: string;
+}
+
+const { content, lang, layout = 'list', variant } = Astro.props;
+const t = useTranslations(lang);
+const sectionTitle = content.menuSectionLabel ?? t('menu.title');
+const isBarberhouse = variant === 'barberhouse';
+
+const tagLabels: Record<string, string> = {
+  vegetarian: 'V',
+  vegan: 'VG',
+  'gluten-free': 'GF',
+  spicy: '🌶',
+  halal: 'HALAL',
+};
+
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+---
+
+<section id="menu" class="py-20" style="background: var(--color-background);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="mb-10 text-center">
+      <h2
+        class="text-3xl font-semibold sm:text-4xl"
+        style="color: var(--color-text); font-family: var(--font-heading);"
+      >
+        {sectionTitle}
+      </h2>
+      <div class="mx-auto mt-4 h-1 w-16 rounded" style="background: var(--color-accent);"></div>
+    </div>
+
+    {layout === 'photo-grid' && (
+      <div class="mb-14 flex snap-x gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {content.menu.map((category) => (
+          <a
+            href={`#cat-${slugify(category.name)}`}
+            class="shrink-0 snap-start rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors"
+            style="background: color-mix(in srgb, var(--color-accent) 14%, transparent); color: var(--color-text);"
+          >
+            {category.name}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <div class="space-y-16">
+      {content.menu.map((category) => (
+        <div id={layout === 'photo-grid' ? `cat-${slugify(category.name)}` : undefined} class="scroll-mt-24">
+          {layout === 'photo-grid' && category.image ? (
+            <div class="relative mb-6 overflow-hidden rounded-2xl">
+              <img
+                src={category.image}
+                alt={category.name}
+                class="h-40 w-full object-cover sm:h-52"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <h3
+                class="absolute bottom-4 left-5 text-2xl font-semibold text-white drop-shadow"
+                style="font-family: var(--font-heading);"
+              >
+                {category.name}
+              </h3>
+            </div>
+          ) : (
+            <h3
+              class="mb-8 text-xl font-semibold uppercase tracking-wider"
+              style="color: var(--color-accent); font-family: var(--font-heading);"
+            >
+              {category.name}
+            </h3>
+          )}
+          <div class={layout === 'list' ? 'space-y-6' : 'grid gap-6 sm:grid-cols-2'}>
+            {category.items.map((item) => (
+              <article
+                class:list={[
+                  'group',
+                  (layout === 'cards' || layout === 'photo-grid') && 'rounded-2xl p-6',
+                  isBarberhouse && (layout === 'cards' || layout === 'photo-grid') && 'gold-frame transition-all hover:border-[var(--color-accent)]',
+                  !isBarberhouse && (layout === 'cards' || layout === 'photo-grid') && 'transition-shadow hover:shadow-lg',
+                  layout === 'list' && 'border-b border-dashed pb-4',
+                ]}
+                style={
+                  layout === 'cards' || layout === 'photo-grid'
+                    ? 'background: var(--color-surface);'
+                    : layout === 'list'
+                      ? 'border-color: color-mix(in srgb, var(--color-muted) 25%, transparent);'
+                      : undefined
+                }
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h4
+                        class="text-lg font-semibold"
+                        style="color: var(--color-text); font-family: var(--font-heading);"
+                      >
+                        {item.name}
+                      </h4>
+                      {item.tags?.map((tag) => (
+                        <span
+                          class="rounded-full px-2 py-0.5 text-xs font-medium"
+                          style="background: color-mix(in srgb, var(--color-accent) 22%, transparent); color: var(--color-text);"
+                          title={tag}
+                        >
+                          {tagLabels[tag] ?? tag}
+                        </span>
+                      ))}
+                    </div>
+                    {item.description && (
+                      <p
+                        class="mt-1 text-sm leading-relaxed"
+                        style="color: var(--color-muted); font-family: var(--font-body);"
+                      >
+                        {item.description}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    class="shrink-0 text-lg font-semibold"
+                    style="color: var(--color-accent); font-family: var(--font-heading);"
+                  >
+                    {item.price}
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,37 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+}
+
+const { config, content, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{(config.rating || config.halal) && (
+  <div class="flex flex-wrap items-center gap-3">
+    {config.rating && (
+      <div
+        class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold"
+        style="background: color-mix(in srgb, var(--color-accent) 15%, transparent); color: var(--color-text);"
+      >
+        <span aria-hidden="true" style="color: var(--color-accent);">★</span>
+        <span>{config.rating.value.toFixed(1)}</span>
+        <span style="color: var(--color-muted);">· {content.ratingNote ?? `${config.rating.count}+ ${t('badge.reviews')}`}</span>
+      </div>
+    )}
+    {config.halal && (
+      <span
+        class="rounded-full px-3 py-1.5 text-sm font-semibold"
+        style="background: var(--color-accent); color: var(--color-on-accent-text);"
+      >
+        {t('badge.halal')}
+      </span>
+    )}
+  </div>
+)}

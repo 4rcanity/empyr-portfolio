@@ -1,0 +1,71 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  content: LocalizedContent;
+  lang: Lang;
+  variant?: string;
+}
+
+const { content, variant } = Astro.props;
+const copy = Astro.props.lang === 'nl' ? { title: 'Ons team' } : { title: 'Meet the Team' };
+const isBarberhouse = variant === 'barberhouse';
+---
+
+{content.team && content.team.length > 0 && (
+  <section id="team" class="py-20" style="background: var(--color-background);">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="mb-12 text-center">
+        <h2
+          class="text-3xl font-bold uppercase tracking-wide sm:text-4xl"
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {copy.title}
+        </h2>
+        <div
+          class="mx-auto mt-4 h-0.5 w-16"
+          style={isBarberhouse ? 'background: var(--gradient-gold);' : 'background: var(--color-accent);'}
+        >
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
+        {content.team.map((member) => (
+          <div class="text-center">
+            {member.image && (
+              <div
+                class:list={[
+                  'mx-auto mb-4 aspect-square w-full overflow-hidden rounded-2xl',
+                  isBarberhouse && 'gold-frame p-1.5',
+                ]}
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  class="h-full w-full rounded-xl object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
+            <h3
+              class="text-base font-semibold uppercase tracking-wide sm:text-lg"
+              style="color: var(--color-text); font-family: var(--font-heading);"
+            >
+              {member.name}
+            </h3>
+            <p
+              class="mt-1 text-xs uppercase tracking-[0.2em] sm:text-sm"
+              style={
+                isBarberhouse
+                  ? 'background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-family: var(--font-body);'
+                  : 'color: var(--color-muted); font-family: var(--font-body);'
+              }
+            >
+              {member.role}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

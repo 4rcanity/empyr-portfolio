@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Nav from '../../../components/shared/Nav.astro';
+import Hero from '../../../components/shared/Hero.astro';
+import MenuSection from '../../../components/shared/MenuSection.astro';
+import WineList from '../../../components/shared/WineList.astro';
+import AboutContact from '../../../components/shared/AboutContact.astro';
+import Gallery from '../../../components/shared/Gallery.astro';
+import Testimonials from '../../../components/shared/Testimonials.astro';
+import OpeningHours from '../../../components/shared/OpeningHours.astro';
+import ReservationCTA from '../../../components/shared/ReservationCTA.astro';
+import DeliveryLinks from '../../../components/shared/DeliveryLinks.astro';
+import RatingBadge from '../../../components/shared/RatingBadge.astro';
+import Team from '../../../components/shared/Team.astro';
+import Footer from '../../../components/shared/Footer.astro';
+import DailySpecial from '../../../components/corner/DailySpecial.astro';
+import InstagramFeed from '../../../components/shared/InstagramFeed.astro';
+import { configs } from '../../../data/configs';
+import { languages } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.flatMap((lang) =>
+    configs.map((config) => ({
+      params: { lang, slug: config.slug },
+      props: { config },
+    }))
+  );
+}
+
+const { lang } = Astro.params;
+const { config } = Astro.props;
+const content = config.content[lang as 'nl' | 'en'];
+const variant = config.theme.variant;
+---
+
+<BaseLayout config={config} content={content} lang={lang as 'nl' | 'en'} canonicalPath={`/${lang}/${config.slug}`}>
+  {variant === 'corner' && <DailySpecial content={content} />}
+  <Nav config={config} content={content} lang={lang as 'nl' | 'en'} />
+  <Hero config={config} content={content} lang={lang as 'nl' | 'en'} overlay={true} />
+
+  {(variant === 'ocakbasi' || variant === 'barberhouse') && (
+    <div class="border-b py-6" style="background: var(--color-surface); border-color: color-mix(in srgb, var(--color-muted) 15%, transparent);">
+      <div class="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
+        <RatingBadge config={config} content={content} lang={lang as 'nl' | 'en'} />
+      </div>
+    </div>
+  )}
+
+  <MenuSection
+    content={content}
+    lang={lang as 'nl' | 'en'}
+    layout={variant === 'noir' ? 'minimal' : variant === 'ocakbasi' ? 'photo-grid' : 'cards'}
+    variant={variant}
+  />
+
+  {variant === 'noir' && <WineList content={content} lang={lang as 'nl' | 'en'} />}
+
+  {variant === 'barberhouse' && <Team content={content} lang={lang as 'nl' | 'en'} variant={variant} />}
+
+  {(variant === 'corner' || variant === 'ocakbasi') && (
+    <>
+      <InstagramFeed config={config} lang={lang as 'nl' | 'en'} />
+      <DeliveryLinks config={config} lang={lang as 'nl' | 'en'} />
+    </>
+  )}
+
+  {variant === 'barberhouse' && <InstagramFeed config={config} lang={lang as 'nl' | 'en'} />}
+
+  <AboutContact config={config} content={content} lang={lang as 'nl' | 'en'} />
+  {variant !== 'barberhouse' && <Gallery config={config} lang={lang as 'nl' | 'en'} />}
+
+  {content.testimonials && <Testimonials content={content} lang={lang as 'nl' | 'en'} variant={variant} />}
+
+  <OpeningHours content={content} lang={lang as 'nl' | 'en'} variant={variant} />
+
+  {config.reservationUrl && (
+    <ReservationCTA config={config} content={content} lang={lang as 'nl' | 'en'} sticky={variant === 'noir'} />
+  )}
+
+  <Footer config={config} lang={lang as 'nl' | 'en'} />
+</BaseLayout>

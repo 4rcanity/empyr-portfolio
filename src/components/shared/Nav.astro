@@ -1,0 +1,181 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+}
+
+const { config, content, lang } = Astro.props;
+const t = useTranslations(lang);
+const variant = config.theme.variant;
+const isBarberhouse = variant === 'barberhouse';
+
+const navLinks = [
+  { href: '#menu', label: content.menuSectionLabel ?? t('nav.menu') },
+  { href: '#about', label: t('nav.about') },
+  ...(isBarberhouse ? [] : [{ href: '#gallery', label: t('nav.gallery') }]),
+  { href: '#contact', label: t('nav.contact') },
+];
+
+const ctaLabel = content.ctaLabel ?? t('nav.reserve');
+---
+
+<header
+  id="site-nav"
+  class="sticky top-0 z-50 border-b backdrop-blur-md"
+  style={
+    isBarberhouse
+      ? 'background: color-mix(in srgb, var(--color-background) 80%, transparent); border-color: color-mix(in srgb, var(--color-accent) 22%, transparent);'
+      : 'background: color-mix(in srgb, var(--color-surface) 92%, transparent); border-color: color-mix(in srgb, var(--color-muted) 20%, transparent);'
+  }
+>
+  <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:py-4">
+    <a
+      href={`/${lang}/${config.slug}`}
+      class="flex shrink-0 items-center"
+      aria-label={config.name}
+    >
+      {config.logo ? (
+        <img
+          src={config.logo}
+          alt={config.name}
+          class="h-9 w-auto object-contain sm:h-11"
+          style={isBarberhouse ? 'filter: drop-shadow(0 1px 6px rgba(212,175,55,0.25));' : undefined}
+        />
+      ) : (
+        <span
+          class="font-heading text-lg font-semibold tracking-tight sm:text-2xl"
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {config.name}
+        </span>
+      )}
+    </a>
+
+    <ul class="hidden items-center gap-8 md:flex">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={[
+              'text-sm font-medium transition-opacity hover:opacity-70',
+              isBarberhouse && 'uppercase tracking-wide',
+            ]}
+            style={
+              isBarberhouse
+                ? 'color: var(--color-text); font-family: var(--font-body);'
+                : 'color: var(--color-muted); font-family: var(--font-body);'
+            }
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <LanguageSwitcher lang={lang} slug={config.slug} variant={isBarberhouse ? 'dark' : 'light'} />
+      {config.reservationUrl && (
+        <a
+          href={config.reservationUrl}
+          class="hidden rounded-full px-5 py-2 text-sm font-semibold transition-transform hover:scale-105 sm:inline-flex"
+          style={
+            isBarberhouse
+              ? 'background: var(--gradient-gold); color: var(--color-on-accent-text); font-family: var(--font-body);'
+              : 'background: var(--color-accent); color: var(--color-on-accent-text); font-family: var(--font-body);'
+          }
+        >
+          {ctaLabel}
+        </a>
+      )}
+
+      <button
+        id="nav-toggle"
+        type="button"
+        class="inline-flex items-center justify-center rounded-full p-2 md:hidden"
+        style={
+          isBarberhouse
+            ? 'color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);'
+            : 'color: var(--color-text); border: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent);'
+        }
+        aria-label="Menu"
+        aria-expanded="false"
+        aria-controls="nav-mobile"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="7" x2="21" y2="7" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="17" x2="21" y2="17" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <div
+    id="nav-mobile"
+    class="hidden border-t px-4 pb-5 pt-3 md:hidden"
+    style={
+      isBarberhouse
+        ? 'border-color: color-mix(in srgb, var(--color-accent) 22%, transparent); background: var(--color-background);'
+        : 'border-color: color-mix(in srgb, var(--color-muted) 20%, transparent); background: var(--color-surface);'
+    }
+  >
+    <ul class="flex flex-col gap-1">
+      {navLinks.map((link) => (
+        <li>
+          <a
+            href={link.href}
+            class:list={[
+              'block rounded-xl px-3 py-3 text-base font-medium transition-colors',
+              isBarberhouse && 'uppercase tracking-wide',
+            ]}
+            style={
+              isBarberhouse
+                ? 'color: var(--color-text); font-family: var(--font-body);'
+                : 'color: var(--color-text); font-family: var(--font-body);'
+            }
+            data-nav-close
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    {config.reservationUrl && (
+      <a
+        href={config.reservationUrl}
+        class="mt-4 inline-flex w-full justify-center rounded-full px-6 py-3 text-base font-semibold"
+        style={
+          isBarberhouse
+            ? 'background: var(--gradient-gold); color: var(--color-on-accent-text); font-family: var(--font-body);'
+            : 'background: var(--color-accent); color: var(--color-on-accent-text); font-family: var(--font-body);'
+        }
+      >
+        {ctaLabel}
+      </a>
+    )}
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const panel = document.getElementById('nav-mobile');
+  if (toggle && panel) {
+    const setOpen = (open: boolean) => {
+      panel.classList.toggle('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      setOpen(!open);
+    });
+    panel.querySelectorAll('[data-nav-close]').forEach((el) => {
+      el.addEventListener('click', () => setOpen(false));
+    });
+  }
+</script>

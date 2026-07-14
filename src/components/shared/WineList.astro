@@ -1,0 +1,56 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  content: LocalizedContent;
+  lang: Lang;
+}
+
+const { content, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{content.wineList && content.wineList.length > 0 && (
+  <section id="wine" class="py-20" style="background: var(--color-surface);">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="mb-12 text-center">
+        <h2
+          class="text-3xl font-semibold sm:text-4xl"
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {t('wine.title')}
+        </h2>
+        <div class="mx-auto mt-4 h-1 w-16 rounded" style="background: var(--color-accent);"></div>
+      </div>
+      <div class="mx-auto max-w-2xl space-y-6">
+        {content.wineList.map((wine) => (
+          <div
+            class="flex items-start justify-between gap-4 border-b pb-4"
+            style="border-color: color-mix(in srgb, var(--color-muted) 20%, transparent);"
+          >
+            <div>
+              <h4 class="font-semibold" style="color: var(--color-text); font-family: var(--font-heading);">
+                {wine.name}
+              </h4>
+              {wine.region && (
+                <p class="text-sm" style="color: var(--color-muted); font-family: var(--font-body);">
+                  {wine.region}
+                </p>
+              )}
+              {wine.note && (
+                <p class="mt-1 text-sm italic" style="color: var(--color-muted); font-family: var(--font-body);">
+                  {wine.note}
+                </p>
+              )}
+            </div>
+            <span class="shrink-0 font-semibold" style="color: var(--color-accent); font-family: var(--font-heading);">
+              {wine.price}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

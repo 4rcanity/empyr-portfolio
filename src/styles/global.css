@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  /* Metallic gold text — echoes the logo's gold lettering. Only meaningful
+     when --gradient-gold is a gradient (barberhouse variant). */
+  .gold-text {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Thin gold outline frame, like the rounded rectangle in the OTB logo */
+  .gold-frame {
+    border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  }
+
+  .gold-frame-strong {
+    border: 1.5px solid var(--color-accent);
+  }
+
+  /* Metallic gold background fill for buttons/badges */
+  .gold-fill {
+    background: var(--gradient-gold);
+  }
+}

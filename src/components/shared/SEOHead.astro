@@ -1,0 +1,55 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { languages } from '../../i18n/ui';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+}
+
+const { config, content, lang, title, description, canonicalPath = '' } = Astro.props;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const pageTitle = title ? `${title} | ${config.name}` : `${config.name} — ${content.tagline}`;
+const pageDescription = description ?? content.description;
+const canonical = siteUrl ? `${siteUrl}${canonicalPath}` : undefined;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+<title>{pageTitle}</title>
+<meta name="description" content={pageDescription} />
+{canonical && <link rel="canonical" href={canonical} />}
+
+{siteUrl &&
+  languages.map((l) => <link rel="alternate" hreflang={l} href={`${siteUrl}/${l}/${config.slug}`} />)}
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={pageDescription} />
+<meta property="og:image" content={config.heroImage} />
+<meta property="og:locale" content={lang === 'nl' ? 'nl_NL' : 'en_US'} />
+{canonical && <meta property="og:url" content={canonical} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={pageDescription} />
+<meta name="twitter:image" content={config.heroImage} />
+
+<meta name="geo.region" content={config.address.country} />
+<meta name="geo.placename" content={config.address.city} />
+<meta name="geo.position" content={`${config.coordinates.lat};${config.coordinates.lng}`} />
+<meta name="ICBM" content={`${config.coordinates.lat}, ${config.coordinates.lng}`} />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+  rel="stylesheet"
+/>

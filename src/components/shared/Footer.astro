@@ -1,0 +1,43 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const t = useTranslations(lang);
+const basePath = `/${lang}/${config.slug}`;
+---
+
+<footer class="py-12" style="background: var(--color-primary);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+      {config.logo ? (
+        <img
+          src={config.logo}
+          alt={config.name}
+          class="h-10 w-auto object-contain"
+        />
+      ) : (
+        <p class="text-lg font-semibold" style="color: var(--color-on-primary-text); font-family: var(--font-heading);">
+          {config.name}
+        </p>
+      )}
+      <nav class="flex flex-wrap justify-center gap-6 text-sm" style="font-family: var(--font-body);">
+        <a href={`${basePath}/impressum`} class="hover:underline" style="color: var(--color-on-primary-muted);">
+          {t('footer.impressum')}
+        </a>
+        <a href={`${basePath}/privacy`} class="hover:underline" style="color: var(--color-on-primary-muted);">
+          {t('footer.privacy')}
+        </a>
+      </nav>
+    </div>
+    <p class="mt-8 text-center text-sm" style="color: var(--color-on-primary-muted); font-family: var(--font-body);">
+      &copy; {new Date().getFullYear()} {config.name}. {t('footer.rights')}
+    </p>
+  </div>
+</footer>

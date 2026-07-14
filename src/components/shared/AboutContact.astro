@@ -1,0 +1,164 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+}
+
+const { config, content, lang } = Astro.props;
+const t = useTranslations(lang);
+const fullAddress = `${config.address.street}, ${config.address.postalCode} ${config.address.city}`;
+const isBarberhouse = config.theme.variant === 'barberhouse';
+---
+
+<section id="about" class="py-20" style="background: var(--color-surface);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class:list={['grid items-center lg:grid-cols-2', isBarberhouse ? 'gap-10 lg:gap-16' : 'gap-12']}>
+      {config.aboutImage && (
+        <div class:list={['overflow-hidden rounded-2xl', isBarberhouse && 'gold-frame p-2']}>
+          <img
+            src={config.aboutImage}
+            alt={content.about.chefName ?? content.about.heading}
+            class:list={[
+              'aspect-[4/3] w-full object-cover',
+              isBarberhouse && 'rounded-xl',
+            ]}
+            loading="lazy"
+          />
+        </div>
+      )}
+      <div>
+        {content.about.chefTitle && (
+          <p
+            class:list={[
+              'mb-2 font-medium uppercase',
+              isBarberhouse ? 'text-xs font-semibold tracking-[0.3em] sm:text-sm' : 'text-sm tracking-widest',
+            ]}
+            style={
+              isBarberhouse
+                ? 'background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-family: var(--font-body);'
+                : 'color: var(--color-accent); font-family: var(--font-body);'
+            }
+          >
+            {content.about.chefTitle}
+          </p>
+        )}
+        <h2
+          class:list={[
+            'sm:text-4xl',
+            isBarberhouse ? 'text-3xl font-bold uppercase leading-tight' : 'text-3xl font-semibold',
+          ]}
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {content.about.heading}
+        </h2>
+        {content.about.chefName && (
+          <p
+            class:list={['mt-2 text-xl font-medium', isBarberhouse && 'mt-3 font-semibold']}
+            style="color: var(--color-accent); font-family: var(--font-heading);"
+          >
+            {content.about.chefName}
+          </p>
+        )}
+        <p
+          class:list={['mt-6 leading-relaxed', isBarberhouse ? 'text-base sm:text-lg' : 'text-lg']}
+          style="color: var(--color-muted); font-family: var(--font-body);"
+        >
+          {content.about.content}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="py-20" style="background: var(--color-background);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class:list={['grid lg:grid-cols-2', isBarberhouse ? 'gap-10 lg:gap-16' : 'gap-12']}>
+      <div>
+        <h2
+          class:list={[
+            'sm:text-4xl',
+            isBarberhouse ? 'text-3xl font-bold uppercase tracking-wide' : 'text-3xl font-semibold',
+          ]}
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {t('contact.visitUs')}
+        </h2>
+        <address class="mt-6 space-y-4 not-italic" style="font-family: var(--font-body);">
+          <p style="color: var(--color-text);">{fullAddress}</p>
+          <p>
+            <a
+              href={`tel:${config.phone.replace(/\s/g, '')}`}
+              class:list={['hover:underline', isBarberhouse && 'font-semibold']}
+              style="color: var(--color-accent);"
+            >
+              {config.phone}
+            </a>
+          </p>
+          <p>
+            <a href={`mailto:${config.email}`} class="hover:underline" style="color: var(--color-accent);">
+              {config.email}
+            </a>
+          </p>
+        </address>
+        <div class:list={['flex flex-wrap', isBarberhouse ? 'mt-8 gap-3' : 'mt-6 gap-4']}>
+          {config.socials.instagram && (
+            <a
+              href={config.socials.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                isBarberhouse
+                  ? 'rounded-full px-5 py-2 text-sm font-semibold uppercase tracking-wide gold-frame'
+                  : 'text-sm font-medium hover:underline',
+              ]}
+              style={
+                isBarberhouse
+                  ? 'color: var(--color-text);'
+                  : 'color: var(--color-muted);'
+              }
+            >
+              Instagram
+            </a>
+          )}
+          {config.socials.facebook && (
+            <a
+              href={config.socials.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              class:list={[
+                isBarberhouse
+                  ? 'rounded-full px-5 py-2 text-sm font-semibold uppercase tracking-wide gold-frame'
+                  : 'text-sm font-medium hover:underline',
+              ]}
+              style={
+                isBarberhouse
+                  ? 'color: var(--color-text);'
+                  : 'color: var(--color-muted);'
+              }
+            >
+              Facebook
+            </a>
+          )}
+        </div>
+      </div>
+      <div class:list={['overflow-hidden rounded-2xl', isBarberhouse && 'gold-frame p-2']}>
+        <iframe
+          src={config.googleMapsEmbed}
+          width="100%"
+          height="350"
+          class:list={[isBarberhouse && 'rounded-xl']}
+          style="border:0; display:block;"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title={`Map showing location of ${config.name}`}
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</section>

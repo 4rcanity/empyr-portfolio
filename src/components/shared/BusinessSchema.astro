@@ -1,0 +1,77 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { getSchemaDays } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+}
+
+const { config, content } = Astro.props;
+
+const schemaType = config.businessType === 'barbershop' ? 'HairSalon' : 'Restaurant';
+
+const cuisine =
+  config.theme.variant === 'trattoria'
+    ? 'Italian'
+    : config.theme.variant === 'noir'
+      ? 'European'
+      : config.theme.variant === 'ocakbasi'
+        ? 'Turkish'
+        : 'Cafe';
+
+const priceRange =
+  config.theme.variant === 'noir' ? '€€€€' : config.theme.variant === 'trattoria' ? '€€€' : '€€';
+
+const openingHoursSpecification = content.openingHours
+  .filter((h) => h.hours !== null)
+  .flatMap((h) =>
+    getSchemaDays(h.dayKey).map((day) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: `https://schema.org/${day}`,
+      opens: h.hours?.split('–')[0]?.trim(),
+      closes: h.hours?.split('–')[1]?.trim(),
+    }))
+  );
+---
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': schemaType,
+    name: config.name,
+    description: content.description,
+    image: [config.heroImage, ...config.gallery],
+    telephone: config.phone,
+    email: config.email,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: config.address.street,
+      addressLocality: config.address.city,
+      postalCode: config.address.postalCode,
+      addressCountry: config.address.country,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: config.coordinates.lat,
+      longitude: config.coordinates.lng,
+    },
+    ...(schemaType === 'Restaurant' ? { servesCuisine: cuisine, priceRange } : {}),
+    ...(config.halal ? { hasMenu: { '@type': 'Menu', name: 'Halal Menu' } } : {}),
+    ...(config.rating
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: config.rating.value,
+            reviewCount: config.rating.count,
+          },
+        }
+      : {}),
+    openingHoursSpecification,
+    sameAs: [config.socials.instagram, config.socials.facebook].filter(Boolean),
+  })}
+/>

@@ -1,0 +1,59 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const t = useTranslations(lang);
+const isBarberhouse = config.theme.variant === 'barberhouse';
+---
+
+{config.instagramFeed && config.instagramFeed.length > 0 && (
+  <section id="instagram" class="py-20" style="background: var(--color-surface);">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="mb-8 flex items-center justify-between">
+        <h2
+          class:list={[
+            'font-bold',
+            isBarberhouse ? 'text-2xl uppercase tracking-wide sm:text-3xl' : 'text-3xl',
+          ]}
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {t('instagram.title')}
+        </h2>
+        {config.socials.instagram && (
+          <a
+            href={config.socials.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm font-semibold uppercase tracking-wide hover:underline"
+            style={
+              isBarberhouse
+                ? 'color: var(--color-accent); font-family: var(--font-body);'
+                : 'color: var(--color-primary); font-family: var(--font-body);'
+            }
+          >
+            {t('instagram.follow')}
+          </a>
+        )}
+      </div>
+      <div class="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
+        {config.instagramFeed.map((src, i) => (
+          <div class:list={['aspect-square overflow-hidden rounded-lg', isBarberhouse && 'gold-frame p-1']}>
+            <img
+              src={src}
+              alt={`Instagram photo ${i + 1}`}
+              class:list={['h-full w-full object-cover transition-transform hover:scale-105', isBarberhouse && 'rounded-md']}
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

@@ -1,0 +1,30 @@
+---
+import { languages, type Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  slug?: string;
+  variant?: 'light' | 'dark';
+}
+
+const { lang, slug, variant = 'light' } = Astro.props;
+const suffix = slug ? `/${slug}` : '';
+---
+
+<div class="flex items-center gap-1 rounded-full border px-1 py-1 text-xs font-semibold" style={variant === 'dark' ? 'border-color: color-mix(in srgb, var(--color-text) 25%, transparent);' : 'border-color: color-mix(in srgb, var(--color-muted) 30%, transparent);'}>
+  {languages.map((l) => (
+    <a
+      href={`/${l}${suffix}`}
+      class="rounded-full px-3 py-1 transition-colors"
+      style={
+        l === lang
+          ? 'background: var(--color-accent); color: var(--color-on-accent-text);'
+          : `color: var(--color-${variant === 'dark' ? 'text' : 'muted'});`
+      }
+      aria-current={l === lang ? 'true' : undefined}
+      hreflang={l}
+    >
+      {l.toUpperCase()}
+    </a>
+  ))}
+</div>

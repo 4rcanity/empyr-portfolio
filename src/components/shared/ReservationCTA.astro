@@ -1,0 +1,59 @@
+---
+import type { SiteConfig, LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+  sticky?: boolean;
+}
+
+const { config, content, lang, sticky = false } = Astro.props;
+const t = useTranslations(lang);
+const ctaLabel = content.ctaLabel ?? t('cta.bookNow');
+const isBarberhouse = config.theme.variant === 'barberhouse';
+const ctaStyle = isBarberhouse
+  ? 'background: var(--gradient-gold); color: var(--color-on-accent-text); font-family: var(--font-body);'
+  : 'background: var(--color-accent); color: var(--color-on-accent-text); font-family: var(--font-body);';
+---
+
+{config.reservationUrl && (
+  <>
+    <section class="py-16 text-center" style="background: var(--color-primary);">
+      <div class="mx-auto max-w-2xl px-4 sm:px-6">
+        <h2
+          class:list={[
+            isBarberhouse ? 'text-3xl font-bold uppercase tracking-wide' : 'text-3xl font-semibold',
+          ]}
+          style="color: var(--color-on-primary-text); font-family: var(--font-heading);"
+        >
+          {t('cta.reserveTitle')}
+        </h2>
+        {content.bookingNote && (
+          <p class="mt-4" style="color: var(--color-on-primary-muted); font-family: var(--font-body);">
+            {content.bookingNote}
+          </p>
+        )}
+        <a
+          href={config.reservationUrl}
+          class="mt-8 inline-flex rounded-full px-10 py-4 text-lg font-semibold transition-transform hover:scale-105"
+          style={ctaStyle}
+        >
+          {ctaLabel}
+        </a>
+      </div>
+    </section>
+
+    {sticky && (
+      <a
+        href={config.reservationUrl}
+        class="fixed bottom-6 right-6 z-50 rounded-full px-6 py-3 text-sm font-bold shadow-2xl transition-transform hover:scale-105 md:hidden"
+        style={ctaStyle}
+      >
+        {t('nav.reserve')}
+      </a>
+    )}
+  </>
+)}

@@ -1,0 +1,255 @@
+---
+import '../../styles/global.css';
+import { configs } from '../../data/configs';
+import { languages, type Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import PricingComparison from '../../components/shared/PricingComparison.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const t = useTranslations(lang);
+
+const templateMeta: Record<string, { image: string; bestFor: string[]; nlBestFor: string[] }> = {
+  trattoria: {
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
+    bestFor: ['Italian restaurants', 'Greek tavernas', 'Family dining'],
+    nlBestFor: ['Italiaanse restaurants', 'Griekse taverna\'s', 'Familierestaurants'],
+  },
+  noir: {
+    image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80&sat=-50',
+    bestFor: ['Fine dining', 'Steakhouse', 'Wine bars'],
+    nlBestFor: ['Fine dining', 'Steakhouse', 'Wijnbars'],
+  },
+  corner: {
+    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80',
+    bestFor: ['Cafés', 'Brunch spots', 'Fast-casual'],
+    nlBestFor: ['Cafés', 'Brunchzaken', 'Fast-casual'],
+  },
+  ocakbasi: {
+    image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&q=80',
+    bestFor: ['Turkish grill', 'Kebab & döner', '100% Halal'],
+    nlBestFor: ['Turkse grill', 'Kebab & döner', '100% halal'],
+  },
+  barberhouse: {
+    image: 'https://i0.wp.com/otbbarberhouse.nl/wp-content/uploads/2024/11/IMG_7273-1-scaled.jpg?ssl=1',
+    bestFor: ['Barbershops', 'Hair salons', 'Grooming studios'],
+    nlBestFor: ['Kapperszaken', 'Barbershops', 'Grooming studio\'s'],
+  },
+};
+
+const templates = configs.map((config) => {
+  const content = config.content[lang];
+  const meta = templateMeta[config.slug];
+  return {
+    slug: config.slug,
+    name: config.name,
+    tagline: content.tagline,
+    description: content.description,
+    image: meta.image,
+    accent: config.theme.accent,
+    bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
+  };
+});
+
+const featuredProjects = [
+  {
+    slug: 'risale-i-nur',
+    name: t('project.risale.name'),
+    tagline: t('project.risale.tagline'),
+    description: t('project.risale.description'),
+    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&q=80',
+    accent: '#065f46',
+    tags: lang === 'nl'
+      ? ['Astro', 'TR + NL + EN', 'Content platform']
+      : ['Astro', 'TR + NL + EN', 'Content platform'],
+    href: `/risale/${lang === 'en' ? 'en' : 'nl'}`,
+  },
+];
+
+const copy =
+  lang === 'nl'
+    ? {
+        featurePills: ['Mobielvriendelijk', 'AVG-vriendelijk', 'Meertalig'],
+        contactTitle: 'Klaar om te beginnen?',
+        contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
+        contactCta: 'Stuur een bericht',
+      }
+    : {
+        featurePills: ['Mobile-first', 'GDPR-friendly', 'Multilingual'],
+        contactTitle: 'Ready to get started?',
+        contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
+        contactCta: 'Send a message',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Empyr Portfolio — Websites & Web Apps</title>
+    <meta
+      name="description"
+      content="Empyr Portfolio — trilingual web apps and professional website templates for local businesses. Built with Astro, fast static sites in Dutch and English."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen bg-white text-stone-900 antialiased" style="font-family: Inter, system-ui, sans-serif;">
+    <header class="sticky top-0 z-50 border-b border-stone-200 bg-white/90 backdrop-blur-md">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+        <a href={`/${lang}`} class="flex items-center gap-2 text-lg font-extrabold tracking-tight">
+          <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-900 text-sm font-bold text-white">E</span>
+          Empyr
+        </a>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1 rounded-full border border-stone-200 px-1 py-1 text-xs font-semibold">
+            {languages.map((l) => (
+              <a
+                href={`/${l}`}
+                class="rounded-full px-3 py-1 transition-colors"
+                style={l === lang ? 'background: #1c1917; color: white;' : 'color: #57534e;'}
+              >
+                {l.toUpperCase()}
+              </a>
+            ))}
+          </div>
+          <a href="#pricing" class="hidden rounded-full bg-stone-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-stone-800 sm:inline-flex">
+            {t('portfolio.viewPricing')}
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="relative overflow-hidden">
+      <div class="pointer-events-none absolute -top-32 left-1/2 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gradient-to-br from-orange-200 via-rose-100 to-amber-100 opacity-60 blur-3xl"></div>
+
+      <div class="relative mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 sm:py-32">
+        <span class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-1.5 text-sm font-semibold text-stone-600 shadow-sm">
+          <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+          {t('portfolio.tag')}
+        </span>
+        <h1 class="mx-auto mt-6 max-w-4xl text-4xl font-extrabold tracking-tight text-stone-900 sm:text-6xl lg:text-7xl">
+          {t('portfolio.title1')}{' '}
+          <span class="bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 bg-clip-text text-transparent">
+            {t('portfolio.title2')}
+          </span>
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-stone-600">{t('portfolio.subtitle')}</p>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          {copy.featurePills.map((pill) => (
+            <span class="rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-700">{pill}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <h2 class="mb-8 text-2xl font-bold text-stone-900">{t('portfolio.featuredTitle')}</h2>
+      <div class="grid gap-8">
+        {featuredProjects.map((project) => (
+          <article class="group relative flex flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl lg:flex-row">
+            <div class="relative aspect-[16/9] overflow-hidden lg:aspect-auto lg:w-2/5">
+              <img
+                src={project.image}
+                alt={`${project.name} preview`}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:bg-gradient-to-r"></div>
+              <span
+                class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-bold text-white shadow"
+                style={`background: ${project.accent};`}
+              >
+                {project.name}
+              </span>
+            </div>
+            <div class="flex flex-1 flex-col p-6 lg:p-8">
+              <p class="text-sm font-semibold text-stone-500">{project.tagline}</p>
+              <p class="mt-2 flex-1 text-sm leading-relaxed text-stone-600 sm:text-base">{project.description}</p>
+              <ul class="mt-4 flex flex-wrap gap-2">
+                {project.tags.map((tag) => (
+                  <li class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">{tag}</li>
+                ))}
+              </ul>
+              <a
+                href={project.href}
+                class="mt-6 inline-flex w-full items-center justify-center gap-1.5 rounded-full py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto sm:px-8"
+                style={`background: ${project.accent};`}
+              >
+                {t('portfolio.viewProject')}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+      <h2 class="mb-8 text-2xl font-bold text-stone-900">{t('portfolio.templatesTitle')}</h2>
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {templates.map((tpl) => (
+          <article class="group relative flex flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div class="relative aspect-[4/3] overflow-hidden">
+              <img
+                src={tpl.image}
+                alt={`${tpl.name} template preview`}
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              <span
+                class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-bold text-white shadow"
+                style={`background: ${tpl.accent};`}
+              >
+                {tpl.name}
+              </span>
+            </div>
+            <div class="flex flex-1 flex-col p-6">
+              <p class="text-sm font-semibold text-stone-500">{tpl.tagline}</p>
+              <p class="mt-2 flex-1 text-sm leading-relaxed text-stone-600">{tpl.description}</p>
+              <ul class="mt-4 flex flex-wrap gap-2">
+                {tpl.bestFor.map((tag) => (
+                  <li class="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">{tag}</li>
+                ))}
+              </ul>
+              <a
+                href={`/${lang}/${tpl.slug}`}
+                class="mt-6 inline-flex w-full items-center justify-center gap-1.5 rounded-full py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={`background: ${tpl.accent};`}
+              >
+                {t('portfolio.viewDemo')}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <PricingComparison lang={lang} />
+
+    <section id="contact" class="bg-stone-900 py-24 text-center">
+      <div class="mx-auto max-w-2xl px-4 sm:px-6">
+        <h2 class="text-3xl font-bold text-white sm:text-4xl">{copy.contactTitle}</h2>
+        <p class="mt-4 text-stone-300">{copy.contactSubtitle}</p>
+        <p class="mt-8 text-sm italic text-stone-400">{t('portfolio.pitch')}</p>
+        <a
+          href="mailto:hello@empyr-portfolio.com"
+          class="mt-8 inline-flex items-center justify-center rounded-full bg-orange-500 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-orange-500/30 transition-colors hover:bg-orange-600"
+        >
+          {copy.contactCta}
+        </a>
+      </div>
+    </section>
+
+    <footer class="border-t border-stone-200 py-8 text-center text-sm text-stone-500">
+      {t('portfolio.footer')}
+    </footer>
+  </body>
+</html>

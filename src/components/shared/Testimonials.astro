@@ -1,0 +1,65 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  content: LocalizedContent;
+  lang: Lang;
+  variant?: string;
+}
+
+const { content, lang, variant } = Astro.props;
+const t = useTranslations(lang);
+const isBarberhouse = variant === 'barberhouse';
+---
+
+{content.testimonials && content.testimonials.length > 0 && (
+  <section class="py-20" style="background: var(--color-surface);">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+      <div class="mb-12 text-center">
+        <h2
+          class:list={[
+            'sm:text-4xl',
+            isBarberhouse ? 'text-3xl font-bold uppercase tracking-wide' : 'text-3xl font-semibold',
+          ]}
+          style="color: var(--color-text); font-family: var(--font-heading);"
+        >
+          {t('testimonials.title')}
+        </h2>
+        {isBarberhouse && (
+          <div class="mx-auto mt-4 h-0.5 w-16" style="background: var(--gradient-gold);"></div>
+        )}
+      </div>
+      <div class="grid gap-6 md:grid-cols-2 md:gap-8">
+        {content.testimonials.map((testimonial) => (
+          <blockquote
+            class:list={['rounded-2xl p-8', isBarberhouse && 'gold-frame']}
+            style={
+              isBarberhouse
+                ? 'background: color-mix(in srgb, var(--color-accent) 8%, var(--color-background));'
+                : 'background: color-mix(in srgb, var(--color-accent) 10%, var(--color-background));'
+            }
+          >
+            <p
+              class="text-lg leading-relaxed italic"
+              style="color: var(--color-text); font-family: var(--font-body);"
+            >
+              "{testimonial.quote}"
+            </p>
+            <footer class="mt-4">
+              <cite class="not-italic font-semibold" style="color: var(--color-text); font-family: var(--font-body);">
+                — {testimonial.author}
+              </cite>
+              {testimonial.source && (
+                <span class="ml-2 text-sm" style="color: var(--color-muted);">
+                  ({testimonial.source})
+                </span>
+              )}
+            </footer>
+          </blockquote>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

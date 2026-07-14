@@ -1,0 +1,78 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  content: LocalizedContent;
+  lang: Lang;
+  variant?: string;
+}
+
+const { content, lang, variant } = Astro.props;
+const t = useTranslations(lang);
+const isBarberhouse = variant === 'barberhouse';
+---
+
+<section id="hours" class="py-16" style="background: var(--color-surface);">
+  <div class:list={['mx-auto px-4 sm:px-6', isBarberhouse ? 'max-w-2xl' : 'max-w-6xl']}>
+    <h2
+      class:list={[
+        'mb-8 font-bold uppercase tracking-wide',
+        isBarberhouse ? 'text-center text-2xl sm:text-3xl' : 'text-2xl',
+      ]}
+      style="color: var(--color-text); font-family: var(--font-heading);"
+    >
+      {t('hours.title')}
+    </h2>
+
+    {isBarberhouse ? (
+      <div class="rounded-2xl p-6 sm:p-8 gold-frame">
+        <ul class="space-y-3">
+          {content.openingHours.map((entry) => {
+            const { label, value } = formatOpeningHours(t, entry);
+            return (
+              <li
+                class="flex items-center justify-between gap-4 border-b pb-3 last:border-b-0"
+                style="border-color: color-mix(in srgb, var(--color-muted) 18%, transparent);"
+              >
+                <span
+                  class="text-sm font-medium uppercase tracking-wide sm:text-base"
+                  style="color: var(--color-text); font-family: var(--font-body);"
+                >
+                  {label}
+                </span>
+                <span
+                  class="text-sm font-semibold sm:text-base"
+                  style={`font-family: var(--font-body); color: ${entry.hours ? 'var(--color-accent)' : 'var(--color-muted)'};`}
+                >
+                  {value}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ) : (
+      <ul class="space-y-3">
+        {content.openingHours.map((entry) => {
+          const { label, value } = formatOpeningHours(t, entry);
+          return (
+            <li
+              class="flex justify-between gap-4 border-b pb-3"
+              style="border-color: color-mix(in srgb, var(--color-muted) 15%, transparent);"
+            >
+              <span class="font-medium" style="color: var(--color-text); font-family: var(--font-body);">
+                {label}
+              </span>
+              <span style={`font-family: var(--font-body); color: ${entry.hours ? 'var(--color-muted)' : 'var(--color-accent)'};`}>
+                {value}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </div>
+</section>

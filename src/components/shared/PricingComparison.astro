@@ -1,0 +1,284 @@
+---
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const nl = lang === 'nl';
+
+const BASE = 1200;
+const MONTHLY_NL = 150;
+const MONTHLY_COM = 170;
+
+const copy = nl
+  ? {
+      title: 'Eenvoudige, transparante prijzen',
+      subtitle: 'Twee opties. Geen verborgen kosten, geen verrassingen achteraf.',
+      standard: {
+        name: 'Standard',
+        price: `€${BASE.toLocaleString('nl-NL')}`,
+        priceNote: 'eenmalig',
+        tagline: 'Zelf verder beheren',
+        features: [
+          'Volledig custom template op maat',
+          'Jouw content, foto\'s en menu erin verwerkt',
+          'Domein & hosting overdracht naar jou',
+          'Geen maandelijkse kosten, geen abonnement',
+        ],
+        footnote: 'Geen wijzigingen of onderhoud na livegang inbegrepen.',
+        cta: 'Kies Standard',
+      },
+      premium: {
+        name: 'Premium',
+        badge: 'Meest gekozen',
+        price: `€${BASE.toLocaleString('nl-NL')}`,
+        priceNote: 'eenmalig',
+        tagline: 'Wij regelen alles voor je',
+        features: [
+          'Alles uit Standard',
+          'Domeinregistratie inbegrepen',
+          'Hosting volledig verzorgd',
+          'Doorlopend sitebeheer: content, foto\'s, wijzigingen',
+        ],
+        footnote: 'Zeg op wanneer je wilt, geen langlopend contract.',
+        cta: 'Kies Premium',
+      },
+      domainToggle: 'Domein',
+      perMonth: '/maand',
+      chartTitle: 'Totale kosten na verloop van tijd',
+      chartSubtitle: 'Standard blijft altijd hetzelfde. Premium houdt je site levend.',
+      months: ['Start', '6 mnd', '12 mnd', '24 mnd'],
+      legendStandard: 'Standard',
+      legendPremium: 'Premium',
+    }
+  : {
+      title: 'Simple, transparent pricing',
+      subtitle: 'Two options. No hidden costs, no surprises later.',
+      standard: {
+        name: 'Standard',
+        price: `€${BASE.toLocaleString('en-US')}`,
+        priceNote: 'one-time',
+        tagline: 'You manage it from here',
+        features: [
+          'Fully custom-built template',
+          'Your content, photos and menu included',
+          'Domain & hosting handed over to you',
+          'No monthly fees, no subscription',
+        ],
+        footnote: 'No changes or maintenance included after launch.',
+        cta: 'Choose Standard',
+      },
+      premium: {
+        name: 'Premium',
+        badge: 'Most popular',
+        price: `€${BASE.toLocaleString('en-US')}`,
+        priceNote: 'one-time',
+        tagline: "We handle everything for you",
+        features: [
+          'Everything in Standard',
+          'Domain registration included',
+          'Hosting fully managed',
+          'Ongoing site management: content, photos, changes',
+        ],
+        footnote: 'Cancel anytime, no long-term contract.',
+        cta: 'Choose Premium',
+      },
+      domainToggle: 'Domain',
+      perMonth: '/mo',
+      chartTitle: 'Total cost over time',
+      chartSubtitle: 'Standard stays flat forever. Premium keeps your site alive.',
+      months: ['Start', '6 mo', '12 mo', '24 mo'],
+      legendStandard: 'Standard',
+      legendPremium: 'Premium',
+    };
+
+const monthPoints = [0, 6, 12, 24];
+const standardValues = monthPoints.map(() => BASE);
+const premiumNlValues = monthPoints.map((m) => BASE + MONTHLY_NL * m);
+const premiumComValues = monthPoints.map((m) => BASE + MONTHLY_COM * m);
+---
+
+<section id="pricing" class="border-t border-stone-200 bg-gradient-to-b from-white to-stone-50 py-24">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-orange-600">{copy.title}</p>
+      <h2 class="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">{copy.subtitle}</h2>
+    </div>
+
+    <div class="mt-14 grid gap-8 lg:grid-cols-2">
+      <!-- Standard -->
+      <div class="relative flex flex-col rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
+        <h3 class="text-lg font-bold text-stone-900">{copy.standard.name}</h3>
+        <p class="mt-1 text-sm font-medium text-stone-500">{copy.standard.tagline}</p>
+        <div class="mt-6 flex items-baseline gap-2">
+          <span class="text-5xl font-bold tracking-tight text-stone-900">{copy.standard.price}</span>
+          <span class="text-sm font-medium text-stone-500">{copy.standard.priceNote}</span>
+        </div>
+        <ul class="mt-8 flex-1 space-y-3">
+          {copy.standard.features.map((f) => (
+            <li class="flex items-start gap-3 text-sm text-stone-600">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-xs text-stone-400">{copy.standard.footnote}</p>
+        <a href="#contact" class="mt-6 inline-flex items-center justify-center rounded-full border-2 border-stone-900 px-6 py-3 text-sm font-semibold text-stone-900 transition-colors hover:bg-stone-900 hover:text-white">
+          {copy.standard.cta}
+        </a>
+      </div>
+
+      <!-- Premium -->
+      <div class="relative flex flex-col overflow-hidden rounded-3xl border-2 border-orange-500 bg-white p-8 shadow-xl shadow-orange-100">
+        <span class="absolute right-6 top-6 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
+          {copy.premium.badge}
+        </span>
+        <h3 class="text-lg font-bold text-stone-900">{copy.premium.name}</h3>
+        <p class="mt-1 text-sm font-medium text-stone-500">{copy.premium.tagline}</p>
+
+        <div class="mt-6 flex items-baseline gap-2">
+          <span class="text-5xl font-bold tracking-tight text-stone-900">{copy.premium.price}</span>
+          <span class="text-sm font-medium text-stone-500">{copy.premium.priceNote}</span>
+        </div>
+
+        <div class="mt-4 flex items-center gap-3 rounded-2xl bg-stone-50 p-3">
+          <span class="text-xs font-semibold uppercase tracking-wide text-stone-500">{copy.domainToggle}</span>
+          <div class="flex rounded-full bg-white p-1 shadow-sm" role="group" data-domain-toggle>
+            <button
+              type="button"
+              data-domain="nl"
+              class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
+              aria-pressed="true"
+            >
+              .nl
+            </button>
+            <button
+              type="button"
+              data-domain="com"
+              class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
+              aria-pressed="false"
+            >
+              .com
+            </button>
+          </div>
+          <span class="ml-auto text-lg font-bold text-orange-600">
+            +€<span data-monthly-price>{MONTHLY_NL}</span><span class="text-sm font-medium text-stone-500">{copy.perMonth}</span>
+          </span>
+        </div>
+
+        <ul class="mt-8 flex-1 space-y-3">
+          {copy.premium.features.map((f) => (
+            <li class="flex items-start gap-3 text-sm text-stone-600">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-xs text-stone-400">{copy.premium.footnote}</p>
+        <a href="#contact" class="mt-6 inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600">
+          {copy.premium.cta}
+        </a>
+      </div>
+    </div>
+
+    <!-- Cost comparison chart -->
+    <div class="mt-14 rounded-3xl border border-stone-200 bg-white p-6 sm:p-10">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <div>
+          <h3 class="text-xl font-bold text-stone-900">{copy.chartTitle}</h3>
+          <p class="mt-1 text-sm text-stone-500">{copy.chartSubtitle}</p>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-medium">
+          <span class="flex items-center gap-2 text-stone-600"><span class="h-2.5 w-2.5 rounded-full bg-stone-300"></span>{copy.legendStandard}</span>
+          <span class="flex items-center gap-2 text-stone-600"><span class="h-2.5 w-2.5 rounded-full bg-orange-500"></span>{copy.legendPremium}</span>
+        </div>
+      </div>
+
+      <div
+        class="mt-10 grid grid-cols-4 items-end gap-4 sm:gap-8"
+        style="height: 220px;"
+        data-chart
+        data-standard={JSON.stringify(standardValues)}
+        data-premium-nl={JSON.stringify(premiumNlValues)}
+        data-premium-com={JSON.stringify(premiumComValues)}
+      >
+        {monthPoints.map((_, i) => (
+          <div class="flex h-full flex-col items-center justify-end gap-2">
+            <div class="flex h-full w-full items-end justify-center gap-1.5 sm:gap-2.5">
+              <div class="relative flex w-6 flex-col justify-end sm:w-9">
+                <span class="mb-1 text-center text-[11px] font-semibold text-stone-500" data-bar-label="standard">€{standardValues[i]}</span>
+                <div class="w-full rounded-t-md bg-stone-300 transition-[height] duration-700 ease-out" data-bar="standard" style="height: 0px;"></div>
+              </div>
+              <div class="relative flex w-6 flex-col justify-end sm:w-9">
+                <span class="mb-1 text-center text-[11px] font-semibold text-orange-600" data-bar-label="premium">€{premiumNlValues[i]}</span>
+                <div class="w-full rounded-t-md bg-orange-500 transition-[height] duration-700 ease-out" data-bar="premium" style="height: 0px;"></div>
+              </div>
+            </div>
+            <span class="text-xs font-medium text-stone-500">{copy.months[i]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initPricingComparison() {
+    const chartEl = document.querySelector<HTMLElement>('[data-chart]');
+    const toggleEl = document.querySelector<HTMLElement>('[data-domain-toggle]');
+    const monthlyPriceEl = document.querySelector('[data-monthly-price]');
+    if (!chartEl || !toggleEl) return;
+    const chart: HTMLElement = chartEl;
+    const toggle: HTMLElement = toggleEl;
+
+    const standard: number[] = JSON.parse(chart.dataset.standard ?? '[]');
+    const premiumNl: number[] = JSON.parse(chart.dataset.premiumNl ?? '[]');
+    const premiumCom: number[] = JSON.parse(chart.dataset.premiumCom ?? '[]');
+
+    const standardBars = chart.querySelectorAll<HTMLElement>('[data-bar="standard"]');
+    const premiumBars = chart.querySelectorAll<HTMLElement>('[data-bar="premium"]');
+    const premiumLabels = chart.querySelectorAll<HTMLElement>('[data-bar-label="premium"]');
+    const maxHeight = 200;
+
+    function render(domain: 'nl' | 'com') {
+      const premium = domain === 'nl' ? premiumNl : premiumCom;
+      const max = Math.max(...standard, ...premium);
+      standardBars.forEach((el, i) => {
+        el.style.height = `${Math.max(6, (standard[i] / max) * maxHeight)}px`;
+      });
+      premiumBars.forEach((el, i) => {
+        el.style.height = `${Math.max(6, (premium[i] / max) * maxHeight)}px`;
+      });
+      premiumLabels.forEach((el, i) => {
+        el.textContent = `€${premium[i].toLocaleString()}`;
+      });
+      if (monthlyPriceEl) {
+        monthlyPriceEl.textContent = domain === 'nl' ? '150' : '170';
+      }
+      toggle.querySelectorAll<HTMLButtonElement>('button').forEach((btn) => {
+        const active = btn.dataset.domain === domain;
+        btn.setAttribute('aria-pressed', String(active));
+        btn.style.background = active ? '#f97316' : 'transparent';
+        btn.style.color = active ? '#ffffff' : '#57534e';
+      });
+    }
+
+    toggle.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-domain]');
+      if (!btn) return;
+      render(btn.dataset.domain === 'com' ? 'com' : 'nl');
+    });
+
+    // Initial paint (next frame so the height transition animates in)
+    requestAnimationFrame(() => requestAnimationFrame(() => render('nl')));
+  }
+
+  initPricingComparison();
+  document.addEventListener('astro:page-load', initPricingComparison);
+</script>

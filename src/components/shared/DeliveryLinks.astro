@@ -1,0 +1,39 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{config.deliveryLinks && config.deliveryLinks.length > 0 && (
+  <section class="py-12" style="background: color-mix(in srgb, var(--color-secondary) 12%, var(--color-background));">
+    <div class="mx-auto max-w-6xl px-4 text-center sm:px-6">
+      <h2
+        class="mb-6 text-2xl font-bold"
+        style="color: var(--color-text); font-family: var(--font-heading);"
+      >
+        {t('delivery.title')}
+      </h2>
+      <div class="flex flex-wrap justify-center gap-4">
+        {config.deliveryLinks.map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-105"
+            style="background: var(--color-secondary);"
+          >
+            {link.name}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

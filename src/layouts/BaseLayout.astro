@@ -1,0 +1,79 @@
+---
+import type { SiteConfig, LocalizedContent } from '../types/site-config';
+import type { Lang } from '../i18n/ui';
+import '../styles/global.css';
+import SEOHead from '../components/shared/SEOHead.astro';
+import BusinessSchema from '../components/shared/BusinessSchema.astro';
+
+interface Props {
+  config: SiteConfig;
+  content: LocalizedContent;
+  lang: Lang;
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+}
+
+const { config, content, lang, title, description, canonicalPath } = Astro.props;
+const theme = config.theme;
+const isBarberhouse = theme.variant === 'barberhouse';
+const goldGradient =
+  'linear-gradient(135deg, #F7E08A 0%, #E6BF52 35%, #D4AF37 55%, #B8860B 100%)';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <SEOHead
+      config={config}
+      content={content}
+      lang={lang}
+      title={title}
+      description={description}
+      canonicalPath={canonicalPath}
+    />
+    <BusinessSchema config={config} content={content} lang={lang} />
+  </head>
+  <body
+    style={`
+      --color-primary: ${theme.primary};
+      --color-secondary: ${theme.secondary};
+      --color-accent: ${theme.accent};
+      --color-background: ${theme.background};
+      --color-surface: ${theme.surface};
+      --color-text: ${theme.text};
+      --color-muted: ${theme.muted};
+      --color-on-primary-text: ${theme.onPrimaryText};
+      --color-on-primary-muted: ${theme.onPrimaryMuted};
+      --color-on-accent-text: ${theme.onAccentText};
+      --font-heading: ${theme.fontHeading};
+      --font-body: ${theme.fontBody};
+      --gradient-gold: ${isBarberhouse ? goldGradient : theme.accent};
+    `}
+    class="min-h-screen antialiased"
+  >
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+</style>

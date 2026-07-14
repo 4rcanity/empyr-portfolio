@@ -1,0 +1,18 @@
+---
+import type { LocalizedContent } from '../../types/site-config';
+
+interface Props {
+  content: LocalizedContent;
+}
+
+const { content } = Astro.props;
+---
+
+{content.dailySpecial && (
+  <div
+    class="py-3 text-center text-sm font-semibold tracking-wide"
+    style="background: var(--color-accent); color: var(--color-on-accent-text); font-family: var(--font-body);"
+  >
+    {content.dailySpecial}
+  </div>
+)}

@@ -1,0 +1,39 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="gallery" class="py-20" style="background: var(--color-background);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <div class="mb-12 text-center">
+      <h2
+        class="text-3xl font-semibold sm:text-4xl"
+        style="color: var(--color-text); font-family: var(--font-heading);"
+      >
+        {t('gallery.title')}
+      </h2>
+      <div class="mx-auto mt-4 h-1 w-16 rounded" style="background: var(--color-accent);"></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+      {config.gallery.map((src, i) => (
+        <div class="aspect-square overflow-hidden rounded-lg">
+          <img
+            src={src}
+            alt={`${config.name} gallery photo ${i + 1}`}
+            class="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
