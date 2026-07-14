@@ -14,7 +14,6 @@ export const ui: Record<Lang, Record<string, string>> = {
     'nav.about': 'Over ons',
     'nav.gallery': 'Galerij',
     'nav.contact': 'Contact',
-    'nav.wine': 'Wijnkaart',
     'nav.reserve': 'Reserveren',
     'nav.order': 'Bestellen',
 
@@ -24,7 +23,6 @@ export const ui: Record<Lang, Record<string, string>> = {
     'hero.orderDelivery': 'Bestel bezorging',
 
     'menu.title': 'Menu',
-    'wine.title': 'Wijnkaart',
     'gallery.title': 'Galerij',
     'testimonials.title': 'Wat gasten zeggen',
     'hours.title': 'Openingstijden',
@@ -100,7 +98,6 @@ export const ui: Record<Lang, Record<string, string>> = {
     'nav.about': 'About',
     'nav.gallery': 'Gallery',
     'nav.contact': 'Contact',
-    'nav.wine': 'Wine List',
     'nav.reserve': 'Reserve',
     'nav.order': 'Order',
 
@@ -110,7 +107,6 @@ export const ui: Record<Lang, Record<string, string>> = {
     'hero.orderDelivery': 'Order Delivery',
 
     'menu.title': 'Menu',
-    'wine.title': 'Wine List',
     'gallery.title': 'Gallery',
     'testimonials.title': 'What Guests Say',
     'hours.title': 'Opening Hours',

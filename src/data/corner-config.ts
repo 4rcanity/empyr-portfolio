@@ -55,11 +55,12 @@ export const cornerConfig: SiteConfig = {
     { name: 'Deliveroo', url: 'https://deliveroo.com' },
     { name: 'Thuisbezorgd', url: 'https://thuisbezorgd.nl' },
   ],
+  halal: true,
   content: {
     nl: {
       tagline: 'Verse koffie. Bold flavours. Hele dag door.',
       description:
-        'Jouw buurtplek voor specialty coffee, all-day brunch en smashburgers. Loop gewoon binnen — reserveren is niet nodig.',
+        'Jouw buurtplek voor specialty coffee, een volledig halal menu en alcoholvrije all-day brunch. Loop gewoon binnen.',
       dailySpecial: 'Vandaag: gesmashte avocadotoast + flat white — €12,50',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:00 – 18:00' },
@@ -86,8 +87,8 @@ export const cornerConfig: SiteConfig = {
         {
           name: 'Burgers & Bites',
           items: [
-            { name: 'Smash Burger', description: 'Dubbele patty, Amerikaanse kaas, augurk, geheim sausje', price: '€14,00' },
-            { name: 'Krokante Kipsandwich', description: 'Buttermilk gefrituurd, koolsalade, hot honey', price: '€13,50', tags: ['spicy'] },
+            { name: 'Smash Burger', description: 'Dubbele halal rundvleespatty, kaas, augurk, geheim sausje', price: '€14,00', tags: ['halal'] },
+            { name: 'Krokante Kipsandwich', description: 'Halal kip, koolsalade, hot honey', price: '€13,50', tags: ['halal', 'spicy'] },
             { name: 'Truffelfriet', description: 'Parmezaan, truffelolie, kruiden', price: '€6,50', tags: ['vegetarian'] },
           ],
         },
@@ -101,7 +102,7 @@ export const cornerConfig: SiteConfig = {
     en: {
       tagline: 'Fresh coffee. Bold flavours. All day.',
       description:
-        'Your neighbourhood spot for specialty coffee, all-day brunch, and smash burgers. Walk in anytime — no reservation needed.',
+        'Your neighbourhood spot for specialty coffee, a fully halal menu and alcohol-free all-day brunch. Walk in anytime.',
       dailySpecial: 'Today: Smashed avocado toast + flat white — €12.50',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:00 – 18:00' },
@@ -128,8 +129,8 @@ export const cornerConfig: SiteConfig = {
         {
           name: 'Burgers & Bites',
           items: [
-            { name: 'Smash Burger', description: 'Double patty, American cheese, pickles, secret sauce', price: '€14.00' },
-            { name: 'Crispy Chicken Sandwich', description: 'Buttermilk fried, slaw, hot honey', price: '€13.50', tags: ['spicy'] },
+            { name: 'Smash Burger', description: 'Double halal beef patty, cheese, pickles, secret sauce', price: '€14.00', tags: ['halal'] },
+            { name: 'Crispy Chicken Sandwich', description: 'Halal chicken, slaw, hot honey', price: '€13.50', tags: ['halal', 'spicy'] },
             { name: 'Truffle Fries', description: 'Parmesan, truffle oil, herbs', price: '€6.50', tags: ['vegetarian'] },
           ],
         },

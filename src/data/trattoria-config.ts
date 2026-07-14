@@ -45,11 +45,12 @@ export const trattoriaConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80',
     'https://images.unsplash.com/photo-1598866594230-a7c158562c60?w=800&q=80',
   ],
+  halal: true,
   content: {
     nl: {
       tagline: 'Familierecepten sinds 1987',
       description:
-        'Authentiek Italiaans dineren in het hart van de stad. Vers gemaakte pasta, houtoven-pizza en warme gastvrijheid, elke avond.',
+        'Authentiek Italiaans dineren met een volledig halal en alcoholvrij menu. Verse pasta, houtoven-pizza en warme gastvrijheid.',
       bookingNote: 'Bel ons om een tafel te reserveren. Inlopen kan op doordeweekse dagen.',
       openingHours: [
         { dayKey: 'mon', hours: null },
@@ -77,6 +78,7 @@ export const trattoriaConfig: SiteConfig = {
               name: 'Carpaccio di Manzo',
               description: 'Dungesneden rundvlees, rucola, parmezaanschaafsel, citroendressing',
               price: '€16',
+              tags: ['halal'],
             },
           ],
         },
@@ -87,12 +89,13 @@ export const trattoriaConfig: SiteConfig = {
               name: 'Tagliatelle al Ragù',
               description: 'Langzaam gestoofde bolognese, verse eierpasta, pecorino',
               price: '€19',
+              tags: ['halal'],
             },
             {
               name: 'Spaghetti alle Vongole',
-              description: 'Venusschelpen, witte wijn, knoflook, peterselie, chili',
+              description: 'Venusschelpen, citroenbouillon, knoflook, peterselie, chili',
               price: '€22',
-              tags: ['spicy'],
+              tags: ['halal', 'spicy'],
             },
             {
               name: 'Pappardelle ai Funghi',
@@ -106,15 +109,16 @@ export const trattoriaConfig: SiteConfig = {
           name: 'Secondi',
           items: [
             {
-              name: 'Saltimbocca alla Romana',
-              description: 'Kalfsvlees, prosciutto, salie, witte wijnsaus',
+              name: 'Scaloppine alla Salvia',
+              description: 'Halal kalfsvlees, salie, citroen en romige jus',
               price: '€28',
+              tags: ['halal'],
             },
             {
               name: 'Branzino al Forno',
               description: 'Ovengebakken zeebaars, kappertjes, cherrytomaten, olijven',
               price: '€26',
-              tags: ['gluten-free'],
+              tags: ['halal', 'gluten-free'],
             },
           ],
         },
@@ -141,7 +145,7 @@ export const trattoriaConfig: SiteConfig = {
     en: {
       tagline: 'Family recipes since 1987',
       description:
-        'Authentic Italian dining in the heart of the city. Handmade pasta, wood-fired pizza, and warm hospitality every evening.',
+        'Authentic Italian dining with a fully halal, alcohol-free menu. Handmade pasta, wood-fired pizza and warm hospitality.',
       bookingNote: 'Call us to reserve your table. Walk-ins welcome on weekdays.',
       openingHours: [
         { dayKey: 'mon', hours: null },
@@ -169,6 +173,7 @@ export const trattoriaConfig: SiteConfig = {
               name: 'Carpaccio di Manzo',
               description: 'Thinly sliced beef, rocket, parmesan shavings, lemon dressing',
               price: '€16',
+              tags: ['halal'],
             },
           ],
         },
@@ -179,12 +184,13 @@ export const trattoriaConfig: SiteConfig = {
               name: 'Tagliatelle al Ragù',
               description: 'Slow-cooked Bolognese, fresh egg pasta, pecorino',
               price: '€19',
+              tags: ['halal'],
             },
             {
               name: 'Spaghetti alle Vongole',
-              description: 'Clams, white wine, garlic, parsley, chili',
+              description: 'Clams, lemon broth, garlic, parsley and chili',
               price: '€22',
-              tags: ['spicy'],
+              tags: ['halal', 'spicy'],
             },
             {
               name: 'Pappardelle ai Funghi',
@@ -198,15 +204,16 @@ export const trattoriaConfig: SiteConfig = {
           name: 'Secondi',
           items: [
             {
-              name: 'Saltimbocca alla Romana',
-              description: 'Veal, prosciutto, sage, white wine sauce',
+              name: 'Scaloppine alla Salvia',
+              description: 'Halal veal, sage, lemon and creamy jus',
               price: '€28',
+              tags: ['halal'],
             },
             {
               name: 'Branzino al Forno',
               description: 'Oven-roasted sea bass, capers, cherry tomatoes, olives',
               price: '€26',
-              tags: ['gluten-free'],
+              tags: ['halal', 'gluten-free'],
             },
           ],
         },

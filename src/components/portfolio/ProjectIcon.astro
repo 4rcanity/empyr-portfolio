@@ -1,0 +1,84 @@
+---
+interface Props {
+  slug: string;
+  name: string;
+  compact?: boolean;
+}
+
+const { slug, name, compact = false } = Astro.props;
+
+const palettes: Record<string, { background: string; tile: string; line: string }> = {
+  trattoria: { background: '#F3E9DE', tile: '#A33A2A', line: '#FFF8EF' },
+  noir: { background: '#E8E2D6', tile: '#25231F', line: '#E8C978' },
+  corner: { background: '#E4EFF0', tile: '#126477', line: '#FFF4C5' },
+  ocakbasi: { background: '#F2E4D6', tile: '#873229', line: '#F3CB67' },
+  barberhouse: { background: '#E8E5DE', tile: '#171717', line: '#D8B65A' },
+  medrese: { background: '#DFEEE7', tile: '#0F5B49', line: '#F4E5B5' },
+};
+
+const palette = palettes[slug] ?? palettes.medrese;
+---
+
+<div
+  class:list={[
+    'relative flex h-full w-full items-center justify-center overflow-hidden',
+    compact ? 'min-h-24' : 'min-h-48',
+  ]}
+  style={`background: ${palette.background};`}
+  role="img"
+  aria-label={`${name} icon`}
+>
+  <div
+    class:list={[
+      'absolute rounded-full opacity-40 blur-2xl',
+      compact ? 'h-20 w-20' : 'h-36 w-36',
+    ]}
+    style={`background: ${palette.tile};`}
+  ></div>
+  <div
+    class:list={[
+      'relative flex items-center justify-center rounded-[28%] shadow-xl',
+      compact ? 'h-14 w-14' : 'h-24 w-24 sm:h-28 sm:w-28',
+    ]}
+    style={`background: ${palette.tile}; color: ${palette.line};`}
+  >
+    {slug === 'trattoria' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M7 5v8c0 2 1.4 3.5 3.2 3.5S13.5 15 13.5 13V5M10.2 5v22M21 5c-2.8 3-3.4 7.7-1 11h4V5h-3Zm3 11v11" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'noir' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M5 23h22M7.5 21a8.5 8.5 0 0 1 17 0h-17ZM16 9v3M13.5 9h5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'corner' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M7 11h17v7.5A7.5 7.5 0 0 1 16.5 26h-2A7.5 7.5 0 0 1 7 18.5V11Zm17 2h1a4 4 0 0 1 0 8h-2.5M11 6c0 1.4 1.2 1.8 1.2 3M17 6c0 1.4 1.2 1.8 1.2 3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'ocakbasi' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M17 4c1 5-3.5 6.5-1.3 11 1.3-2.3 3.4-3.1 4.4-6.2 3.4 3 5.4 6.4 5.4 10A9.5 9.5 0 0 1 6.5 19c0-4.1 2.6-8 6.6-11.2-.4 4.4 1.1 5.8 2.6 7.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 24c1.6 2.4 6.4 2.4 8 0" stroke-linecap="round"/>
+      </svg>
+    )}
+    {slug === 'barberhouse' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="8.5" cy="9" r="4"/><circle cx="8.5" cy="23" r="4"/>
+        <path d="m12 11 15 12M12 21 27 9M17 16l-5-5M17 16l-5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'medrese' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M6 7.5c4.1 0 7.4.9 10 3 2.6-2.1 5.9-3 10-3v17c-4.2 0-7.4.9-10 3-2.6-2.1-5.8-3-10-3v-17Z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 10.5v17M10 12c2 .1 3.6.6 4.7 1.4M22 12c-2 .1-3.6.6-4.7 1.4" stroke-linecap="round"/>
+      </svg>
+    )}
+  </div>
+  {!compact && (
+    <span class="absolute bottom-5 rounded-full bg-white/65 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.16em] text-stone-700 backdrop-blur">
+      {name}
+    </span>
+  )}
+</div>

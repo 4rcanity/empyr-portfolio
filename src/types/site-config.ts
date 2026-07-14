@@ -49,13 +49,6 @@ export interface Testimonial {
   source?: string;
 }
 
-export interface WineItem {
-  name: string;
-  region?: string;
-  price: string;
-  note?: string;
-}
-
 export interface DeliveryLink {
   name: string;
   url: string;
@@ -90,7 +83,6 @@ export interface LocalizedContent {
   tagline: string;
   description: string;
   menu: MenuCategory[];
-  wineList?: WineItem[];
   openingHours: OpeningHour[];
   about: {
     heading: string;

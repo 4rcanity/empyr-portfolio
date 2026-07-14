@@ -3,7 +3,6 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Nav from '../../../components/shared/Nav.astro';
 import Hero from '../../../components/shared/Hero.astro';
 import MenuSection from '../../../components/shared/MenuSection.astro';
-import WineList from '../../../components/shared/WineList.astro';
 import AboutContact from '../../../components/shared/AboutContact.astro';
 import Gallery from '../../../components/shared/Gallery.astro';
 import Testimonials from '../../../components/shared/Testimonials.astro';
@@ -52,8 +51,6 @@ const variant = config.theme.variant;
     layout={variant === 'noir' ? 'minimal' : variant === 'ocakbasi' ? 'photo-grid' : 'cards'}
     variant={variant}
   />
-
-  {variant === 'noir' && <WineList content={content} lang={lang as 'nl' | 'en'} />}
 
   {variant === 'barberhouse' && <Team content={content} lang={lang as 'nl' | 'en'} variant={variant} />}
 

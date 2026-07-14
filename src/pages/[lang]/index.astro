@@ -6,6 +6,7 @@ import { useTranslations } from '../../i18n/utils';
 import PricingComparison from '../../components/shared/PricingComparison.astro';
 import PortfolioSEO from '../../components/shared/PortfolioSEO.astro';
 import PortfolioChooser from '../../components/shared/PortfolioChooser.astro';
+import ProjectIcon from '../../components/portfolio/ProjectIcon.astro';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
@@ -14,29 +15,24 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Lang };
 const t = useTranslations(lang);
 
-const templateMeta: Record<string, { image: string; bestFor: string[]; nlBestFor: string[] }> = {
+const templateMeta: Record<string, { bestFor: string[]; nlBestFor: string[] }> = {
   trattoria: {
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80',
-    bestFor: ['Italian restaurants', 'Greek tavernas', 'Family dining'],
-    nlBestFor: ['Italiaanse restaurants', 'Griekse taverna\'s', 'Familierestaurants'],
+    bestFor: ['Italian restaurants', 'Family dining', '100% Halal'],
+    nlBestFor: ['Italiaanse restaurants', 'Familierestaurants', '100% halal'],
   },
   noir: {
-    image: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80&sat=-50',
-    bestFor: ['Fine dining', 'Steakhouse', 'Wine bars'],
-    nlBestFor: ['Fine dining', 'Steakhouse', 'Wijnbars'],
+    bestFor: ['Fine dining', 'Alcohol-free', '100% Halal'],
+    nlBestFor: ['Fine dining', 'Alcoholvrij', '100% halal'],
   },
   corner: {
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80',
-    bestFor: ['Cafés', 'Brunch spots', 'Fast-casual'],
-    nlBestFor: ['Cafés', 'Brunchzaken', 'Fast-casual'],
+    bestFor: ['Cafés', 'Brunch spots', '100% Halal'],
+    nlBestFor: ['Cafés', 'Brunchzaken', '100% halal'],
   },
   ocakbasi: {
-    image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&q=80',
     bestFor: ['Turkish grill', 'Kebab & döner', '100% Halal'],
     nlBestFor: ['Turkse grill', 'Kebab & döner', '100% halal'],
   },
   barberhouse: {
-    image: 'https://i0.wp.com/otbbarberhouse.nl/wp-content/uploads/2024/11/IMG_7273-1-scaled.jpg?ssl=1',
     bestFor: ['Barbershops', 'Hair salons', 'Grooming studios'],
     nlBestFor: ['Kapperszaken', 'Barbershops', 'Grooming studio\'s'],
   },
@@ -51,7 +47,6 @@ const templates = [
       name: config.name,
       tagline: content.tagline,
       description: content.description,
-      image: meta.image,
       accent: config.theme.accent,
       bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
     };
@@ -64,7 +59,6 @@ const templates = [
       lang === 'nl'
         ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
         : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
-    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=900&q=82',
     accent: '#BD8B35',
     bestFor:
       lang === 'nl'
@@ -215,7 +209,7 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
               <div class="grid grid-cols-2 gap-3 p-3">
                 {templates.slice(0, 4).map((tpl, index) => (
                   <a href={`/${lang}/${tpl.slug}`} class:list={["group relative overflow-hidden rounded-2xl", index === 0 && "col-span-2 aspect-[2/1]", index !== 0 && "aspect-square"]}>
-                    <img src={tpl.image} alt="" class="h-full w-full object-cover opacity-75 transition duration-700 group-hover:scale-105 group-hover:opacity-100" />
+                    <ProjectIcon slug={tpl.slug} name={tpl.name} compact={true} />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                     <span class="absolute bottom-3 left-3 text-xs font-bold text-white">{tpl.name}</span>
                   </a>
@@ -239,13 +233,7 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
         {templates.map((tpl) => (
           <article class="group relative col-span-2 flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl lg:[&:nth-child(-n+2)]:col-span-3">
             <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
-              <img
-                src={tpl.image}
-                alt={`${tpl.name} template preview`}
-                class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                loading="lazy"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent"></div>
+              <ProjectIcon slug={tpl.slug} name={tpl.name} />
               <span
                 class="absolute left-5 top-5 rounded-full border border-white/20 bg-black/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
               >
