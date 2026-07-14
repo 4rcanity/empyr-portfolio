@@ -6,20 +6,21 @@ interface Props {
   lang: Lang;
   title: string;
   description: string;
+  path?: string;
 }
 
-const { lang, title, description } = Astro.props;
+const { lang, title, description, path = '' } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
-const canonical = `${siteUrl}/${lang}`;
-const ogImage = `${siteUrl}/favicon.svg`;
+const canonical = `${siteUrl}/${lang}${path}/`;
+const ogImage = `${siteUrl}/images/empyr-logo.png`;
 const locale = lang === 'nl' ? 'nl_NL' : 'en_US';
 ---
 
 <link rel="canonical" href={canonical} />
 {languages.map((l) => (
-  <link rel="alternate" hreflang={l} href={`${siteUrl}/${l}`} />
+  <link rel="alternate" hreflang={l} href={`${siteUrl}/${l}${path}/`} />
 ))}
-<link rel="alternate" hreflang="x-default" href={`${siteUrl}/nl`} />
+<link rel="alternate" hreflang="x-default" href={`${siteUrl}/nl${path}/`} />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Empyr Portfolio" />
