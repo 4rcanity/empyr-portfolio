@@ -1,0 +1,164 @@
+---
+import type { MedreseLang, MedreseSectionId } from '../../data/medrese';
+
+interface Props {
+  lang: MedreseLang;
+  section?: MedreseSectionId;
+  mode?: 'section' | 'latest';
+}
+
+const { lang, section, mode = 'section' } = Astro.props;
+---
+
+<div
+  data-med-admin-content
+  data-lang={lang}
+  data-section={section ?? ''}
+  data-mode={mode}
+  hidden
+></div>
+
+<script>
+  import { adminItemsForSection, localizeAdmin, readAdminContent } from '../../lib/medrese-admin';
+  import type { MedreseLang, MedreseSectionId } from '../../data/medrese';
+
+  function escapeHtml(value: string) {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderCard(item: ReturnType<typeof readAdminContent>[number], lang: MedreseLang, labels: { favorite: string; saved: string }) {
+    const title = localizeAdmin(item.title, lang);
+    const summary = localizeAdmin(item.summary, lang);
+    const meta = localizeAdmin(item.meta, lang);
+    const tags = item.tags
+      .map((tag) => `<span class="rounded-full med-surface-soft px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider med-muted">${escapeHtml(tag)}</span>`)
+      .join('');
+    const media =
+      item.mediaUrl && item.type !== 'post'
+        ? `<a href="${escapeHtml(item.mediaUrl)}" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex items-center gap-2 rounded-full border med-border px-4 py-2 text-xs font-bold med-primary">
+            ${item.type === 'video' ? '▶' : '🎧'} ${lang === 'tr' ? 'Aç' : lang === 'nl' ? 'Openen' : 'Open'}
+          </a>`
+        : '';
+    const source = item.source
+      ? `<div class="mt-6 border-t med-border pt-4 text-[10px] leading-5 med-muted">
+          <span class="font-extrabold uppercase tracking-wider med-primary">Source</span> · ${escapeHtml(item.source)}
+        </div>`
+      : '';
+
+    return `
+      <article
+        id="${escapeHtml(item.id)}"
+        class="med-card scroll-mt-28 rounded-[1.7rem] border border-[color:var(--med-accent)]/25 p-6 sm:p-7"
+        data-med-item
+        data-admin-item
+        data-tags="${escapeHtml(item.tags.join(' '))}"
+      >
+        <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--med-accent)]/12 px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wider med-accent">
+          ${lang === 'tr' ? 'Yeni' : lang === 'nl' ? 'Nieuw' : 'New'}
+        </div>
+        <div class="flex items-start justify-between gap-5">
+          <div>
+            <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] med-accent">${escapeHtml(meta)}</p>
+            <h2 class="med-serif mt-3 text-2xl font-semibold tracking-tight">${escapeHtml(title)}</h2>
+          </div>
+          <button
+            type="button"
+            class="med-favorite flex h-10 shrink-0 items-center gap-2 rounded-full border med-border px-3 text-xs font-bold"
+            data-med-favorite="${escapeHtml(item.id)}"
+            data-save-label="${escapeHtml(labels.favorite)}"
+            data-saved-label="${escapeHtml(labels.saved)}"
+            aria-pressed="false"
+          >
+            <span aria-hidden="true">♡</span>
+            <span class="hidden sm:inline" data-favorite-label>${escapeHtml(labels.favorite)}</span>
+          </button>
+        </div>
+        <p class="mt-4 text-sm leading-7 med-muted">${escapeHtml(summary)}</p>
+        <div class="mt-6 flex flex-wrap items-center gap-2">${tags}</div>
+        ${media}
+        ${source}
+      </article>`;
+  }
+
+  function hydrateFavorites(root: ParentNode) {
+    const favorites = new Set(JSON.parse(localStorage.getItem('medrese-favorites') || '[]'));
+    root.querySelectorAll('[data-med-favorite]').forEach((button) => {
+      const el = button as HTMLButtonElement;
+      const id = el.dataset.medFavorite;
+      const sync = () => {
+        const saved = favorites.has(id);
+        el.dataset.saved = String(saved);
+        el.setAttribute('aria-pressed', String(saved));
+        const label = el.querySelector('[data-favorite-label]');
+        if (label) label.textContent = saved ? el.dataset.savedLabel ?? '' : el.dataset.saveLabel ?? '';
+      };
+      sync();
+      el.addEventListener('click', () => {
+        if (!id) return;
+        favorites.has(id) ? favorites.delete(id) : favorites.add(id);
+        localStorage.setItem('medrese-favorites', JSON.stringify([...favorites]));
+        sync();
+      });
+    });
+  }
+
+  function injectContent() {
+    const mount = document.querySelector('[data-med-admin-content]');
+    if (!mount) return;
+
+    const lang = mount.dataset.lang as MedreseLang;
+    const section = mount.dataset.section as MedreseSectionId | '';
+    const mode = mount.dataset.mode ?? 'section';
+    const favorite = lang === 'tr' ? 'Kaydet' : lang === 'nl' ? 'Bewaar' : 'Save';
+    const saved = lang === 'tr' ? 'Kaydedildi' : lang === 'nl' ? 'Bewaard' : 'Saved';
+    const labels = { favorite, saved };
+
+    let items = section ? adminItemsForSection(section) : readAdminContent();
+    if (mode === 'latest') {
+      items = readAdminContent().slice(0, 3);
+    }
+
+    if (!items.length) return;
+
+    if (mode === 'latest') {
+      const grid = document.querySelector('[data-med-latest-grid]');
+      if (!grid) return;
+      const fragment = document.createElement('div');
+      fragment.innerHTML = items.map((item) => renderCard(item, lang, labels)).join('');
+      while (fragment.firstChild) {
+        grid.prepend(fragment.firstChild);
+      }
+      hydrateFavorites(grid);
+      return;
+    }
+
+    const grid = document.querySelector('[data-med-item-grid]');
+    if (!grid) return;
+
+    const fragment = document.createElement('div');
+    fragment.innerHTML = items.map((item) => renderCard(item, lang, labels)).join('');
+    while (fragment.firstChild) {
+      grid.prepend(fragment.firstChild);
+    }
+
+    const countEl = document.querySelector('[data-med-section-count]');
+    if (countEl && section) {
+      const staticCount = grid.querySelectorAll('[data-med-item]:not([data-admin-item])').length;
+      countEl.textContent = String(staticCount + items.length);
+    }
+
+    hydrateFavorites(grid);
+  }
+
+  injectContent();
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'medrese-admin-content') {
+      document.querySelectorAll('[data-admin-item]').forEach((node) => node.remove());
+      injectContent();
+    }
+  });
+</script>

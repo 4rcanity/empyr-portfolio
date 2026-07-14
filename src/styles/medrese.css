@@ -194,3 +194,27 @@ html[data-medrese-theme='dark'] .med-button-primary {
     animation-duration: 0.01ms !important;
   }
 }
+
+.admin-type-pill span {
+  display: inline-flex;
+  cursor: pointer;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--med-line);
+  padding: 0.45rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--med-muted);
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.admin-type-pill.is-active span,
+.admin-type-pill input:checked + span {
+  border-color: color-mix(in srgb, var(--med-primary) 50%, transparent);
+  background: color-mix(in srgb, var(--med-primary) 12%, transparent);
+  color: var(--med-primary);
+}
+
+.admin-type-pill:hover span {
+  border-color: color-mix(in srgb, var(--med-primary) 35%, transparent);
+}

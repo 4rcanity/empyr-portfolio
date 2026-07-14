@@ -1,5 +1,6 @@
 ---
 import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import MedreseContentInjector from '../../../components/medrese/MedreseContentInjector.astro';
 import {
   getMedreseCopy,
   localize,
@@ -156,7 +157,7 @@ const iconPaths: Record<string, string> = {
           <div>
             <p class="med-kicker">{copy.latest}</p>
             <h2 class="med-serif mt-3 text-4xl font-semibold">{copy.latestBody}</h2>
-            <div class="mt-9 grid gap-5 sm:grid-cols-2">
+            <div class="mt-9 grid gap-5 sm:grid-cols-2" data-med-latest-grid>
               {latestItems.map((item, index) => item && (
                 <article class:list={['med-card rounded-[1.7rem] p-6', index === 0 && 'sm:col-span-2']}>
                   <div class="flex items-start justify-between gap-4">
@@ -256,6 +257,8 @@ const iconPaths: Record<string, string> = {
       </div>
     </section>
   </main>
+
+  <MedreseContentInjector lang={lang} mode="latest" />
 </MedreseLayout>
 {/*
 ---

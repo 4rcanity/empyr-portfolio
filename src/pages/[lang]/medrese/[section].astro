@@ -1,5 +1,6 @@
 ---
 import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import MedreseContentInjector from '../../../components/medrese/MedreseContentInjector.astro';
 import {
   getMedreseCopy,
   localize,
@@ -55,7 +56,7 @@ const isRightsSensitive = section.id === 'risale' || section.id === 'bibliotheek
             <p class="text-[10px] font-bold uppercase tracking-[0.16em] med-muted">
               {lang === 'tr' ? 'İçerik' : lang === 'nl' ? 'Inhoud' : 'Content'}
             </p>
-            <p class="med-serif mt-1 text-2xl font-semibold">{items.length} {lang === 'tr' ? 'öğe' : lang === 'nl' ? 'onderwerpen' : 'topics'}</p>
+            <p class="med-serif mt-1 text-2xl font-semibold"><span data-med-section-count>{items.length}</span> {lang === 'tr' ? 'öğe' : lang === 'nl' ? 'onderwerpen' : 'topics'}</p>
           </div>
         </div>
       </div>
@@ -203,6 +204,8 @@ const isRightsSensitive = section.id === 'risale' || section.id === 'bibliotheek
       });
     });
   </script>
+
+  <MedreseContentInjector lang={lang} section={section.id} />
 </MedreseLayout>
 {/*
 ---

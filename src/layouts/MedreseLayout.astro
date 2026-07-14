@@ -169,6 +169,7 @@ const searchIndex = medreseItems.map((item) => ({
         </div>
         <div class="flex flex-wrap gap-5 text-xs font-semibold med-muted">
           <button type="button" data-med-rights class="hover:med-primary">{copy.rights}</button>
+          <a href={`/${lang}/medrese/admin/`} class="hover:med-primary">{copy.adminLink}</a>
           <a href={`/${lang}/`} class="hover:med-primary">{copy.backPortfolio}</a>
           <a href="mailto:business@empyr-portfolio.com" class="hover:med-primary">Contact</a>
         </div>
@@ -229,7 +230,26 @@ const searchIndex = medreseItems.map((item) => ({
         const searchInput = document.querySelector('[data-med-search-input]');
         const resultBox = document.querySelector('[data-med-search-results]');
         const dataElement = document.getElementById('med-search-data');
-        const data = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
+        let data = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
+        try {
+          const adminRaw = localStorage.getItem('medrese-admin-content');
+          if (adminRaw) {
+            const adminItems = JSON.parse(adminRaw);
+            const langMatch = window.location.pathname.split('/')[1] || 'nl';
+            const adminIndex = adminItems.map((item) => ({
+              id: item.id,
+              section: item.section,
+              title: item.title?.[langMatch] || item.title?.en || '',
+              summary: item.summary?.[langMatch] || item.summary?.en || '',
+              meta: item.meta?.[langMatch] || item.meta?.en || '',
+              tags: item.tags || [],
+              href: `/${langMatch}/medrese/${item.section}/#${item.id}`,
+            }));
+            data = [...adminIndex, ...data];
+          }
+        } catch {
+          /* ignore malformed admin storage */
+        }
 
         const closeSearch = () => {
           searchModal?.setAttribute('hidden', '');

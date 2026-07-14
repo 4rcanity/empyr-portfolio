@@ -1,0 +1,374 @@
+---
+import MedreseLayout from '../../../../layouts/MedreseLayout.astro';
+import { getMedreseCopy, medreseLanguages, type MedreseLang } from '../../../../data/medrese';
+import { MEDRESE_ADMIN_CREDENTIALS } from '../../../../lib/medrese-admin';
+
+export function getStaticPaths() {
+  return medreseLanguages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: MedreseLang };
+const copy = getMedreseCopy(lang);
+---
+
+<MedreseLayout lang={lang} title={copy.adminTitle} description={copy.adminSubtitle} path="/admin">
+  <main class="min-h-[calc(100vh-8rem)]">
+    <section class="border-b med-border">
+      <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <p class="med-kicker">{copy.adminLink}</p>
+        <h1 class="med-serif mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{copy.adminTitle}</h1>
+        <p class="mt-4 max-w-2xl text-sm leading-7 med-muted">{copy.adminSubtitle}</p>
+      </div>
+    </section>
+
+    <section class="py-12 sm:py-16">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div data-admin-login class="mx-auto max-w-md">
+          <form class="med-card rounded-[1.7rem] p-7 sm:p-8" data-admin-login-form>
+            <h2 class="med-serif text-2xl font-semibold">{copy.adminLogin}</h2>
+            <p class="mt-2 text-xs leading-6 med-muted">{copy.adminDemoHint}</p>
+            <label class="mt-6 block">
+              <span class="text-xs font-bold med-muted">{copy.adminEmail}</span>
+              <input
+                type="email"
+                name="email"
+                required
+                autocomplete="username"
+                class="med-input mt-2 w-full"
+                value={MEDRESE_ADMIN_CREDENTIALS.email}
+              />
+            </label>
+            <label class="mt-4 block">
+              <span class="text-xs font-bold med-muted">{copy.adminPassword}</span>
+              <input
+                type="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                class="med-input mt-2 w-full"
+                placeholder="••••••••••••"
+              />
+            </label>
+            <p class="mt-4 hidden text-xs font-semibold text-red-600" data-admin-login-error>{copy.adminInvalid}</p>
+            <button type="submit" class="med-button-primary mt-6 w-full justify-center">{copy.adminLogin}</button>
+            <a href={`/${lang}/medrese/`} class="mt-4 block text-center text-xs font-semibold med-muted hover:med-primary">
+              ← {copy.adminBackSite}
+            </a>
+          </form>
+        </div>
+
+        <div data-admin-dashboard hidden>
+          <div class="flex flex-col gap-4 border-b med-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 class="med-serif text-3xl font-semibold">{copy.adminDashboard}</h2>
+              <p class="mt-1 text-xs med-muted">{copy.adminPublished}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="med-button-primary" data-admin-new>{copy.adminNew}</button>
+              <button type="button" class="med-button-secondary" data-admin-logout>{copy.adminLogout}</button>
+              <a href={`/${lang}/medrese/`} class="med-button-secondary">{copy.adminBackSite}</a>
+            </div>
+          </div>
+
+          <div class="mt-8 grid gap-4" data-admin-list></div>
+          <p class="mt-10 hidden text-center text-sm med-muted" data-admin-empty>{copy.adminEmpty}</p>
+        </div>
+
+        <div
+          class="med-modal fixed inset-0 z-[110] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+          data-admin-editor
+          hidden
+        >
+          <form class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[1.7rem] border med-border med-surface p-6 shadow-2xl sm:p-8" data-admin-editor-form>
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="med-serif text-2xl font-semibold" data-admin-editor-title>{copy.adminNew}</h2>
+              <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full border med-border" data-admin-editor-close aria-label={copy.adminCancel}>×</button>
+            </div>
+
+            <input type="hidden" name="id" value="" />
+
+            <fieldset class="mt-6">
+              <legend class="text-xs font-bold med-muted">Type</legend>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <label class="admin-type-pill">
+                  <input type="radio" name="type" value="post" checked class="sr-only" />
+                  <span>{copy.adminTypePost}</span>
+                </label>
+                <label class="admin-type-pill">
+                  <input type="radio" name="type" value="video" class="sr-only" />
+                  <span>{copy.adminTypeVideo}</span>
+                </label>
+                <label class="admin-type-pill">
+                  <input type="radio" name="type" value="podcast" class="sr-only" />
+                  <span>{copy.adminTypePodcast}</span>
+                </label>
+              </div>
+            </fieldset>
+
+            {(['nl', 'tr', 'en'] as const).map((locale) => (
+              <div class="mt-6 rounded-2xl border med-border p-4">
+                <p class="text-[10px] font-extrabold uppercase tracking-wider med-accent">{locale}</p>
+                <label class="mt-3 block">
+                  <span class="text-xs font-bold med-muted">{copy.adminTitleLabel}</span>
+                  <input type="text" name={`title_${locale}`} required class="med-input mt-2 w-full" />
+                </label>
+                <label class="mt-3 block">
+                  <span class="text-xs font-bold med-muted">{copy.adminSummaryLabel}</span>
+                  <textarea name={`summary_${locale}`} required rows="3" class="med-input mt-2 w-full resize-y"></textarea>
+                </label>
+                <label class="mt-3 block">
+                  <span class="text-xs font-bold med-muted">{copy.adminMetaLabel}</span>
+                  <input type="text" name={`meta_${locale}`} class="med-input mt-2 w-full" />
+                </label>
+              </div>
+            ))}
+
+            <label class="mt-4 block">
+              <span class="text-xs font-bold med-muted">{copy.adminTagsLabel}</span>
+              <input type="text" name="tags" class="med-input mt-2 w-full" placeholder="community, lecture" />
+            </label>
+            <label class="mt-4 block">
+              <span class="text-xs font-bold med-muted">{copy.adminSourceLabel}</span>
+              <input type="text" name="source" class="med-input mt-2 w-full" />
+            </label>
+            <label class="mt-4 block" data-admin-media-field>
+              <span class="text-xs font-bold med-muted">{copy.adminMediaLabel}</span>
+              <input type="url" name="mediaUrl" class="med-input mt-2 w-full" placeholder="https://" />
+            </label>
+
+            <div class="mt-6 flex flex-wrap gap-2">
+              <button type="submit" class="med-button-primary">{copy.adminSave}</button>
+              <button type="button" class="med-button-secondary" data-admin-editor-close>{copy.adminCancel}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script define:vars={{ lang, copy }}>
+    import {
+      adminLogin,
+      adminLogout,
+      createAdminItem,
+      defaultMeta,
+      deleteAdminItem,
+      isAdminAuthenticated,
+      localizeAdmin,
+      readAdminContent,
+      upsertAdminItem,
+      type MedreseAdminItem,
+      type MedreseContentType,
+    } from '../../../../lib/medrese-admin';
+
+    const loginPanel = document.querySelector('[data-admin-login]');
+    const dashboard = document.querySelector('[data-admin-dashboard]');
+    const loginForm = document.querySelector('[data-admin-login-form]');
+    const loginError = document.querySelector('[data-admin-login-error]');
+    const listEl = document.querySelector('[data-admin-list]');
+    const emptyEl = document.querySelector('[data-admin-empty]');
+    const editor = document.querySelector('[data-admin-editor]');
+    const editorForm = document.querySelector('[data-admin-editor-form]');
+    const editorTitle = document.querySelector('[data-admin-editor-title]');
+    const mediaField = document.querySelector('[data-admin-media-field]');
+
+    const typeLabels = {
+      post: copy.adminTypePost,
+      video: copy.adminTypeVideo,
+      podcast: copy.adminTypePodcast,
+    };
+
+    function showDashboard() {
+      loginPanel?.setAttribute('hidden', '');
+      dashboard?.removeAttribute('hidden');
+      renderList();
+    }
+
+    function showLogin() {
+      loginPanel?.removeAttribute('hidden');
+      dashboard?.setAttribute('hidden', '');
+    }
+
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString(lang === 'tr' ? 'tr-TR' : lang === 'nl' ? 'nl-NL' : 'en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      } catch {
+        return iso;
+      }
+    }
+
+    function renderList() {
+      const items = readAdminContent();
+      if (!listEl || !emptyEl) return;
+
+      if (!items.length) {
+        listEl.innerHTML = '';
+        emptyEl.removeAttribute('hidden');
+        return;
+      }
+
+      emptyEl.setAttribute('hidden', '');
+      listEl.innerHTML = items
+        .map(
+          (item) => `
+        <article class="med-card flex flex-col gap-4 rounded-[1.4rem] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="rounded-full med-surface-soft px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider med-primary">${typeLabels[item.type]}</span>
+              <span class="text-[10px] font-semibold med-muted">${formatDate(item.updatedAt)}</span>
+            </div>
+            <h3 class="med-serif mt-2 truncate text-xl font-semibold">${localizeAdmin(item.title, lang)}</h3>
+            <p class="mt-1 line-clamp-2 text-sm med-muted">${localizeAdmin(item.summary, lang)}</p>
+            <p class="mt-2 text-[10px] font-bold uppercase tracking-wider med-accent">${localizeAdmin(item.meta, lang)}</p>
+          </div>
+          <div class="flex shrink-0 flex-wrap gap-2">
+            <a href="/${lang}/medrese/${item.section}/#${item.id}" class="med-button-secondary text-xs">${copy.readMore}</a>
+            <button type="button" class="med-button-secondary text-xs" data-admin-edit="${item.id}">${copy.adminEdit}</button>
+            <button type="button" class="rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-600" data-admin-delete="${item.id}">${copy.adminDelete}</button>
+          </div>
+        </article>`
+        )
+        .join('');
+
+      listEl.querySelectorAll('[data-admin-edit]').forEach((button) => {
+        button.addEventListener('click', () => openEditor(button.getAttribute('data-admin-edit')));
+      });
+      listEl.querySelectorAll('[data-admin-delete]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.getAttribute('data-admin-delete');
+          if (id && confirm(copy.adminDeleteConfirm)) {
+            deleteAdminItem(id);
+            renderList();
+          }
+        });
+      });
+    }
+
+    function syncMediaField(type) {
+      if (!mediaField) return;
+      mediaField.toggleAttribute('hidden', type === 'post');
+    }
+
+    function openEditor(id) {
+      if (!editorForm || !editor) return;
+      editorForm.reset();
+      const existing = id ? readAdminContent().find((item) => item.id === id) : null;
+
+      editorTitle.textContent = existing ? copy.adminEdit : copy.adminNew;
+      editorForm.querySelector('[name="id"]').value = existing?.id ?? '';
+
+      const type = existing?.type ?? 'post';
+      editorForm.querySelector(`[name="type"][value="${type}"]`)?.click();
+      syncMediaField(type);
+
+      for (const locale of ['nl', 'tr', 'en']) {
+        editorForm.querySelector(`[name="title_${locale}"]`).value = existing?.title[locale] ?? '';
+        editorForm.querySelector(`[name="summary_${locale}"]`).value = existing?.summary[locale] ?? '';
+        editorForm.querySelector(`[name="meta_${locale}"]`).value =
+          existing?.meta[locale] ?? defaultMeta(type)[locale];
+      }
+
+      editorForm.querySelector('[name="tags"]').value = existing?.tags.join(', ') ?? '';
+      editorForm.querySelector('[name="source"]').value = existing?.source ?? '';
+      editorForm.querySelector('[name="mediaUrl"]').value = existing?.mediaUrl ?? '';
+
+      editor.removeAttribute('hidden');
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeEditor() {
+      editor?.setAttribute('hidden', '');
+      document.documentElement.style.overflow = '';
+    }
+
+    loginForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const email = form.email.value;
+      const password = form.password.value;
+      if (adminLogin(email, password)) {
+        loginError?.setAttribute('hidden', '');
+        showDashboard();
+      } else {
+        loginError?.removeAttribute('hidden');
+      }
+    });
+
+    document.querySelector('[data-admin-logout]')?.addEventListener('click', () => {
+      adminLogout();
+      showLogin();
+    });
+
+    document.querySelector('[data-admin-new]')?.addEventListener('click', () => openEditor(null));
+
+    editorForm?.querySelectorAll('[name="type"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        if (input.checked) syncMediaField(input.value);
+      });
+    });
+
+    editorForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const type = form.type.value;
+      const meta = {
+        nl: form.meta_nl.value.trim() || defaultMeta(type).nl,
+        tr: form.meta_tr.value.trim() || defaultMeta(type).tr,
+        en: form.meta_en.value.trim() || defaultMeta(type).en,
+      };
+      const payload = {
+        type,
+        title: {
+          nl: form.title_nl.value.trim(),
+          tr: form.title_tr.value.trim(),
+          en: form.title_en.value.trim(),
+        },
+        summary: {
+          nl: form.summary_nl.value.trim(),
+          tr: form.summary_tr.value.trim(),
+          en: form.summary_en.value.trim(),
+        },
+        meta,
+        tags: form.tags.value
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+        source: form.source.value.trim() || undefined,
+        mediaUrl: type === 'post' ? undefined : form.mediaUrl.value.trim() || undefined,
+      };
+
+      const existingId = form.id.value;
+      const item = existingId
+        ? { ...readAdminContent().find((entry) => entry.id === existingId), ...payload, id: existingId }
+        : createAdminItem(payload);
+
+      upsertAdminItem(item);
+      closeEditor();
+      showDashboard();
+    });
+
+    editor?.querySelectorAll('[data-admin-editor-close]').forEach((button) => {
+      button.addEventListener('click', closeEditor);
+    });
+    editor?.addEventListener('click', (event) => {
+      if (event.target === editor) closeEditor();
+    });
+
+    document.querySelectorAll('.admin-type-pill input').forEach((input) => {
+      input.addEventListener('change', () => {
+        document.querySelectorAll('.admin-type-pill').forEach((pill) => {
+          pill.classList.toggle('is-active', pill.querySelector('input') === input && input.checked);
+        });
+      });
+      if (input.checked) input.dispatchEvent(new Event('change'));
+    });
+
+    if (isAdminAuthenticated()) {
+      showDashboard();
+    }
+  </script>
+</MedreseLayout>
