@@ -2,7 +2,7 @@ import type { SiteConfig } from '../types/site-config';
 
 export const trattoriaConfig: SiteConfig = {
   slug: 'trattoria',
-  name: 'Trattoria Bella Vista',
+  name: 'Trattoria Tavola',
   businessType: 'restaurant',
   theme: {
     primary: '#8B4513',
@@ -21,22 +21,21 @@ export const trattoriaConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80',
-  phone: '+31 20 123 4567',
-  email: 'hello@bellavista.example',
+  phone: '+31 20 000 0001',
+  email: 'hello@trattoriatavola.example',
   address: {
-    street: 'Prinsengracht 42',
-    city: 'Amsterdam',
-    postalCode: '1015 GC',
+    street: 'Voorbeeldstraat 10',
+    city: 'Demostad',
+    postalCode: '1234 AB',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.3676, lng: 4.9041 },
-  googleMapsEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.0!2d4.9041!3d52.3676!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTLCsDIyJzAzLjQiTiA0wrA1NCcxNC44IkU!5e0!3m2!1sen!2snl!4v1',
+  coordinates: { lat: 52.0, lng: 5.0 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=52.0,5.0&output=embed',
   socials: {
     instagram: 'https://instagram.com',
     facebook: 'https://facebook.com',
   },
-  reservationUrl: 'tel:+31201234567',
+  reservationUrl: 'tel:+31200000001',
   aboutImage: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=900&q=80',
   gallery: [
     'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
@@ -136,7 +135,7 @@ export const trattoriaConfig: SiteConfig = {
       about: {
         heading: 'Drie generaties aan tafel',
         content:
-          'Bella Vista opende in 1987 toen Giuseppe en Maria hun familierecepten uit Napels meenamen naar Amsterdam. Vandaag runt hun kleinzoon Luca de keuken met dezelfde filosofie: simpele ingrediënten, eeuwenoude technieken en een tafel waar altijd plek is voor nog één iemand.',
+          'Trattoria Tavola is een fictief restaurantconcept, ontworpen om te laten zien hoe een warme Italiaanse familiezaak online tot leven kan komen. Alle namen, locaties en contactgegevens op deze demo zijn placeholders.',
       },
     },
     en: {
@@ -228,7 +227,7 @@ export const trattoriaConfig: SiteConfig = {
       about: {
         heading: 'Three generations at the table',
         content:
-          'Bella Vista opened in 1987 when Giuseppe and Maria brought their family recipes from Naples to Amsterdam. Today, their grandson Luca runs the kitchen with the same philosophy: simple ingredients, time-honoured techniques, and a table that always has room for one more.',
+          'Trattoria Tavola is a fictional restaurant concept designed to show how a warm Italian family business can come alive online. All names, locations and contact details in this demo are placeholders.',
       },
     },
   },

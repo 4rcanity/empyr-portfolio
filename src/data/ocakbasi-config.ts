@@ -1,15 +1,9 @@
 import type { SiteConfig } from '../types/site-config';
 
-/**
- * Modeled on the real Reis Ocakbasi & Etli Ekmek in Schiedam
- * (Rembrandtlaan 70B, 3117 VN Schiedam) — a Turkish ocakbasi/grill
- * restaurant with delivery via Thuisbezorgd and Uber Eats. Menu structure,
- * dish names and prices reflect the restaurant's own published menu;
- * descriptions and photography are original to this demo.
- */
+/** Fictional Turkish grill concept used as portfolio demo content. */
 export const ocakbasiConfig: SiteConfig = {
   slug: 'ocakbasi',
-  name: 'Reis Ocakbasi & Etli Ekmek',
+  name: 'Ember Ocakbaşı',
   businessType: 'restaurant',
   theme: {
     primary: '#1C1310',
@@ -27,17 +21,16 @@ export const ocakbasiConfig: SiteConfig = {
     variant: 'ocakbasi',
   },
   heroImage: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=1600&q=80',
-  phone: '+31 10 786 6308',
-  email: 'info@reisocakbasi-schiedam.nl',
+  phone: '+31 10 000 0004',
+  email: 'hello@emberocakbasi.example',
   address: {
-    street: 'Rembrandtlaan 70B',
-    city: 'Schiedam',
-    postalCode: '3117 VN',
+    street: 'Proefstraat 88',
+    city: 'Demostad',
+    postalCode: '1234 GH',
     country: 'Netherlands',
   },
-  coordinates: { lat: 51.9147, lng: 4.4 },
-  googleMapsEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2450.0!2d4.4!3d51.9147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDU0JzUyLjkiTiA0wrAyNCcwMC4wIkU!5e0!3m2!1sen!2snl!4v1',
+  coordinates: { lat: 52.03, lng: 5.03 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=52.03,5.03&output=embed',
   socials: {
     instagram: 'https://instagram.com',
     facebook: 'https://facebook.com',
@@ -52,19 +45,19 @@ export const ocakbasiConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1633945274309-2a4d1710cf5d?w=800&q=80',
   ],
   deliveryLinks: [
-    { name: 'Thuisbezorgd', url: 'https://www.thuisbezorgd.nl/menu/reis-ocakbasi' },
-    { name: 'Uber Eats', url: 'https://www.ubereats.com/nl/store/reis-ocakbasi/YmH-U6C2Rmmn3SjuA_0Z3w' },
+    { name: 'Thuisbezorgd', url: 'https://www.thuisbezorgd.nl' },
+    { name: 'Uber Eats', url: 'https://www.ubereats.com' },
   ],
-  rating: { value: 4.4, count: 600, source: 'Uber Eats' },
+  rating: { value: 4.8, count: 120, source: 'Demo reviews' },
   halal: true,
   content: {
     nl: {
       tagline: 'Turkse ocakbasi & etli ekmek, vers van de grill',
       description:
-        'Traditionele Turkse grillgerechten, huisgemaakte etli ekmek en verse pide in Schiedam. 100% halal, en te bestellen voor afhalen of bezorging.',
+        'Traditionele Turkse grillgerechten, huisgemaakte etli ekmek en verse pide in Demostad. 100% halal, en te bestellen voor afhalen of bezorging.',
       bookingNote: 'Geen reservering nodig — bel ons voor afhalen of bestel eenvoudig online.',
       ctaLabel: 'Bel om te bestellen',
-      ratingNote: '600+ beoordelingen op Uber Eats',
+      ratingNote: '120+ demo-beoordelingen',
       openingHours: [
         { dayKey: 'mon', hours: null },
         { dayKey: 'tue_sun', hours: '15:30 – 23:00' },
@@ -253,29 +246,29 @@ export const ocakbasiConfig: SiteConfig = {
       ],
       testimonials: [
         {
-          quote: 'De adana kebab is echt top — precies zoals in Turkije. Snelle bezorging ook.',
-          author: 'Yasemin K.',
-          source: 'Uber Eats',
+          quote: 'De adana kebab is heerlijk gekruid en alles kwam warm van de grill.',
+          author: 'Demo gast',
+          source: 'Voorbeeldreview',
         },
         {
-          quote: 'Beste kapsalon van Schiedam, geen twijfel. Ruime porties en altijd vers.',
-          author: 'Dennis B.',
-          source: 'Google Reviews',
+          quote: 'Royale porties, een warme sfeer en alles vers van de grill.',
+          author: 'Demo gast',
+          source: 'Voorbeeldreview',
         },
       ],
       about: {
         heading: 'Vlees, vuur en familie',
         content:
-          'Bij Reis Ocakbasi & Etli Ekmek draait alles om de houtskoolgrill (ocakbasi). Onze kebabs worden vers gegrild op bestelling, ons etli ekmek wordt dagelijks met de hand gerold, en de hele keuken is 100% halal. Van een snelle dürüm tussen de middag tot een uitgebreide grillschotel met vrienden — bij ons ben je welkom.',
+          'Ember Ocakbaşı is een fictief restaurantconcept rond vuur, familie en de houtskoolgrill. Alle namen, locaties, reviews en contactgegevens op deze demo zijn placeholders.',
       },
     },
     en: {
       tagline: 'Turkish ocakbasi grill & etli ekmek, fresh off the fire',
       description:
-        'Traditional Turkish grill dishes, handmade etli ekmek, and fresh pide in Schiedam. 100% halal, available for pickup or delivery.',
+        'Traditional Turkish grill dishes, handmade etli ekmek, and fresh pide in Demo City. 100% halal, available for pickup or delivery.',
       bookingNote: 'No reservation needed — call ahead for pickup or order easily online.',
       ctaLabel: 'Call to Order',
-      ratingNote: '600+ reviews on Uber Eats',
+      ratingNote: '120+ demo reviews',
       openingHours: [
         { dayKey: 'mon', hours: null },
         { dayKey: 'tue_sun', hours: '15:30 – 23:00' },
@@ -464,20 +457,20 @@ export const ocakbasiConfig: SiteConfig = {
       ],
       testimonials: [
         {
-          quote: "The adana kebab is genuinely top-tier — tastes just like Turkey. Fast delivery too.",
-          author: 'Yasemin K.',
-          source: 'Uber Eats',
+          quote: 'The adana kebab is beautifully seasoned and everything arrived hot from the grill.',
+          author: 'Demo guest',
+          source: 'Sample review',
         },
         {
-          quote: 'Best kapsalon in Schiedam, no question. Generous portions and always fresh.',
-          author: 'Dennis B.',
-          source: 'Google Reviews',
+          quote: 'Generous portions, a warm atmosphere and everything fresh from the grill.',
+          author: 'Demo guest',
+          source: 'Sample review',
         },
       ],
       about: {
         heading: 'Meat, fire, and family',
         content:
-          "At Reis Ocakbasi & Etli Ekmek, everything revolves around the charcoal grill (ocakbasi). Our kebabs are grilled fresh to order, our etli ekmek is hand-rolled daily, and the entire kitchen is 100% halal. Whether it's a quick dürüm on your lunch break or a big grill platter with friends, you're always welcome.",
+          'Ember Ocakbaşı is a fictional restaurant concept built around fire, family and the charcoal grill. All names, locations, reviews and contact details in this demo are placeholders.',
       },
     },
   },

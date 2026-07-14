@@ -2,7 +2,7 @@ import type { SiteConfig } from '../types/site-config';
 
 export const cornerConfig: SiteConfig = {
   slug: 'corner',
-  name: 'The Corner Café',
+  name: 'Pixel & Pour Café',
   businessType: 'cafe',
   theme: {
     primary: '#FF6B35',
@@ -21,17 +21,16 @@ export const cornerConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1600&q=80',
-  phone: '+31 20 555 0199',
-  email: 'hey@cornercafe.example',
+  phone: '+31 20 000 0003',
+  email: 'hello@pixelandpour.example',
   address: {
-    street: 'Overtoom 234',
-    city: 'Amsterdam',
-    postalCode: '1054 HZ',
+    street: 'Mockupplein 7',
+    city: 'Demostad',
+    postalCode: '1234 EF',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.3625, lng: 4.8712 },
-  googleMapsEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.0!2d4.8712!3d52.3625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTLCsDIxJzQ1LjAiTiA0wrA1MicxNi4zIkU!5e0!3m2!1sen!2snl!4v1',
+  coordinates: { lat: 52.02, lng: 5.02 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=52.02,5.02&output=embed',
   socials: {
     instagram: 'https://instagram.com',
     facebook: 'https://facebook.com',
@@ -96,7 +95,7 @@ export const cornerConfig: SiteConfig = {
       about: {
         heading: 'Jouw hoek, jouw café',
         content:
-          'We openden The Corner Café omdat elke buurt een plek verdient die als thuis voelt — goede koffie, eerlijk eten en een team dat je bestelling onthoudt. Geen reserveringen, geen gedoe. Trek gewoon een stoel bij.',
+          'Pixel & Pour Café is een fictief caféconcept dat laat zien hoe een kleurrijke buurtzaak online kan opvallen. Alle namen, locaties en contactgegevens op deze demo zijn placeholders.',
       },
     },
     en: {
@@ -138,7 +137,7 @@ export const cornerConfig: SiteConfig = {
       about: {
         heading: 'Your corner, your café',
         content:
-          'We opened The Corner Café because every neighbourhood deserves a place that feels like home — great coffee, honest food, and a team that remembers your order. No reservations, no fuss. Just pull up a chair.',
+          'Pixel & Pour Café is a fictional café concept showing how a colourful neighbourhood business can stand out online. All names, locations and contact details in this demo are placeholders.',
       },
     },
   },

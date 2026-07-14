@@ -2,7 +2,7 @@ import type { SiteConfig } from '../types/site-config';
 
 export const noirConfig: SiteConfig = {
   slug: 'noir',
-  name: 'Noir',
+  name: 'Atelier Nocturne',
   businessType: 'restaurant',
   theme: {
     primary: '#1A1A1A',
@@ -21,21 +21,20 @@ export const noirConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1600&q=80&sat=-40',
-  phone: '+31 20 987 6543',
-  email: 'reservations@noir.example',
+  phone: '+31 20 000 0002',
+  email: 'reservations@ateliernocturne.example',
   address: {
-    street: 'Keizersgracht 128',
-    city: 'Amsterdam',
-    postalCode: '1015 CW',
+    street: 'Conceptlaan 21',
+    city: 'Demostad',
+    postalCode: '1234 CD',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.3744, lng: 4.885 },
-  googleMapsEmbed:
-    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2436.0!2d4.885!3d52.3744!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTLCsDIyJzI3LjgiTiA0wrA1MycwNi4wIkU!5e0!3m2!1sen!2snl!4v1',
+  coordinates: { lat: 52.01, lng: 5.01 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=52.01,5.01&output=embed',
   socials: {
     instagram: 'https://instagram.com',
   },
-  reservationUrl: 'mailto:reservations@noir.example?subject=Table%20Reservation',
+  reservationUrl: 'mailto:reservations@ateliernocturne.example?subject=Table%20Reservation',
   aboutImage: 'https://images.unsplash.com/photo-1577219491135-ce391730e2c2?w=900&q=80&sat=-30',
   gallery: [
     'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80&sat=-50',
@@ -108,10 +107,10 @@ export const noirConfig: SiteConfig = {
         { name: 'Pinot Noir "Calera"', region: 'Central Coast, VS', price: '€16 / glas', note: 'Zijdezacht, rood fruit' },
       ],
       about: {
-        heading: 'Chef Thomas van der Berg',
+        heading: 'Chef Alex Vermeer',
         content:
-          'Na een decennium in Michelinsterren-keukens in Kopenhagen en Parijs keerde chef Thomas terug naar Amsterdam om Noir te creëren — een restaurant gebouwd op terughoudendheid, seizoensgebondenheid en het geloof dat luxe te vinden is in precisie, niet in overdaad.',
-        chefName: 'Thomas van der Berg',
+          'Atelier Nocturne is een fictief fine-diningconcept dat laat zien hoe een ingetogen restaurantmerk digitaal kan worden gepresenteerd. Alle namen, locaties en contactgegevens op deze demo zijn placeholders.',
+        chefName: 'Alex Vermeer',
         chefTitle: 'Uitvoerend Chef',
       },
     },
@@ -179,10 +178,10 @@ export const noirConfig: SiteConfig = {
         { name: 'Pinot Noir "Calera"', region: 'Central Coast, US', price: '€16 / glass', note: 'Silky, red berry' },
       ],
       about: {
-        heading: 'Chef Thomas van der Berg',
+        heading: 'Chef Alex Vermeer',
         content:
-          'After a decade in Michelin-starred kitchens across Copenhagen and Paris, Chef Thomas returned to Amsterdam to create Noir — a restaurant built on restraint, seasonality, and the belief that luxury is found in precision, not excess.',
-        chefName: 'Thomas van der Berg',
+          'Atelier Nocturne is a fictional fine-dining concept showing how a restrained restaurant brand can be presented digitally. All names, locations and contact details in this demo are placeholders.',
+        chefName: 'Alex Vermeer',
         chefTitle: 'Executive Chef',
       },
     },
