@@ -5,12 +5,12 @@
   --med-surface: #fffdf8;
   --med-surface-soft: #ebe5d8;
   --med-text: #15362d;
-  --med-muted: #64756f;
+  --med-muted: #4f625b;
   --med-line: rgba(21, 54, 45, 0.12);
   --med-primary: #0f5b49;
   --med-primary-strong: #0a4336;
-  --med-accent: #c59a45;
-  --med-accent-soft: #ead7a7;
+  --med-accent: #795718;
+  --med-accent-soft: #e1c77f;
   --med-shadow: 0 24px 80px rgba(23, 50, 42, 0.12);
 }
 
@@ -19,11 +19,11 @@ html[data-medrese-theme='dark'] {
   --med-surface: #0d211b;
   --med-surface-soft: #122a23;
   --med-text: #edf5ef;
-  --med-muted: #9eb1aa;
+  --med-muted: #b6c8c1;
   --med-line: rgba(236, 245, 239, 0.1);
   --med-primary: #5ec2a4;
-  --med-primary-strong: #8bd8bf;
-  --med-accent: #e1ba69;
+  --med-primary-strong: #0a4336;
+  --med-accent: #f0cf86;
   --med-accent-soft: #5c4c2c;
   --med-shadow: 0 24px 90px rgba(0, 0, 0, 0.35);
 }
@@ -89,9 +89,10 @@ body.medrese-body {
 
 .med-kicker {
   color: var(--med-accent);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
