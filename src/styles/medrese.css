@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+:root {
+  --med-bg: #f5f1e8;
+  --med-surface: #fffdf8;
+  --med-surface-soft: #ebe5d8;
+  --med-text: #15362d;
+  --med-muted: #64756f;
+  --med-line: rgba(21, 54, 45, 0.12);
+  --med-primary: #0f5b49;
+  --med-primary-strong: #0a4336;
+  --med-accent: #c59a45;
+  --med-accent-soft: #ead7a7;
+  --med-shadow: 0 24px 80px rgba(23, 50, 42, 0.12);
+}
+
+html[data-medrese-theme='dark'] {
+  --med-bg: #071511;
+  --med-surface: #0d211b;
+  --med-surface-soft: #122a23;
+  --med-text: #edf5ef;
+  --med-muted: #9eb1aa;
+  --med-line: rgba(236, 245, 239, 0.1);
+  --med-primary: #5ec2a4;
+  --med-primary-strong: #8bd8bf;
+  --med-accent: #e1ba69;
+  --med-accent-soft: #5c4c2c;
+  --med-shadow: 0 24px 90px rgba(0, 0, 0, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body.medrese-body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--med-bg);
+  color: var(--med-text);
+  font-family: "Manrope", system-ui, sans-serif;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.med-serif {
+  font-family: "Source Serif 4", Georgia, serif;
+}
+
+.med-surface {
+  background: var(--med-surface);
+}
+
+.med-surface-soft {
+  background: var(--med-surface-soft);
+}
+
+.med-muted {
+  color: var(--med-muted);
+}
+
+.med-border {
+  border-color: var(--med-line);
+}
+
+.med-primary {
+  color: var(--med-primary);
+}
+
+.med-primary-bg {
+  background: var(--med-primary);
+}
+
+.med-accent {
+  color: var(--med-accent);
+}
+
+.med-card {
+  border: 1px solid var(--med-line);
+  background: var(--med-surface);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.med-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--med-primary) 38%, transparent);
+  box-shadow: var(--med-shadow);
+}
+
+.med-kicker {
+  color: var(--med-accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.med-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: var(--med-primary);
+  color: var(--med-bg);
+  padding: 0.8rem 1.35rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+html[data-medrese-theme='dark'] .med-button-primary {
+  color: #071511;
+}
+
+.med-button-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.med-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--med-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--med-surface) 82%, transparent);
+  color: var(--med-text);
+  padding: 0.8rem 1.35rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.med-button-secondary:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--med-primary) 45%, transparent);
+}
+
+.med-input {
+  width: 100%;
+  border: 1px solid var(--med-line);
+  border-radius: 1rem;
+  background: var(--med-surface);
+  color: var(--med-text);
+  padding: 0.9rem 1rem;
+  outline: none;
+}
+
+.med-input:focus {
+  border-color: var(--med-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--med-primary) 18%, transparent);
+}
+
+.med-grid-pattern {
+  background-image:
+    linear-gradient(var(--med-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--med-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, black, transparent 86%);
+}
+
+.med-favorite[data-saved='true'] {
+  border-color: color-mix(in srgb, var(--med-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--med-accent) 14%, var(--med-surface));
+  color: var(--med-accent);
+}
+
+.med-modal[hidden] {
+  display: none;
+}
+
+.med-modal {
+  animation: med-fade 180ms ease both;
+}
+
+@keyframes med-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

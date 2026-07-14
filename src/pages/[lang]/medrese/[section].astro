@@ -1,0 +1,648 @@
+---
+import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import {
+  getMedreseCopy,
+  localize,
+  medreseItems,
+  medreseLanguages,
+  medreseSections,
+  type MedreseLang,
+  type MedreseSection,
+} from '../../../data/medrese';
+
+export function getStaticPaths() {
+  return medreseLanguages.flatMap((lang) =>
+    medreseSections.map((section) => ({
+      params: { lang, section: section.id },
+      props: { section },
+    }))
+  );
+}
+
+const { lang } = Astro.params as { lang: MedreseLang };
+const { section } = Astro.props as { section: MedreseSection };
+const copy = getMedreseCopy(lang);
+const items = medreseItems.filter((item) => item.section === section.id);
+const tags = [...new Set(items.flatMap((item) => item.tags))].slice(0, 8);
+const isRightsSensitive = section.id === 'risale' || section.id === 'bibliotheek';
+---
+
+<MedreseLayout
+  lang={lang}
+  title={localize(section.title, lang)}
+  description={localize(section.description, lang)}
+  path={`/${section.id}`}
+>
+  <main>
+    <section class="relative isolate overflow-hidden border-b med-border">
+      <div class="med-grid-pattern pointer-events-none absolute inset-0 -z-20 opacity-70"></div>
+      <div class="pointer-events-none absolute right-[-10rem] top-[-12rem] -z-10 h-[30rem] w-[30rem] rounded-full bg-[color:var(--med-accent)]/14 blur-[100px]"></div>
+      <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <nav class="flex flex-wrap items-center gap-2 text-xs font-semibold med-muted" aria-label="Breadcrumb">
+          <a href={`/${lang}/medrese/`} class="hover:med-primary">{copy.siteName}</a>
+          <span aria-hidden="true">/</span>
+          <span class="med-primary">{localize(section.title, lang)}</span>
+        </nav>
+        <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p class="med-kicker">{copy.allSections}</p>
+            <h1 class="med-serif mt-4 max-w-4xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-7xl">
+              {localize(section.title, lang)}
+            </h1>
+            <p class="mt-6 max-w-2xl text-base leading-8 med-muted sm:text-lg">{localize(section.description, lang)}</p>
+          </div>
+          <div class="rounded-2xl border med-border med-surface px-5 py-4">
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] med-muted">
+              {lang === 'tr' ? 'İçerik' : lang === 'nl' ? 'Inhoud' : 'Content'}
+            </p>
+            <p class="med-serif mt-1 text-2xl font-semibold">{items.length} {lang === 'tr' ? 'öğe' : lang === 'nl' ? 'onderwerpen' : 'topics'}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-24">
+      <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[14rem_1fr] lg:px-8">
+        <aside class="lg:sticky lg:top-24 lg:self-start">
+          <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] med-muted">{copy.allSections}</p>
+          <nav class="mt-4 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1" aria-label={copy.allSections}>
+            {medreseSections.map((navSection) => (
+              <a
+                href={`/${lang}/medrese/${navSection.id}/`}
+                class="rounded-xl px-3 py-2.5 text-xs font-semibold transition"
+                style={navSection.id === section.id
+                  ? 'background: var(--med-primary); color: var(--med-bg);'
+                  : 'color: var(--med-muted);'}
+              >
+                {localize(navSection.title, lang)}
+              </a>
+            ))}
+          </nav>
+        </aside>
+
+        <div>
+          {isRightsSensitive && (
+            <div class="mb-8 flex items-start gap-4 rounded-2xl border border-[color:var(--med-accent)]/30 bg-[color:var(--med-accent)]/10 p-5">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--med-accent)]/15 med-accent">i</span>
+              <div>
+                <strong class="text-sm">{copy.rights}</strong>
+                <p class="mt-1 text-xs leading-6 med-muted">{copy.rightsBody}</p>
+              </div>
+            </div>
+          )}
+
+          <div class="flex flex-col gap-4 border-b med-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap gap-2" data-med-filters>
+              <button type="button" class="rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider" data-filter="all" aria-pressed="true" style="background: var(--med-primary); color: var(--med-bg);">
+                {lang === 'tr' ? 'Tümü' : lang === 'nl' ? 'Alles' : 'All'}
+              </button>
+              {tags.map((tag) => (
+                <button type="button" class="rounded-full border med-border px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider med-muted" data-filter={tag} aria-pressed="false">
+                  {tag}
+                </button>
+              ))}
+            </div>
+            <button type="button" class="med-button-secondary shrink-0" data-med-search-open>
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path>
+              </svg>
+              {copy.search}
+            </button>
+          </div>
+
+          <div class="mt-8 grid gap-5 md:grid-cols-2" data-med-item-grid>
+            {items.map((item, index) => (
+              <article
+                id={item.id}
+                class:list={[
+                  'med-card scroll-mt-28 rounded-[1.7rem] p-6 sm:p-7',
+                  index === 0 && 'md:col-span-2',
+                ]}
+                data-med-item
+                data-tags={item.tags.join(' ')}
+              >
+                <div class="flex items-start justify-between gap-5">
+                  <div>
+                    <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] med-accent">{localize(item.meta, lang)}</p>
+                    <h2 class:list={['med-serif mt-3 font-semibold tracking-tight', index === 0 ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+                      {localize(item.title, lang)}
+                    </h2>
+                  </div>
+                  <button
+                    type="button"
+                    class="med-favorite flex h-10 shrink-0 items-center gap-2 rounded-full border med-border px-3 text-xs font-bold"
+                    data-med-favorite={item.id}
+                    data-save-label={copy.favorite}
+                    data-saved-label={copy.saved}
+                    aria-pressed="false"
+                  >
+                    <span aria-hidden="true">♡</span>
+                    <span class="hidden sm:inline" data-favorite-label>{copy.favorite}</span>
+                  </button>
+                </div>
+                <p class:list={['mt-4 leading-7 med-muted', index === 0 ? 'max-w-3xl text-base' : 'text-sm']}>
+                  {localize(item.summary, lang)}
+                </p>
+                <div class="mt-6 flex flex-wrap items-center gap-2">
+                  {item.tags.map((tag) => (
+                    <span class="rounded-full med-surface-soft px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider med-muted">{tag}</span>
+                  ))}
+                </div>
+                {item.source && (
+                  <div class="mt-6 border-t med-border pt-4 text-[10px] leading-5 med-muted">
+                    <span class="font-extrabold uppercase tracking-wider med-primary">Source</span> · {item.source}
+                  </div>
+                )}
+                {item.availability === 'permission' && (
+                  <button type="button" class="mt-6 cursor-not-allowed rounded-full border med-border px-4 py-2 text-xs font-bold med-muted" disabled>
+                    {lang === 'tr' ? 'İzinle kullanılabilir' : lang === 'nl' ? 'Beschikbaar met toestemming' : 'Available with permission'}
+                  </button>
+                )}
+              </article>
+            ))}
+          </div>
+
+          <div class="mt-14 overflow-hidden rounded-[2rem] bg-[color:var(--med-primary-strong)] p-8 text-[#f7f2e8] sm:p-10">
+            <div class="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#dfc176]">{copy.newsletterTitle}</p>
+                <h2 class="med-serif mt-3 text-3xl font-semibold">
+                  {section.id === 'medrese'
+                    ? (lang === 'tr' ? 'Bir gruba katılın' : lang === 'nl' ? 'Sluit aan bij een groep' : 'Join a group')
+                    : (lang === 'tr' ? 'Öğrenmeye devam edin' : lang === 'nl' ? 'Blijf verder leren' : 'Keep learning')}
+                </h2>
+                <p class="mt-3 max-w-2xl text-sm leading-7 text-[#a8c9bd]">{copy.newsletterBody}</p>
+              </div>
+              <a href="mailto:business@empyr-portfolio.com?subject=Medrese%20demo" class="inline-flex rounded-full bg-[#dfc176] px-6 py-3.5 text-sm font-extrabold text-[#12382d]">
+                Contact →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const filterContainer = document.querySelector<HTMLElement>('[data-med-filters]');
+    const cards = document.querySelectorAll<HTMLElement>('[data-med-item]');
+
+    filterContainer?.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+      if (!button) return;
+      const filter = button.dataset.filter ?? 'all';
+      filterContainer.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((candidate) => {
+        const active = candidate === button;
+        candidate.setAttribute('aria-pressed', String(active));
+        candidate.style.background = active ? 'var(--med-primary)' : '';
+        candidate.style.color = active ? 'var(--med-bg)' : 'var(--med-muted)';
+      });
+      cards.forEach((card) => {
+        const visible = filter === 'all' || (card.dataset.tags ?? '').split(' ').includes(filter);
+        card.toggleAttribute('hidden', !visible);
+      });
+    });
+  </script>
+</MedreseLayout>
+{/*
+---
+import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import {
+  getMedreseSection,
+  medreseCopy,
+  medreseLanguages,
+  medreseSectionSlugs,
+  type MedreseLang,
+  type MedreseSectionSlug,
+} from '../../../data/medrese';
+
+export function getStaticPaths() {
+  return medreseLanguages.flatMap((lang) =>
+    medreseSectionSlugs.map((section) => ({
+      params: { lang, section },
+      props: { lang, section },
+    }))
+  );
+}
+
+const { lang, section: sectionSlug } = Astro.props as {
+  lang: MedreseLang;
+  section: MedreseSectionSlug;
+};
+const section = getMedreseSection(lang, sectionSlug);
+if (!section) throw new Error(`Unknown Medrese section: ${sectionSlug}`);
+const copy = medreseCopy[lang];
+---
+
+<MedreseLayout lang={lang} title={section.title} description={section.description} path={`/${section.slug}`}>
+  <section class="section-hero">
+    <div class="section-hero-pattern"></div>
+    <div class="medrese-shell section-hero-inner">
+      <a href={`/${lang}/medrese/`} class="back-link"><span aria-hidden="true">←</span>{copy.backHome}</a>
+      <div class="section-hero-copy">
+        <span>{section.eyebrow}</span>
+        <h1>{section.title}</h1>
+        <p>{section.description}</p>
+      </div>
+      <div class="section-hero-mark" aria-hidden="true">
+        <span>{String(medreseSectionSlugs.indexOf(section.slug) + 1).padStart(2, '0')}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="medrese-shell">
+      <div class="content-toolbar">
+        <div class="filter-group" role="group" aria-label="Filter">
+          <button type="button" class="is-active" data-filter="all">All</button>
+          {[...new Set(section.items.map((item) => item.tag))].map((tag) => (
+            <button type="button" data-filter={tag}>{tag}</button>
+          ))}
+        </div>
+        <button type="button" class="saved-filter" data-saved-filter aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-3.8L6 21V4.5Z"></path></svg>
+          {copy.page.saved}
+        </button>
+      </div>
+
+      <div class="lesson-grid" data-lesson-grid>
+        {section.items.map((item, index) => (
+          <article id={item.id} class="lesson-card" data-lesson data-tag={item.tag} data-id={`${section.slug}:${item.id}`}>
+            <div class="lesson-card-heading">
+              <div>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <small>{item.tag}</small>
+              </div>
+              <button type="button" class="favorite-button" data-favorite aria-label={copy.page.save} aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-3.8L6 21V4.5Z"></path></svg>
+              </button>
+            </div>
+            <h2>{item.title}</h2>
+            <p>{item.summary}</p>
+            {item.source && <div class="source-line"><strong>{copy.page.source}</strong><span>{item.source}</span></div>}
+            <div class="lesson-footer">
+              <span>{item.meta}</span>
+              <button type="button" data-preview>{copy.page.read}<span aria-hidden="true">→</span></button>
+            </div>
+            <div class="lesson-preview" data-preview-panel hidden>
+              <div class="preview-rule"></div>
+              <p>{item.summary}</p>
+              <small>{copy.page.rights}</small>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p class="empty-message" data-empty hidden>{copy.page.empty}</p>
+
+      <aside class="rights-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.8 7.5 9.5 4.3-1.7 7.5-4.9 7.5-9.5V6L12 3Z"></path><path d="M9 12.2 11.1 14 15 9.8"></path></svg>
+        <p>{copy.page.rights}</p>
+      </aside>
+    </div>
+  </section>
+
+  <script>
+    const storageKey = 'medrese-favorites';
+    const getFavorites = (): string[] => {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) ?? '[]');
+      } catch {
+        return [];
+      }
+    };
+    const saveFavorites = (favorites: string[]) => localStorage.setItem(storageKey, JSON.stringify(favorites));
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-lesson]')];
+    let activeFilter = 'all';
+    let savedOnly = false;
+
+    function syncFavorites() {
+      const favorites = getFavorites();
+      cards.forEach((card) => {
+        const saved = favorites.includes(card.dataset.id ?? '');
+        const button = card.querySelector<HTMLButtonElement>('[data-favorite]');
+        button?.setAttribute('aria-pressed', String(saved));
+        card.classList.toggle('is-saved', saved);
+      });
+    }
+
+    function applyFilters() {
+      const favorites = getFavorites();
+      let visible = 0;
+      cards.forEach((card) => {
+        const matchesTag = activeFilter === 'all' || card.dataset.tag === activeFilter;
+        const matchesSaved = !savedOnly || favorites.includes(card.dataset.id ?? '');
+        const show = matchesTag && matchesSaved;
+        card.hidden = !show;
+        if (show) visible += 1;
+      });
+      const empty = document.querySelector<HTMLElement>('[data-empty]');
+      if (empty) empty.hidden = visible > 0;
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter ?? 'all';
+        document.querySelectorAll('[data-filter]').forEach((item) => item.classList.remove('is-active'));
+        button.classList.add('is-active');
+        applyFilters();
+      });
+    });
+
+    const savedFilter = document.querySelector<HTMLButtonElement>('[data-saved-filter]');
+    savedFilter?.addEventListener('click', () => {
+      savedOnly = !savedOnly;
+      savedFilter.setAttribute('aria-pressed', String(savedOnly));
+      applyFilters();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-favorite]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const card = button.closest<HTMLElement>('[data-lesson]');
+        const id = card?.dataset.id;
+        if (!id) return;
+        const favorites = getFavorites();
+        const next = favorites.includes(id) ? favorites.filter((entry) => entry !== id) : [...favorites, id];
+        saveFavorites(next);
+        syncFavorites();
+        applyFilters();
+      });
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-preview]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const panel = button.closest('[data-lesson]')?.querySelector<HTMLElement>('[data-preview-panel]');
+        if (panel) panel.hidden = !panel.hidden;
+      });
+    });
+
+    syncFavorites();
+  </script>
+</MedreseLayout>
+*/}
+
+<style>
+  .section-hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--m-hero);
+    color: var(--m-hero-text);
+  }
+
+  .section-hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: .055;
+    background-image:
+      linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+    background-size: 68px 68px;
+    mask-image: radial-gradient(circle at 80% 50%, black, transparent 65%);
+  }
+
+  .section-hero-inner {
+    position: relative;
+    min-height: 480px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: center;
+    gap: 4rem;
+    padding-block: 5rem;
+  }
+
+  .back-link {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: rgba(255,255,255,.55);
+    font-size: .72rem;
+    font-weight: 700;
+  }
+
+  .section-hero-copy > span {
+    color: #d7b978;
+    font-size: .67rem;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+
+  .section-hero-copy h1 {
+    max-width: 760px;
+    margin: 1rem 0 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 1;
+    letter-spacing: -.055em;
+  }
+
+  .section-hero-copy p {
+    max-width: 650px;
+    margin: 1.3rem 0 0;
+    color: rgba(255,255,255,.62);
+    line-height: 1.7;
+  }
+
+  .section-hero-mark {
+    display: grid;
+    width: 160px;
+    height: 200px;
+    place-items: center;
+    align-self: center;
+    border: 1px solid rgba(215,185,120,.25);
+    border-radius: 50% 50% 12px 12px;
+    color: #d7b978;
+    font-family: 'Lora', serif;
+    font-size: 2.4rem;
+  }
+
+  .content-section {
+    padding-block: 5rem 7rem;
+    background: var(--m-bg);
+  }
+
+  .content-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+  }
+
+  .filter-group button,
+  .saved-filter {
+    min-height: 38px;
+    padding: .55rem .85rem;
+    border: 1px solid var(--m-line);
+    border-radius: 999px;
+    background: var(--m-surface);
+    color: var(--m-muted);
+    font: inherit;
+    font-size: .68rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .filter-group button.is-active,
+  .saved-filter[aria-pressed='true'] {
+    border-color: var(--m-primary);
+    background: var(--m-primary);
+    color: var(--m-surface);
+  }
+
+  .saved-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .saved-filter svg { width: 15px; }
+
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .lesson-card {
+    display: flex;
+    min-height: 360px;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid var(--m-line);
+    border-radius: 24px;
+    background: var(--m-surface);
+    box-shadow: 0 8px 30px transparent;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .lesson-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--m-shadow);
+  }
+
+  .lesson-card.is-saved {
+    border-color: color-mix(in srgb, var(--m-accent) 55%, var(--m-line));
+  }
+
+  .lesson-card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .lesson-card-heading > div {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+
+  .lesson-card-heading div > span {
+    color: var(--m-accent);
+    font-family: 'Lora', serif;
+    font-size: .75rem;
+  }
+
+  .lesson-card-heading small {
+    padding: .35rem .55rem;
+    border-radius: 999px;
+    background: var(--m-primary-soft);
+    color: var(--m-muted);
+    font-size: .58rem;
+    font-weight: 700;
+  }
+
+  .favorite-button {
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border: 1px solid var(--m-line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--m-muted);
+    cursor: pointer;
+  }
+
+  .favorite-button svg { width: 16px; }
+  .favorite-button[aria-pressed='true'] { background: var(--m-accent-soft); color: var(--m-accent); }
+  .favorite-button[aria-pressed='true'] svg { fill: currentColor; }
+
+  .lesson-card h2 {
+    margin: 2.1rem 0 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.45rem;
+    line-height: 1.2;
+  }
+
+  .lesson-card > p,
+  .lesson-preview p {
+    margin: .8rem 0 0;
+    color: var(--m-muted);
+    font-size: .82rem;
+    line-height: 1.7;
+  }
+
+  .source-line {
+    display: grid;
+    gap: .2rem;
+    margin-top: 1rem;
+    padding-left: .7rem;
+    border-left: 2px solid var(--m-accent);
+  }
+
+  .source-line strong { color: var(--m-accent); font-size: .56rem; text-transform: uppercase; letter-spacing: .12em; }
+  .source-line span { color: var(--m-muted); font-size: .65rem; }
+
+  .lesson-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.4rem;
+  }
+
+  .lesson-footer > span { color: var(--m-muted); font-size: .65rem; }
+  .lesson-footer button { display: inline-flex; gap: .4rem; border: 0; background: transparent; color: var(--m-accent); font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; }
+
+  .lesson-preview { margin-top: 1rem; }
+  .preview-rule { width: 35px; height: 1px; background: var(--m-accent); }
+  .lesson-preview small { display: block; margin-top: .8rem; color: var(--m-muted); font-size: .58rem; line-height: 1.5; }
+
+  .rights-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: .8rem;
+    margin-top: 2rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--m-line);
+    border-radius: 16px;
+    background: var(--m-accent-soft);
+  }
+
+  .rights-notice svg { width: 20px; flex: 0 0 auto; color: var(--m-accent); }
+  .rights-notice p { margin: 0; color: var(--m-muted); font-size: .68rem; line-height: 1.55; }
+  .empty-message { padding: 4rem 0; color: var(--m-muted); text-align: center; }
+
+  @media (max-width: 900px) {
+    .lesson-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 620px) {
+    .section-hero-inner { min-height: 420px; grid-template-columns: 1fr; padding-top: 6rem; }
+    .back-link { left: .15rem; }
+    .section-hero-mark { position: absolute; right: 0; bottom: 1.5rem; width: 75px; height: 95px; font-size: 1.2rem; opacity: .55; }
+    .content-toolbar { align-items: flex-start; flex-direction: column; }
+    .lesson-grid { grid-template-columns: 1fr; }
+    .lesson-card { min-height: 320px; }
+  }
+</style>

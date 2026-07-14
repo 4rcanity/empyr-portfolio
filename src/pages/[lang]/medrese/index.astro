@@ -1,0 +1,851 @@
+---
+import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import {
+  getMedreseCopy,
+  localize,
+  medreseItems,
+  medreseLanguages,
+  medreseSections,
+  type MedreseLang,
+} from '../../../data/medrese';
+
+export function getStaticPaths() {
+  return medreseLanguages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: MedreseLang };
+const copy = getMedreseCopy(lang);
+const featuredSections = medreseSections.filter((section) => section.featured);
+const latestItems = [
+  medreseItems.find((item) => item.id === 'digital-balance'),
+  medreseItems.find((item) => item.id === 'event-lecture'),
+  medreseItems.find((item) => item.id === 'media-risale'),
+].filter(Boolean);
+const weeklyItems = medreseItems.filter((item) => item.section === 'medrese');
+
+const iconPaths: Record<string, string> = {
+  'book-open': 'M4 5.5c3.3 0 6 .7 8 2.4 2-1.7 4.7-2.4 8-2.4v13c-3.4 0-6 .7-8 2.5-2-1.8-4.6-2.5-8-2.5v-13Zm8 2.4V21',
+  compass: 'm15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8 4.8-2.2ZM12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z',
+  sparkles: 'm12 3 1.4 4.1L17.5 8.5l-4.1 1.4L12 14l-1.4-4.1-4.1-1.4 4.1-1.4L12 3Zm6 10 .9 2.6 2.6.9-2.6.9L18 20l-.9-2.6-2.6-.9 2.6-.9L18 13Z',
+  users: 'M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7-1a3 3 0 0 1 0 6c1.8.4 3 1.8 3 3.5V20',
+};
+---
+
+<MedreseLayout
+  lang={lang}
+  title={copy.siteName}
+  description={copy.heroBody}
+>
+  <main>
+    <section class="relative isolate overflow-hidden">
+      <div class="med-grid-pattern pointer-events-none absolute inset-0 -z-20"></div>
+      <div class="pointer-events-none absolute -right-32 -top-32 -z-10 h-[34rem] w-[34rem] rounded-full bg-[color:var(--med-accent)]/15 blur-[100px]"></div>
+      <div class="pointer-events-none absolute -left-40 bottom-[-18rem] -z-10 h-[36rem] w-[36rem] rounded-full bg-[color:var(--med-primary)]/15 blur-[110px]"></div>
+
+      <div class="mx-auto grid min-h-[76vh] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8">
+        <div>
+          <p class="med-kicker">{copy.heroEyebrow}</p>
+          <h1 class="med-serif mt-5 max-w-3xl text-5xl font-semibold leading-[0.96] tracking-[-0.055em] sm:text-7xl lg:text-[5.5rem]">
+            {copy.heroTitle}
+          </h1>
+          <p class="mt-7 max-w-2xl text-base leading-8 med-muted sm:text-lg">{copy.heroBody}</p>
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a href="#leren" class="med-button-primary">{copy.startLearning}<span aria-hidden="true">↓</span></a>
+            <a href={`/${lang}/medrese/risale/`} class="med-button-secondary">{copy.discoverRisale}<span aria-hidden="true">→</span></a>
+          </div>
+          <div class="mt-10 flex flex-wrap gap-5 border-t med-border pt-6 text-xs font-bold med-muted">
+            <span>NL · TR · EN</span>
+            <span>10 {lang === 'tr' ? 'bölüm' : lang === 'nl' ? 'onderdelen' : 'sections'}</span>
+            <span>{lang === 'tr' ? 'Kaynak odaklı' : lang === 'nl' ? 'Bronbewust' : 'Source-aware'}</span>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div class="absolute -inset-10 rounded-full bg-[color:var(--med-primary)]/10 blur-3xl"></div>
+          <div class="relative overflow-hidden rounded-[2.2rem] border med-border med-surface p-3 shadow-[var(--med-shadow)]">
+            <div class="relative overflow-hidden rounded-[1.7rem] bg-[color:var(--med-primary-strong)] p-6 text-[#f7f2e8] sm:p-8">
+              <div class="absolute -right-10 -top-10 h-44 w-44 rounded-full border border-white/10"></div>
+              <div class="absolute -right-4 -top-4 h-32 w-32 rounded-full border border-white/10"></div>
+              <div class="relative flex items-center justify-between">
+                <p class="text-[10px] font-extrabold uppercase tracking-[0.24em] text-[#e2c579]">{copy.daily}</p>
+                <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[9px] font-bold uppercase tracking-wider">14 · 07 · 2026</span>
+              </div>
+              <div class="relative mt-10">
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a8c9bd]">{copy.ayahLabel}</p>
+                <blockquote class="med-serif mt-3 text-2xl font-semibold leading-snug sm:text-3xl">“{copy.ayahText}”</blockquote>
+                <p class="mt-4 text-xs text-[#a8c9bd]">{copy.ayahSource}</p>
+              </div>
+            </div>
+
+            <div class="p-6 sm:p-7">
+              <p class="text-[10px] font-extrabold uppercase tracking-[0.18em] med-accent">{copy.hadithLabel}</p>
+              <p class="med-serif mt-3 text-xl font-semibold leading-relaxed">“{copy.hadithText}”</p>
+              <p class="mt-3 text-xs med-muted">{copy.hadithSource}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="leren" class="border-y med-border med-surface py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="med-kicker">{copy.allSections}</p>
+            <h2 class="med-serif mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">{copy.explore}</h2>
+            <p class="mt-4 max-w-2xl text-sm leading-7 med-muted">{copy.exploreBody}</p>
+          </div>
+          <button type="button" class="med-button-secondary" data-med-search-open>
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path>
+            </svg>
+            {copy.search}
+          </button>
+        </div>
+
+        <div class="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {featuredSections.map((section, index) => (
+            <a
+              href={`/${lang}/medrese/${section.id}/`}
+              class:list={[
+                'med-card group relative overflow-hidden rounded-[1.8rem] p-6 sm:p-7',
+                index === 0 && 'lg:col-span-2 lg:row-span-2 lg:p-9',
+              ]}
+            >
+              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--med-primary)]/10 med-primary">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                  <path d={iconPaths[section.icon]} stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+              <h3 class:list={['med-serif mt-8 font-semibold tracking-tight', index === 0 ? 'text-3xl sm:text-4xl' : 'text-2xl']}>
+                {localize(section.title, lang)}
+              </h3>
+              <p class:list={['mt-3 leading-7 med-muted', index === 0 ? 'max-w-lg text-base' : 'text-sm']}>
+                {localize(section.description, lang)}
+              </p>
+              <span class="mt-8 inline-flex items-center gap-2 text-xs font-extrabold med-primary">
+                {copy.viewSection}<span class="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+              </span>
+              {index === 0 && (
+                <div class="pointer-events-none absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-[color:var(--med-accent)]/15 blur-3xl"></div>
+              )}
+            </a>
+          ))}
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {medreseSections.filter((section) => !section.featured).map((section) => (
+            <a href={`/${lang}/medrese/${section.id}/`} class="group flex items-center gap-4 rounded-2xl border med-border p-4 transition hover:bg-[color:var(--med-surface-soft)]">
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl med-surface-soft text-sm font-extrabold med-primary">
+                {localize(section.title, lang).charAt(0)}
+              </span>
+              <span class="min-w-0">
+                <strong class="block truncate text-sm">{localize(section.title, lang)}</strong>
+                <span class="mt-0.5 block truncate text-xs med-muted">{localize(section.description, lang)}</span>
+              </span>
+              <span class="ml-auto med-muted transition group-hover:translate-x-1" aria-hidden="true">→</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="py-24 sm:py-28">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-8 lg:grid-cols-[1.15fr_.85fr]">
+          <div>
+            <p class="med-kicker">{copy.latest}</p>
+            <h2 class="med-serif mt-3 text-4xl font-semibold">{copy.latestBody}</h2>
+            <div class="mt-9 grid gap-5 sm:grid-cols-2">
+              {latestItems.map((item, index) => item && (
+                <article class:list={['med-card rounded-[1.7rem] p-6', index === 0 && 'sm:col-span-2']}>
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <p class="text-[10px] font-extrabold uppercase tracking-[0.16em] med-accent">{localize(item.meta, lang)}</p>
+                      <h3 class="med-serif mt-3 text-2xl font-semibold">{localize(item.title, lang)}</h3>
+                    </div>
+                    <button
+                      type="button"
+                      class="med-favorite flex h-10 shrink-0 items-center gap-2 rounded-full border med-border px-3 text-xs font-bold"
+                      data-med-favorite={item.id}
+                      data-save-label={copy.favorite}
+                      data-saved-label={copy.saved}
+                      aria-pressed="false"
+                    >
+                      <span aria-hidden="true">♡</span><span class="hidden sm:inline" data-favorite-label>{copy.favorite}</span>
+                    </button>
+                  </div>
+                  <p class="mt-4 text-sm leading-7 med-muted">{localize(item.summary, lang)}</p>
+                  <a href={`/${lang}/medrese/${item.section}/#${item.id}`} class="mt-6 inline-flex items-center gap-2 text-xs font-extrabold med-primary">
+                    {copy.readMore}<span aria-hidden="true">→</span>
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <aside class="space-y-5">
+            <div class="overflow-hidden rounded-[1.8rem] border med-border bg-[color:var(--med-primary-strong)] p-7 text-[#f7f2e8] shadow-[var(--med-shadow)]">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#dfc176]">{copy.prayerTitle}</p>
+                  <p class="mt-2 text-xs text-[#a8c9bd]">{copy.prayerCity}</p>
+                </div>
+                <svg viewBox="0 0 24 24" class="h-6 w-6 text-[#dfc176]" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M20 15.2A8.5 8.5 0 1 1 8.8 4a7 7 0 0 0 11.2 11.2Z"></path>
+                </svg>
+              </div>
+              <div class="mt-7 grid grid-cols-5 gap-2">
+                {copy.prayers.map((prayer, index) => (
+                  <div class:list={['rounded-xl px-1 py-3 text-center', index === 3 ? 'bg-white/10 ring-1 ring-[#dfc176]/40' : 'bg-white/[0.04]']}>
+                    <p class="text-[9px] font-bold text-[#a8c9bd]">{prayer}</p>
+                    <p class="mt-2 text-xs font-extrabold">{copy.times[index]}</p>
+                  </div>
+                ))}
+              </div>
+              <p class="mt-4 text-[10px] leading-5 text-[#a8c9bd]">Demo times only · verify with your local mosque.</p>
+            </div>
+
+            <div class="med-card rounded-[1.8rem] p-7">
+              <p class="med-kicker">{copy.scheduleTitle}</p>
+              <div class="mt-5 space-y-5">
+                {weeklyItems.map((item) => (
+                  <a href={`/${lang}/medrese/medrese/#${item.id}`} class="flex items-start gap-4">
+                    <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-[color:var(--med-accent)]"></span>
+                    <span>
+                      <strong class="block text-sm">{localize(item.title, lang)}</strong>
+                      <span class="mt-1 block text-xs med-muted">{localize(item.meta, lang)}</span>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-y med-border med-surface py-24">
+      <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div class="relative overflow-hidden rounded-[2rem] bg-[color:var(--med-primary-strong)] p-7 text-[#f7f2e8] sm:p-9">
+          <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full border border-white/10"></div>
+          <p class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#dfc176]">Medrese AI</p>
+          <h2 class="med-serif mt-3 text-3xl font-semibold">{copy.aiTitle}</h2>
+          <p class="mt-3 max-w-lg text-sm leading-7 text-[#a8c9bd]">{copy.aiBody}</p>
+          <form class="relative mt-7" data-ai-form>
+            <input class="w-full rounded-2xl border border-white/10 bg-white/10 py-4 pl-4 pr-28 text-sm text-white outline-none placeholder:text-[#a8c9bd]" placeholder={copy.aiPlaceholder} />
+            <button class="absolute bottom-2 right-2 top-2 rounded-xl bg-[#dfc176] px-4 text-xs font-extrabold text-[#12382d]" type="submit">{copy.aiAsk}</button>
+          </form>
+          <div class="mt-5 rounded-2xl border border-white/10 bg-black/10 p-5" data-ai-answer hidden>
+            <p class="text-sm leading-7">{copy.aiAnswer}</p>
+            <p class="mt-4 text-[10px] font-bold uppercase tracking-wider text-[#dfc176]">{copy.aiSources}</p>
+          </div>
+          <p class="mt-4 text-[10px] leading-5 text-[#a8c9bd]">{copy.aiDisclaimer}</p>
+        </div>
+
+        <div class="med-card flex flex-col justify-center rounded-[2rem] p-7 sm:p-9">
+          <p class="med-kicker">Newsletter</p>
+          <h2 class="med-serif mt-3 text-3xl font-semibold">{copy.newsletterTitle}</h2>
+          <p class="mt-3 text-sm leading-7 med-muted">{copy.newsletterBody}</p>
+          <form class="mt-7 flex flex-col gap-3 sm:flex-row" data-demo-form>
+            <input class="med-input flex-1" type="email" required placeholder={copy.emailPlaceholder} />
+            <button class="med-button-primary shrink-0" type="submit">{copy.subscribe}</button>
+            <p class="text-xs med-primary sm:col-span-2" data-demo-success hidden>{copy.demoSuccess}</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</MedreseLayout>
+{/*
+---
+import MedreseLayout from '../../../layouts/MedreseLayout.astro';
+import {
+  isMedreseLang,
+  medreseCopy,
+  medreseLanguages,
+  medreseSections,
+  type MedreseLang,
+} from '../../../data/medrese';
+
+export function getStaticPaths() {
+  return medreseLanguages.map((lang) => ({ params: { lang } }));
+}
+
+const rawLang = Astro.params.lang;
+const lang: MedreseLang = isMedreseLang(rawLang) ? rawLang : 'nl';
+const copy = medreseCopy[lang];
+const sections = medreseSections[lang];
+---
+
+<MedreseLayout lang={lang}>
+  <section class="medrese-hero">
+    <div class="hero-pattern" aria-hidden="true"></div>
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="medrese-shell hero-grid">
+      <div class="hero-copy">
+        <p class="hero-eyebrow"><span></span>{copy.hero.eyebrow}</p>
+        <h1>{copy.hero.title} <em>{copy.hero.accent}</em></h1>
+        <p class="hero-body">{copy.hero.body}</p>
+        <div class="hero-actions">
+          <a href="#learn" class="medrese-button primary">{copy.hero.primary}<span aria-hidden="true">↓</span></a>
+          <a href="#schedule" class="medrese-button secondary">{copy.hero.secondary}</a>
+        </div>
+        <div class="hero-languages">
+          <span>NL</span><i></i><span>TR</span><i></i><span>EN</span>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <div class="arch arch-outer">
+          <div class="arch arch-middle">
+            <div class="arch arch-inner">
+              <span class="arabic">اقْرَأْ</span>
+              <small>Lees · Oku · Read</small>
+            </div>
+          </div>
+        </div>
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="daily-band">
+    <div class="medrese-shell">
+      <div class="daily-label"><span></span>{copy.daily.label}</div>
+      <div class="daily-grid">
+        <article>
+          <span class="daily-number">01</span>
+          <div>
+            <h2>{copy.daily.ayahTitle}</h2>
+            <p>{copy.daily.ayahText}</p>
+            <small>{copy.daily.ayahSource}</small>
+          </div>
+        </article>
+        <article>
+          <span class="daily-number">02</span>
+          <div>
+            <h2>{copy.daily.hadithTitle}</h2>
+            <p>{copy.daily.hadithText}</p>
+            <small>{copy.daily.hadithSource}</small>
+          </div>
+        </article>
+      </div>
+      <p class="daily-disclaimer">{copy.daily.disclaimer}</p>
+    </div>
+  </section>
+
+  <section id="learn" class="section-block learning-section">
+    <div class="medrese-shell">
+      <div class="section-heading">
+        <span class="section-kicker">{copy.sections.eyebrow}</span>
+        <h2>{copy.sections.title}</h2>
+        <p>{copy.sections.body}</p>
+      </div>
+
+      <div class="section-card-grid">
+        {sections.map((section, index) => (
+          <a href={`/${lang}/medrese/${section.slug}/`} class="section-card">
+            <div class="section-card-top">
+              <span class="section-index">{String(index + 1).padStart(2, '0')}</span>
+              <span class="section-arrow" aria-hidden="true">↗</span>
+            </div>
+            <h3>{section.title}</h3>
+            <p>{section.description}</p>
+            <span class="section-link">{copy.sections.view}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mission-section">
+    <div class="medrese-shell mission-grid">
+      <div class="mission-copy section-heading">
+        <span class="section-kicker">{copy.mission.eyebrow}</span>
+        <h2>{copy.mission.title}</h2>
+        <p>{copy.mission.body}</p>
+      </div>
+      <div class="mission-values">
+        {copy.mission.values.map((value, index) => (
+          <article>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <div><h3>{value.title}</h3><p>{value.body}</p></div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule" class="section-block schedule-section">
+    <div class="medrese-shell schedule-layout">
+      <div>
+        <div class="section-heading">
+          <span class="section-kicker">{copy.schedule.eyebrow}</span>
+          <h2>{copy.schedule.title}</h2>
+          <p>{copy.schedule.body}</p>
+        </div>
+        <div class="schedule-table">
+          {copy.schedule.rows.map((row) => (
+            <article>
+              <div><strong>{row.day}</strong><small>{row.audience}</small></div>
+              <p>{row.activity}</p>
+              <time>{row.time}</time>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <aside class="prayer-card">
+        <div class="prayer-heading">
+          <span>{copy.prayer.label}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"></path></svg>
+        </div>
+        <p>{copy.prayer.city}</p>
+        <div class="prayer-list">
+          {copy.prayer.names.map((name, index) => (
+            <div class:list={[index === 3 && 'is-next']}>
+              <span>{name}</span><strong>{copy.prayer.times[index]}</strong>
+            </div>
+          ))}
+        </div>
+        <small>{copy.prayer.note}</small>
+      </aside>
+    </div>
+  </section>
+
+  <section class="events-section">
+    <div class="medrese-shell">
+      <div class="section-heading">
+        <span class="section-kicker">{copy.events.eyebrow}</span>
+        <h2>{copy.events.title}</h2>
+      </div>
+      <div class="event-list">
+        {copy.events.items.map((event) => (
+          <article>
+            <time><strong>{event.day}</strong><span>{event.month}</span></time>
+            <div><h3>{event.title}</h3><p>{event.meta}</p></div>
+            <a href={`/${lang}/medrese/evenementen/`} aria-label={event.title}>→</a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ai-section">
+    <div class="medrese-shell ai-layout">
+      <div class="section-heading">
+        <span class="section-kicker">{copy.ai.eyebrow}</span>
+        <h2>{copy.ai.title}</h2>
+        <p>{copy.ai.body}</p>
+        <div class="ai-suggestions">
+          {copy.ai.suggestions.map((suggestion) => (
+            <button type="button" data-ai-suggestion>{suggestion}</button>
+          ))}
+        </div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-topbar"><span></span><p>Medrese AI</p><small>DEMO</small></div>
+        <form data-ai-form>
+          <label>
+            <span class="sr-only">{copy.ai.placeholder}</span>
+            <input type="text" placeholder={copy.ai.placeholder} data-ai-input />
+            <button type="submit" aria-label="Send">↑</button>
+          </label>
+        </form>
+        <div class="ai-answer" data-ai-answer hidden>
+          <small>{copy.ai.answerTitle}</small>
+          <p>{copy.ai.answer}</p>
+          <span>{copy.ai.source}</span>
+        </div>
+        <p class="ai-disclaimer">{copy.ai.disclaimer}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-section">
+    <div class="medrese-shell newsletter-inner">
+      <div><h2>{copy.newsletter.title}</h2><p>{copy.newsletter.body}</p></div>
+      <form data-newsletter-form>
+        <label><span class="sr-only">Email</span><input type="email" required placeholder={copy.newsletter.placeholder} /></label>
+        <button type="submit">{copy.newsletter.button}</button>
+      </form>
+      <p class="newsletter-success" data-newsletter-success hidden>{copy.newsletter.success}</p>
+    </div>
+  </section>
+
+  <script>
+    const aiForm = document.querySelector<HTMLFormElement>('[data-ai-form]');
+    const aiInput = document.querySelector<HTMLInputElement>('[data-ai-input]');
+    const aiAnswer = document.querySelector<HTMLElement>('[data-ai-answer]');
+    document.querySelectorAll<HTMLButtonElement>('[data-ai-suggestion]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (aiInput) aiInput.value = button.textContent ?? '';
+        aiAnswer?.removeAttribute('hidden');
+      });
+    });
+    aiForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      aiAnswer?.removeAttribute('hidden');
+    });
+
+    const newsletterForm = document.querySelector<HTMLFormElement>('[data-newsletter-form]');
+    newsletterForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      newsletterForm.reset();
+      document.querySelector<HTMLElement>('[data-newsletter-success]')?.removeAttribute('hidden');
+    });
+  </script>
+</MedreseLayout>
+*/}
+
+<style>
+  .medrese-hero {
+    position: relative;
+    min-height: 720px;
+    overflow: hidden;
+    background: var(--m-hero);
+    color: var(--m-hero-text);
+  }
+
+  .hero-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.055;
+    background-image:
+      linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(to right, black, transparent 78%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    right: -10%;
+    top: -30%;
+    width: 700px;
+    height: 700px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--m-accent) 18%, transparent);
+    filter: blur(110px);
+  }
+
+  .hero-grid {
+    position: relative;
+    min-height: 720px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    gap: 4rem;
+    padding-block: 5rem;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0;
+    color: #d7b978;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero-eyebrow span {
+    width: 25px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .hero-copy h1 {
+    max-width: 650px;
+    margin: 1.3rem 0 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(3.6rem, 7vw, 6.6rem);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+  }
+
+  .hero-copy h1 em {
+    color: #d7b978;
+    font-weight: 500;
+  }
+
+  .hero-body {
+    max-width: 590px;
+    margin: 1.5rem 0 0;
+    color: rgba(255,255,255,.68);
+    font-size: 1.06rem;
+    line-height: 1.75;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 2rem;
+  }
+
+  .hero-languages {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 3rem;
+    color: rgba(255,255,255,.42);
+    font-size: 0.63rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+  }
+
+  .hero-languages i {
+    width: 18px;
+    height: 1px;
+    background: rgba(255,255,255,.2);
+  }
+
+  .hero-art {
+    position: relative;
+    display: grid;
+    min-height: 500px;
+    place-items: center;
+  }
+
+  .arch {
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(215, 185, 120, 0.25);
+    border-radius: 50% 50% 14px 14px;
+  }
+
+  .arch-outer {
+    width: min(420px, 90%);
+    aspect-ratio: 0.78;
+    background: rgba(255,255,255,.025);
+    box-shadow: 0 35px 100px rgba(0,0,0,.24);
+  }
+
+  .arch-middle {
+    width: 77%;
+    height: 80%;
+    border-color: rgba(255,255,255,.1);
+  }
+
+  .arch-inner {
+    width: 72%;
+    height: 70%;
+    gap: 0.7rem;
+    align-content: center;
+    border-color: rgba(215,185,120,.3);
+    background: radial-gradient(circle at 50% 40%, rgba(215,185,120,.12), transparent 65%);
+  }
+
+  .arabic {
+    font-family: 'Noto Naskh Arabic', serif;
+    font-size: clamp(3.2rem, 6vw, 5rem);
+    color: #e2c98f;
+    direction: rtl;
+  }
+
+  .arch-inner small {
+    color: rgba(255,255,255,.45);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .art-orbit {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 50%;
+  }
+
+  .orbit-one { width: 480px; height: 170px; transform: rotate(25deg); }
+  .orbit-two { width: 420px; height: 130px; transform: rotate(-18deg); }
+
+  .daily-band {
+    padding-block: 3rem;
+    border-bottom: 1px solid var(--m-line);
+    background: var(--m-surface);
+  }
+
+  .daily-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--m-accent);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+  }
+
+  .daily-label span { width: 8px; height: 8px; border-radius: 50%; background: var(--m-accent); }
+
+  .daily-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 1.35rem;
+  }
+
+  .daily-grid article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.1rem;
+  }
+
+  .daily-grid article + article {
+    padding-left: 3rem;
+    border-left: 1px solid var(--m-line);
+  }
+
+  .daily-number { color: var(--m-accent); font-family: 'Lora', serif; font-size: 0.8rem; }
+  .daily-grid h2 { margin: 0; font-family: 'Lora', serif; font-size: 1.15rem; }
+  .daily-grid p { margin: 0.45rem 0; color: var(--m-muted); font-size: 0.88rem; line-height: 1.65; }
+  .daily-grid small, .daily-disclaimer { color: var(--m-muted); font-size: 0.65rem; }
+  .daily-disclaimer { margin: 1.2rem 0 0; opacity: .75; }
+
+  .section-block { padding-block: 7rem; }
+  .learning-section { background: var(--m-bg); }
+
+  .section-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .section-card {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid var(--m-line);
+    border-radius: 22px;
+    background: var(--m-surface);
+    color: var(--m-text);
+    box-shadow: 0 8px 30px transparent;
+    transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  }
+
+  .section-card:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(in srgb, var(--m-accent) 45%, var(--m-line));
+    box-shadow: var(--m-shadow);
+  }
+
+  .section-card-top { display: flex; align-items: center; justify-content: space-between; }
+  .section-index { color: var(--m-accent); font-family: 'Lora', serif; font-size: 0.8rem; }
+  .section-arrow { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--m-line); border-radius: 50%; }
+  .section-card h3 { margin: 2.5rem 0 0; font-family: 'Lora', serif; font-size: 1.35rem; }
+  .section-card p { margin: .75rem 0 0; color: var(--m-muted); font-size: .82rem; line-height: 1.65; }
+  .section-link { margin-top: auto; padding-top: 1.5rem; color: var(--m-accent); font-size: .72rem; font-weight: 700; }
+
+  .mission-section {
+    padding-block: 7rem;
+    background: var(--m-primary);
+    color: var(--m-surface);
+  }
+
+  html[data-medrese-theme='dark'] .mission-section { color: #10231e; }
+  .mission-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 7rem; align-items: start; }
+  .mission-copy p { color: color-mix(in srgb, currentColor 65%, transparent); }
+  .mission-values { display: grid; }
+  .mission-values article { display: grid; grid-template-columns: 42px 1fr; gap: 1rem; padding: 1.5rem 0; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
+  .mission-values article > span { color: var(--m-accent); font-family: 'Lora', serif; }
+  .mission-values h3 { margin: 0; font-family: 'Lora', serif; font-size: 1.2rem; }
+  .mission-values p { margin: .5rem 0 0; color: color-mix(in srgb, currentColor 62%, transparent); font-size: .83rem; line-height: 1.65; }
+
+  .schedule-section { background: var(--m-surface); }
+  .schedule-layout { display: grid; grid-template-columns: 1.25fr .75fr; gap: 5rem; align-items: start; }
+  .schedule-table { margin-top: 2.5rem; border-top: 1px solid var(--m-line); }
+  .schedule-table article { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 1rem; align-items: center; padding: 1.15rem 0; border-bottom: 1px solid var(--m-line); }
+  .schedule-table article > div { display: grid; }
+  .schedule-table strong { font-size: .84rem; }
+  .schedule-table small, .schedule-table p { color: var(--m-muted); font-size: .72rem; }
+  .schedule-table p { margin: 0; }
+  .schedule-table time { color: var(--m-accent); font-family: 'Lora', serif; font-weight: 600; }
+
+  .prayer-card { padding: 1.7rem; border-radius: 26px; background: var(--m-hero); color: white; box-shadow: var(--m-shadow); }
+  .prayer-heading { display: flex; justify-content: space-between; align-items: center; }
+  .prayer-heading span { color: #d7b978; font-size: .68rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+  .prayer-heading svg { width: 22px; color: #d7b978; }
+  .prayer-card > p { margin: .6rem 0 1.5rem; color: rgba(255,255,255,.5); font-size: .72rem; }
+  .prayer-list { display: grid; gap: .2rem; }
+  .prayer-list div { display: flex; justify-content: space-between; padding: .7rem .8rem; border-radius: 10px; color: rgba(255,255,255,.62); font-size: .78rem; }
+  .prayer-list .is-next { background: rgba(215,185,120,.15); color: #e6cf9c; }
+  .prayer-card > small { display: block; margin-top: 1.2rem; color: rgba(255,255,255,.35); font-size: .6rem; line-height: 1.5; }
+
+  .events-section { padding-block: 7rem; background: var(--m-bg); }
+  .event-list { margin-top: 3rem; border-top: 1px solid var(--m-line); }
+  .event-list article { display: grid; grid-template-columns: 80px 1fr auto; gap: 1.5rem; align-items: center; padding: 1.5rem 0; border-bottom: 1px solid var(--m-line); }
+  .event-list time { display: grid; justify-items: center; padding: .6rem; border: 1px solid var(--m-line); border-radius: 14px; background: var(--m-surface); }
+  .event-list time strong { font-family: 'Lora', serif; font-size: 1.35rem; }
+  .event-list time span { color: var(--m-accent); font-size: .58rem; font-weight: 800; }
+  .event-list h3 { margin: 0; font-family: 'Lora', serif; font-size: 1.15rem; }
+  .event-list p { margin: .35rem 0 0; color: var(--m-muted); font-size: .75rem; }
+  .event-list article > a { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid var(--m-line); border-radius: 50%; color: var(--m-text); }
+
+  .ai-section { padding-block: 7rem; background: var(--m-surface); }
+  .ai-layout { display: grid; grid-template-columns: .9fr 1.1fr; gap: 6rem; align-items: center; }
+  .ai-suggestions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+  .ai-suggestions button { padding: .55rem .8rem; border: 1px solid var(--m-line); border-radius: 999px; background: var(--m-bg); color: var(--m-text); font: inherit; font-size: .68rem; cursor: pointer; }
+  .ai-card { overflow: hidden; border: 1px solid var(--m-line); border-radius: 26px; background: var(--m-bg); box-shadow: var(--m-shadow); }
+  .ai-topbar { display: flex; align-items: center; gap: .6rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--m-line); }
+  .ai-topbar > span { width: 9px; height: 9px; border-radius: 50%; background: var(--m-accent); box-shadow: 0 0 0 5px var(--m-accent-soft); }
+  .ai-topbar p { margin: 0; font-weight: 700; font-size: .78rem; }
+  .ai-topbar small { margin-left: auto; color: var(--m-muted); font-size: .55rem; font-weight: 800; letter-spacing: .14em; }
+  .ai-card form { padding: 1.2rem; }
+  .ai-card label { display: flex; padding: .4rem; border: 1px solid var(--m-line); border-radius: 14px; background: var(--m-surface-raised); }
+  .ai-card input { width: 100%; min-height: 42px; border: 0; outline: 0; padding: 0 .7rem; background: transparent; color: var(--m-text); font: inherit; font-size: .82rem; }
+  .ai-card form button { width: 42px; height: 42px; border: 0; border-radius: 11px; background: var(--m-primary); color: var(--m-surface); cursor: pointer; }
+  .ai-answer { margin: 0 1.2rem 1.2rem; padding: 1.2rem; border-radius: 16px; background: var(--m-surface); }
+  .ai-answer small { color: var(--m-accent); font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+  .ai-answer p { margin: .6rem 0; color: var(--m-text); font-size: .82rem; line-height: 1.7; }
+  .ai-answer span { color: var(--m-muted); font-size: .66rem; }
+  .ai-disclaimer { margin: 0; padding: 0 1.2rem 1.2rem; color: var(--m-muted); font-size: .6rem; }
+
+  .newsletter-section { padding-block: 4rem; background: var(--m-accent-soft); }
+  .newsletter-inner { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; }
+  .newsletter-inner h2 { margin: 0; font-family: 'Lora', serif; font-size: 2rem; }
+  .newsletter-inner p { margin: .45rem 0 0; color: var(--m-muted); font-size: .82rem; }
+  .newsletter-inner form { display: flex; gap: .5rem; }
+  .newsletter-inner input { min-width: 270px; height: 48px; padding: 0 1rem; border: 1px solid var(--m-line); border-radius: 999px; background: var(--m-surface); color: var(--m-text); font: inherit; }
+  .newsletter-inner button { height: 48px; padding: 0 1.2rem; border: 0; border-radius: 999px; background: var(--m-primary); color: var(--m-surface); font-weight: 700; cursor: pointer; }
+  .newsletter-success { position: absolute; right: 0; bottom: -1.8rem; }
+
+  @media (max-width: 900px) {
+    .hero-grid, .mission-grid, .schedule-layout, .ai-layout { grid-template-columns: 1fr; }
+    .hero-grid { gap: 0; padding-top: 6rem; }
+    .hero-art { min-height: 430px; }
+    .section-card-grid { grid-template-columns: repeat(2, 1fr); }
+    .mission-grid, .schedule-layout, .ai-layout { gap: 3rem; }
+  }
+
+  @media (max-width: 600px) {
+    .medrese-hero, .hero-grid { min-height: auto; }
+    .hero-grid { padding-block: 4.5rem 3rem; }
+    .hero-copy h1 { font-size: clamp(3.2rem, 16vw, 4.5rem); }
+    .hero-art { min-height: 360px; }
+    .arch-outer { width: 290px; }
+    .orbit-one { width: 320px; }
+    .orbit-two { width: 290px; }
+    .daily-grid, .section-card-grid { grid-template-columns: 1fr; }
+    .daily-grid { gap: 1.5rem; }
+    .daily-grid article + article { padding: 1.5rem 0 0; border-top: 1px solid var(--m-line); border-left: 0; }
+    .section-block, .mission-section, .events-section, .ai-section { padding-block: 5rem; }
+    .section-card { min-height: 230px; }
+    .schedule-table article { grid-template-columns: 1fr auto; }
+    .schedule-table article > p { grid-column: 1 / -1; grid-row: 2; }
+    .event-list article { grid-template-columns: 64px 1fr; }
+    .event-list article > a { display: none; }
+    .newsletter-inner { grid-template-columns: 1fr; }
+    .newsletter-inner form { display: grid; }
+    .newsletter-inner input { width: 100%; min-width: 0; }
+    .newsletter-success { position: static; grid-column: 1 / -1; }
+  }
+</style>

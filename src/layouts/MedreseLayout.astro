@@ -1,0 +1,953 @@
+---
+import '../styles/medrese.css';
+import {
+  getMedreseCopy,
+  localize,
+  medreseItems,
+  medreseLanguages,
+  medreseLanguageLabels,
+  medreseSections,
+  type MedreseLang,
+} from '../data/medrese';
+
+interface Props {
+  lang: MedreseLang;
+  title?: string;
+  description?: string;
+  path?: string;
+}
+
+const {
+  lang,
+  title = 'Medrese',
+  description = localize(medreseSections[0].description, lang),
+  path = '',
+} = Astro.props;
+const copy = getMedreseCopy(lang);
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
+const canonical = `${siteUrl}/${lang}/medrese${path}/`;
+const routeSuffix = Astro.url.pathname.split('/').slice(2).join('/');
+const searchIndex = medreseItems.map((item) => ({
+  id: item.id,
+  section: item.section,
+  title: localize(item.title, lang),
+  summary: localize(item.summary, lang),
+  meta: localize(item.meta, lang),
+  tags: item.tags,
+  href: `/${lang}/medrese/${item.section}/#${item.id}`,
+}));
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} · Medrese</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {medreseLanguages.map((language) => (
+      <link rel="alternate" hreflang={language} href={`${siteUrl}/${language}/medrese${path}/`} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/nl/medrese${path}/`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Medrese" />
+    <meta property="og:title" content={`${title} · Medrese`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${siteUrl}/images/empyr-logo.png`} />
+    <meta property="og:locale" content={lang === 'tr' ? 'tr_TR' : lang === 'nl' ? 'nl_NL' : 'en_US'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={`${title} · Medrese`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#0f5b49" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (() => {
+        const saved = localStorage.getItem('medrese-theme');
+        const dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.medreseTheme = dark ? 'dark' : 'light';
+      })();
+    </script>
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'EducationalOrganization',
+        name: 'Medrese',
+        url: `${siteUrl}/${lang}/medrese/`,
+        description,
+        availableLanguage: ['Dutch', 'Turkish', 'English'],
+        isAccessibleForFree: true,
+      })}
+    />
+  </head>
+  <body class="medrese-body">
+    <header class="sticky top-0 z-50 border-b med-border bg-[color:var(--med-bg)]/90 backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
+        <a href={`/${lang}/medrese/`} class="flex items-center gap-3" aria-label={`${copy.siteName} home`}>
+          <span class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl med-primary-bg text-[color:var(--med-bg)] shadow-lg">
+            <svg viewBox="0 0 32 32" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <path d="M7 8.5c3.7 0 6.8.8 9 2.7 2.2-1.9 5.3-2.7 9-2.7v15c-3.8 0-6.8.8-9 2.8-2.2-2-5.2-2.8-9-2.8v-15Z" />
+              <path d="M16 11.2v15M10.5 12.5c2 .1 3.4.5 4.4 1.2M21.5 12.5c-2 .1-3.4.5-4.4 1.2" />
+            </svg>
+          </span>
+          <span>
+            <span class="med-serif block text-xl font-bold leading-none tracking-tight">{copy.siteName}</span>
+            <span class="med-kicker mt-1 block text-[8px]">Ilm · Iman · İrfan</span>
+          </span>
+        </a>
+
+        <nav class="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
+          <a href={`/${lang}/medrese/basiskennis/`} class="text-sm font-semibold med-muted transition hover:text-[color:var(--med-primary)]">{copy.navLearn}</a>
+          <a href={`/${lang}/medrese/bibliotheek/`} class="text-sm font-semibold med-muted transition hover:text-[color:var(--med-primary)]">{copy.navLibrary}</a>
+          <a href={`/${lang}/medrese/evenementen/`} class="text-sm font-semibold med-muted transition hover:text-[color:var(--med-primary)]">{copy.navActivities}</a>
+          <a href={`/${lang}/medrese/risale/`} class="text-sm font-semibold med-muted transition hover:text-[color:var(--med-primary)]">{copy.navAbout}</a>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border med-border med-surface" data-med-search-open aria-label={copy.search}>
+            <svg viewBox="0 0 24 24" class="h-4.5 w-4.5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path>
+            </svg>
+          </button>
+          <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border med-border med-surface" data-med-theme aria-label={copy.theme}>
+            <svg data-theme-moon viewBox="0 0 24 24" class="h-4.5 w-4.5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M20 15.2A8.5 8.5 0 1 1 8.8 4a7 7 0 0 0 11.2 11.2Z"></path>
+            </svg>
+          </button>
+          <div class="hidden items-center rounded-full border med-border med-surface p-1 sm:flex">
+            {medreseLanguages.map((language) => (
+              <a
+                href={`/${language}/${routeSuffix}`}
+                class="rounded-full px-2.5 py-1.5 text-[10px] font-extrabold uppercase transition"
+                style={language === lang ? 'background: var(--med-primary); color: var(--med-bg);' : 'color: var(--med-muted);'}
+                title={medreseLanguageLabels[language]}
+              >
+                {language}
+              </a>
+            ))}
+          </div>
+          <button type="button" class="flex h-10 w-10 items-center justify-center rounded-full border med-border med-surface lg:hidden" data-med-menu aria-label="Menu" aria-expanded="false">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="border-t med-border med-surface lg:hidden" data-med-mobile-nav hidden>
+        <nav class="mx-auto grid max-w-7xl gap-1 px-4 py-4" aria-label="Mobile navigation">
+          <a href={`/${lang}/medrese/basiskennis/`} class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:med-surface-soft">{copy.navLearn}</a>
+          <a href={`/${lang}/medrese/bibliotheek/`} class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:med-surface-soft">{copy.navLibrary}</a>
+          <a href={`/${lang}/medrese/evenementen/`} class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:med-surface-soft">{copy.navActivities}</a>
+          <a href={`/${lang}/medrese/risale/`} class="rounded-xl px-3 py-2.5 text-sm font-semibold hover:med-surface-soft">{copy.navAbout}</a>
+          <div class="mt-2 flex gap-2 border-t med-border pt-3">
+            {medreseLanguages.map((language) => (
+              <a href={`/${language}/${routeSuffix}`} class="rounded-full border med-border px-3 py-1.5 text-xs font-bold uppercase">{language}</a>
+            ))}
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <slot />
+
+    <footer class="border-t med-border">
+      <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+        <div>
+          <p class="med-serif text-lg font-bold">{copy.siteName}</p>
+          <p class="mt-1 text-xs med-muted">{copy.footer}</p>
+        </div>
+        <div class="flex flex-wrap gap-5 text-xs font-semibold med-muted">
+          <button type="button" data-med-rights class="hover:med-primary">{copy.rights}</button>
+          <a href={`/${lang}/`} class="hover:med-primary">{copy.backPortfolio}</a>
+          <a href="mailto:business@empyr-portfolio.com" class="hover:med-primary">Contact</a>
+        </div>
+      </div>
+    </footer>
+
+    <div class="med-modal fixed inset-0 z-[100] bg-black/55 p-4 backdrop-blur-sm" data-med-search-modal hidden>
+      <div class="mx-auto mt-[8vh] max-w-2xl overflow-hidden rounded-[1.7rem] border med-border med-surface shadow-2xl" role="dialog" aria-modal="true" aria-label={copy.search}>
+        <div class="flex items-center gap-3 border-b med-border p-4">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 med-muted" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path>
+          </svg>
+          <input class="min-w-0 flex-1 bg-transparent py-2 text-base outline-none" data-med-search-input placeholder={copy.searchPlaceholder} />
+          <button type="button" data-med-search-close class="rounded-lg border med-border px-2 py-1 text-xs med-muted">Esc</button>
+        </div>
+        <div class="max-h-[58vh] overflow-y-auto p-3" data-med-search-results>
+          <p class="px-3 py-8 text-center text-sm med-muted">{copy.searchPlaceholder}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="med-modal fixed inset-0 z-[100] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm" data-med-rights-modal hidden>
+      <div class="max-w-lg rounded-[1.7rem] border med-border med-surface p-7 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="rights-title">
+        <div class="flex items-start justify-between gap-5">
+          <div>
+            <p class="med-kicker">{copy.rights}</p>
+            <h2 id="rights-title" class="med-serif mt-2 text-3xl font-bold">{copy.rights}</h2>
+          </div>
+          <button type="button" data-med-rights-close class="flex h-9 w-9 items-center justify-center rounded-full border med-border" aria-label="Close">×</button>
+        </div>
+        <p class="mt-5 text-sm leading-7 med-muted">{copy.rightsBody}</p>
+        <div class="mt-6 rounded-2xl med-surface-soft p-4 text-xs leading-6 med-muted">
+          Risale-i Nur: metadata and original summaries only · Quran: references with original paraphrases · Hadith: collection references and educational summaries.
+        </div>
+      </div>
+    </div>
+
+    <script is:inline type="application/json" id="med-search-data" set:html={JSON.stringify(searchIndex)} />
+    <script is:inline define:vars={{ noResults: copy.noResults }}>
+      (() => {
+        const root = document.documentElement;
+        const themeButton = document.querySelector('[data-med-theme]');
+        themeButton?.addEventListener('click', () => {
+          const next = root.dataset.medreseTheme === 'dark' ? 'light' : 'dark';
+          root.dataset.medreseTheme = next;
+          localStorage.setItem('medrese-theme', next);
+        });
+
+        const menuButton = document.querySelector('[data-med-menu]');
+        const mobileNav = document.querySelector('[data-med-mobile-nav]');
+        menuButton?.addEventListener('click', () => {
+          const open = mobileNav?.hasAttribute('hidden') ?? true;
+          mobileNav?.toggleAttribute('hidden', !open);
+          menuButton.setAttribute('aria-expanded', String(open));
+        });
+
+        const searchModal = document.querySelector('[data-med-search-modal]');
+        const searchInput = document.querySelector('[data-med-search-input]');
+        const resultBox = document.querySelector('[data-med-search-results]');
+        const dataElement = document.getElementById('med-search-data');
+        const data = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
+
+        const closeSearch = () => {
+          searchModal?.setAttribute('hidden', '');
+          document.documentElement.style.overflow = '';
+        };
+        document.querySelector('[data-med-search-open]')?.addEventListener('click', () => {
+          searchModal?.removeAttribute('hidden');
+          document.documentElement.style.overflow = 'hidden';
+          setTimeout(() => searchInput?.focus(), 50);
+        });
+        document.querySelector('[data-med-search-close]')?.addEventListener('click', closeSearch);
+        searchModal?.addEventListener('click', (event) => {
+          if (event.target === searchModal) closeSearch();
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') closeSearch();
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            document.querySelector('[data-med-search-open]')?.click();
+          }
+        });
+        searchInput?.addEventListener('input', () => {
+          const query = searchInput.value.trim().toLowerCase();
+          if (!query) {
+            resultBox.innerHTML = `<p class="px-3 py-8 text-center text-sm med-muted">${searchInput.placeholder}</p>`;
+            return;
+          }
+          const matches = data.filter((item) =>
+            `${item.title} ${item.summary} ${item.tags.join(' ')}`.toLowerCase().includes(query)
+          );
+          resultBox.innerHTML = matches.length
+            ? matches.slice(0, 8).map((item) => `
+                <a href="${item.href}" class="block rounded-2xl p-4 hover:med-surface-soft">
+                  <span class="text-[10px] font-bold uppercase tracking-wider med-accent">${item.section}</span>
+                  <strong class="mt-1 block text-sm">${item.title}</strong>
+                  <span class="mt-1 block text-xs leading-5 med-muted">${item.summary}</span>
+                </a>`).join('')
+            : `<p class="px-3 py-8 text-center text-sm med-muted">${noResults}</p>`;
+        });
+
+        const rightsModal = document.querySelector('[data-med-rights-modal]');
+        document.querySelector('[data-med-rights]')?.addEventListener('click', () => rightsModal?.removeAttribute('hidden'));
+        document.querySelector('[data-med-rights-close]')?.addEventListener('click', () => rightsModal?.setAttribute('hidden', ''));
+        rightsModal?.addEventListener('click', (event) => {
+          if (event.target === rightsModal) rightsModal.setAttribute('hidden', '');
+        });
+
+        const favorites = new Set(JSON.parse(localStorage.getItem('medrese-favorites') || '[]'));
+        document.querySelectorAll('[data-med-favorite]').forEach((button) => {
+          const id = button.dataset.medFavorite;
+          const sync = () => {
+            const saved = favorites.has(id);
+            button.dataset.saved = String(saved);
+            button.setAttribute('aria-pressed', String(saved));
+            const label = button.querySelector('[data-favorite-label]');
+            if (label) label.textContent = saved ? button.dataset.savedLabel : button.dataset.saveLabel;
+          };
+          sync();
+          button.addEventListener('click', () => {
+            favorites.has(id) ? favorites.delete(id) : favorites.add(id);
+            localStorage.setItem('medrese-favorites', JSON.stringify([...favorites]));
+            sync();
+          });
+        });
+
+        document.querySelectorAll('[data-demo-form]').forEach((form) => {
+          form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const success = form.querySelector('[data-demo-success]');
+            success?.removeAttribute('hidden');
+            form.querySelector('input')?.setAttribute('disabled', '');
+          });
+        });
+
+        const aiForm = document.querySelector('[data-ai-form]');
+        aiForm?.addEventListener('submit', (event) => {
+          event.preventDefault();
+          document.querySelector('[data-ai-answer]')?.removeAttribute('hidden');
+        });
+      })();
+    </script>
+  </body>
+</html>
+{/*
+---
+import '../styles/global.css';
+import MedreseHeader from '../components/medrese/MedreseHeader.astro';
+import {
+  getMedreseSearchIndex,
+  medreseCopy,
+  medreseLanguages,
+  type MedreseLang,
+} from '../data/medrese';
+
+interface Props {
+  lang: MedreseLang;
+  title?: string;
+  description?: string;
+  path?: string;
+}
+
+const { lang, title, description, path = '' } = Astro.props;
+const copy = medreseCopy[lang];
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
+const pageTitle = title ? `${title} — Medrese` : 'Medrese — Kennis die hart en verstand verbindt';
+const pageDescription =
+  description ??
+  'Een moderne, meertalige medrese voor islamitische basiskennis, Koran, hadith, Risale-i Nur, artikelen en activiteiten.';
+const canonical = `${siteUrl}/${lang}/medrese${path}/`;
+const currentPath = Astro.url.pathname;
+const searchIndex = getMedreseSearchIndex(lang);
+---
+
+<!doctype html>
+<html lang={lang} data-medrese-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    {medreseLanguages.map((language) => (
+      <link rel="alternate" hreflang={language} href={`${siteUrl}/${language}/medrese${path}/`} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${siteUrl}/nl/medrese${path}/`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Medrese by Empyr" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'tr' ? 'tr_TR' : lang === 'nl' ? 'nl_NL' : 'en_US'} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&family=Noto+Naskh+Arabic:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      try {
+        const stored = localStorage.getItem('medrese-theme');
+        const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.medreseTheme = stored || (dark ? 'dark' : 'light');
+      } catch {}
+    </script>
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'EducationalOrganization',
+        name: 'Medrese',
+        url: `${siteUrl}/${lang}/medrese/`,
+        description: pageDescription,
+        availableLanguage: ['Dutch', 'Turkish', 'English'],
+        areaServed: 'Netherlands',
+        isAccessibleForFree: true,
+      })}
+    />
+  </head>
+  <body class="medrese-body">
+    <MedreseHeader lang={lang} copy={copy} currentPath={currentPath} searchIndex={searchIndex} />
+    <main>
+      <slot />
+    </main>
+    <footer id="contact" class="medrese-footer">
+      <div class="medrese-shell footer-grid">
+        <a href={`/${lang}/medrese/`} class="brand footer-brand">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span><strong>Medrese</strong><small>by Empyr</small></span>
+        </a>
+        <p>{copy.footer}</p>
+        <a href="mailto:business@empyr-portfolio.com">business@empyr-portfolio.com</a>
+      </div>
+    </footer>
+  </body>
+</html>
+*/}
+
+<style is:global>
+  :root {
+    --m-bg: #f4f0e7;
+    --m-surface: #fffdf8;
+    --m-surface-raised: #ffffff;
+    --m-text: #17342b;
+    --m-muted: #68766f;
+    --m-line: rgba(23, 52, 43, 0.12);
+    --m-primary: #123f33;
+    --m-primary-soft: #dce9e1;
+    --m-accent: #bd8b35;
+    --m-accent-soft: #f2e7cc;
+    --m-hero: #0d332a;
+    --m-hero-text: #fffdf6;
+    --m-shadow: 0 24px 70px rgba(34, 51, 44, 0.1);
+  }
+
+  html[data-medrese-theme='dark'] {
+    --m-bg: #0b1714;
+    --m-surface: #10231e;
+    --m-surface-raised: #142a24;
+    --m-text: #eef4ef;
+    --m-muted: #9cafA6;
+    --m-line: rgba(224, 237, 229, 0.12);
+    --m-primary: #dce9e1;
+    --m-primary-soft: #18352d;
+    --m-accent: #d5ad63;
+    --m-accent-soft: #30291b;
+    --m-hero: #081c17;
+    --m-hero-text: #fffdf6;
+    --m-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .medrese-body {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--m-bg);
+    color: var(--m-text);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    transition: background 180ms ease, color 180ms ease;
+  }
+
+  .medrese-shell {
+    width: min(1180px, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .medrese-header {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    border-bottom: 1px solid var(--m-line);
+    background: color-mix(in srgb, var(--m-surface) 88%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .header-inner {
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--m-text);
+  }
+
+  .brand > span:last-child {
+    display: grid;
+  }
+
+  .brand strong {
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.08rem;
+    line-height: 1.1;
+  }
+
+  .brand small {
+    margin-top: 0.18rem;
+    color: var(--m-muted);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .brand-mark {
+    position: relative;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 50% 50% 44% 44%;
+    background: var(--m-primary);
+    color: var(--m-surface);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--m-accent) 30%, transparent);
+  }
+
+  .brand-mark::before {
+    content: '';
+    width: 17px;
+    height: 17px;
+    border: 1.5px solid currentColor;
+    border-bottom: 0;
+    border-radius: 12px 12px 0 0;
+    opacity: 0.9;
+  }
+
+  .brand-mark span {
+    position: absolute;
+    bottom: 10px;
+    width: 21px;
+    height: 1.5px;
+    background: var(--m-accent);
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+  }
+
+  .desktop-nav a {
+    color: var(--m-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: color 160ms ease;
+  }
+
+  .desktop-nav a:hover {
+    color: var(--m-text);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .icon-button,
+  .language-current,
+  .mobile-menu-button {
+    border: 1px solid var(--m-line);
+    background: var(--m-surface-raised);
+    color: var(--m-text);
+    cursor: pointer;
+  }
+
+  .icon-button {
+    display: grid;
+    width: 39px;
+    height: 39px;
+    place-items: center;
+    border-radius: 50%;
+  }
+
+  .icon-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .theme-moon,
+  html[data-medrese-theme='dark'] .theme-sun {
+    display: none;
+  }
+
+  html[data-medrese-theme='dark'] .theme-moon {
+    display: block;
+  }
+
+  .language-menu {
+    position: relative;
+  }
+
+  .language-current {
+    height: 39px;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 999px;
+    padding: 0 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+
+  .language-current svg {
+    width: 14px;
+  }
+
+  .language-popover {
+    position: absolute;
+    top: calc(100% + 0.65rem);
+    right: 0;
+    min-width: 180px;
+    padding: 0.45rem;
+    border: 1px solid var(--m-line);
+    border-radius: 16px;
+    background: var(--m-surface-raised);
+    box-shadow: var(--m-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: 160ms ease;
+  }
+
+  .language-popover.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .language-popover a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    color: var(--m-muted);
+    font-size: 0.78rem;
+  }
+
+  .language-popover a:hover,
+  .language-popover a[aria-current='page'] {
+    background: var(--m-primary-soft);
+    color: var(--m-text);
+  }
+
+  .language-popover small {
+    font-weight: 800;
+  }
+
+  .mobile-menu-button {
+    display: none;
+    width: 39px;
+    height: 39px;
+    border-radius: 50%;
+    place-content: center;
+  }
+
+  .mobile-menu-button span {
+    display: block;
+    width: 16px;
+    height: 1.5px;
+    margin: 2px auto;
+    background: currentColor;
+  }
+
+  .mobile-panel {
+    display: none;
+    border-top: 1px solid var(--m-line);
+    background: var(--m-surface);
+  }
+
+  .mobile-panel.is-open {
+    display: block;
+  }
+
+  .mobile-panel nav {
+    display: grid;
+    padding-block: 0.8rem 1.1rem;
+  }
+
+  .mobile-panel a {
+    padding: 0.75rem 0;
+    color: var(--m-text);
+    font-weight: 600;
+  }
+
+  .search-dialog {
+    width: min(720px, calc(100% - 1.5rem));
+    max-height: min(80vh, 720px);
+    padding: 0;
+    border: 0;
+    border-radius: 28px;
+    background: transparent;
+    color: var(--m-text);
+    overflow: visible;
+  }
+
+  .search-dialog::backdrop {
+    background: rgba(5, 16, 13, 0.78);
+    backdrop-filter: blur(10px);
+  }
+
+  .search-panel {
+    max-height: min(80vh, 720px);
+    padding: 1.4rem;
+    overflow-y: auto;
+    border: 1px solid var(--m-line);
+    border-radius: 28px;
+    background: var(--m-surface);
+    box-shadow: 0 30px 100px rgba(0, 0, 0, 0.35);
+  }
+
+  .search-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .search-heading span,
+  .section-kicker {
+    color: var(--m-accent);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .search-heading h2 {
+    margin: 0.25rem 0 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 1.8rem;
+  }
+
+  .search-field {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 1.25rem;
+    padding: 0 1rem;
+    border: 1px solid var(--m-line);
+    border-radius: 16px;
+    background: var(--m-surface-raised);
+  }
+
+  .search-field svg {
+    width: 19px;
+    flex: 0 0 auto;
+    color: var(--m-muted);
+  }
+
+  .search-field input {
+    width: 100%;
+    height: 52px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--m-text);
+    font: inherit;
+  }
+
+  .search-field kbd {
+    color: var(--m-muted);
+    font-size: 0.64rem;
+  }
+
+  .search-results {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.8rem;
+  }
+
+  .search-results a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+    color: var(--m-text);
+  }
+
+  .search-results a:hover {
+    background: var(--m-primary-soft);
+  }
+
+  .search-results a span:first-child {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .search-results small {
+    color: var(--m-accent);
+    font-size: 0.63rem;
+    font-weight: 700;
+  }
+
+  .search-results strong {
+    font-size: 0.9rem;
+  }
+
+  .search-empty {
+    padding: 2rem;
+    color: var(--m-muted);
+    text-align: center;
+  }
+
+  .medrese-footer {
+    border-top: 1px solid var(--m-line);
+    background: var(--m-surface);
+  }
+
+  .footer-grid {
+    min-height: 150px;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .footer-grid p {
+    margin: 0;
+    color: var(--m-muted);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .footer-grid > a:last-child {
+    justify-self: end;
+    color: var(--m-text);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .medrese-button {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.8rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: transform 160ms ease, background 160ms ease;
+  }
+
+  .medrese-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .medrese-button.primary {
+    background: var(--m-accent);
+    color: #17251f;
+  }
+
+  .medrese-button.secondary {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.07);
+    color: white;
+  }
+
+  .section-heading {
+    max-width: 680px;
+  }
+
+  .section-heading h2 {
+    margin: 0.7rem 0 0;
+    font-family: 'Lora', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+  }
+
+  .section-heading p {
+    margin: 1rem 0 0;
+    color: var(--m-muted);
+    line-height: 1.75;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--m-accent);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 900px) {
+    .desktop-nav {
+      display: none;
+    }
+
+    .mobile-menu-button {
+      display: grid;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr;
+      padding-block: 2.5rem;
+      text-align: center;
+    }
+
+    .footer-brand,
+    .footer-grid > a:last-child {
+      justify-self: center;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .medrese-shell {
+      width: min(100% - 1.25rem, 1180px);
+    }
+
+    .header-inner {
+      min-height: 66px;
+    }
+
+    .brand small {
+      display: none;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+    }
+
+    .language-current {
+      padding-inline: 0.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

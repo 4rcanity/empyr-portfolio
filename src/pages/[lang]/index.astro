@@ -42,19 +42,36 @@ const templateMeta: Record<string, { image: string; bestFor: string[]; nlBestFor
   },
 };
 
-const templates = configs.map((config) => {
-  const content = config.content[lang];
-  const meta = templateMeta[config.slug];
-  return {
-    slug: config.slug,
-    name: config.name,
-    tagline: content.tagline,
-    description: content.description,
-    image: meta.image,
-    accent: config.theme.accent,
-    bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
-  };
-});
+const templates = [
+  ...configs.map((config) => {
+    const content = config.content[lang];
+    const meta = templateMeta[config.slug];
+    return {
+      slug: config.slug,
+      name: config.name,
+      tagline: content.tagline,
+      description: content.description,
+      image: meta.image,
+      accent: config.theme.accent,
+      bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
+    };
+  }),
+  {
+    slug: 'medrese',
+    name: 'Medrese',
+    tagline: lang === 'nl' ? 'Kennis die hart en verstand verbindt' : 'Knowledge that connects heart and mind',
+    description:
+      lang === 'nl'
+        ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
+        : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
+    image: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=900&q=82',
+    accent: '#BD8B35',
+    bestFor:
+      lang === 'nl'
+        ? ['Educatie', 'Gemeenschap', 'NL · TR · EN']
+        : ['Education', 'Community', 'NL · TR · EN'],
+  },
+];
 
 const copy =
   lang === 'nl'
@@ -68,7 +85,7 @@ const copy =
         secondaryCta: 'Start een project',
         workEyebrow: 'Geselecteerd werk',
         workTitle: 'Gebouwd om op te vallen.',
-        workBody: 'Vijf concepten, elk met een eigen merkgevoel, doelgroep en conversiedoel.',
+        workBody: 'Zes concepten, elk met een eigen merkgevoel, doelgroep en conversiedoel.',
         games: 'Game development',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
@@ -85,7 +102,7 @@ const copy =
         secondaryCta: 'Start a project',
         workEyebrow: 'Selected work',
         workTitle: 'Built to stand out.',
-        workBody: 'Five concepts, each with its own brand feel, audience and conversion goal.',
+        workBody: 'Six concepts, each with its own brand feel, audience and conversion goal.',
         games: 'Game development',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
