@@ -1,103 +1,104 @@
-# Empyr Portfolio
+# Empyr
 
-Personal portfolio site at [empyr-portfolio.com](https://empyr-portfolio.com) — showcasing sellable business website templates built with Astro.
+Empyr is an AI-driven site generation SaaS. A user describes their business
+in a prompt and Empyr returns a brand-ready layout (hero, feature grid,
+footer) that renders instantly in the dashboard preview.
 
-## What's included
+**SaaS skeleton status:** complete end-to-end — Clerk auth, Supabase schema,
+typed `LayoutDocument` contract, placeholder LLM → `/api/generate`, and a
+live dashboard playground that renders `HeroBlock` / `FeatureGridBlock` /
+`FooterBlock`.
 
-- **Business templates:** restaurants, cafés, barbershops, and more (NL + EN demos)
+> The previous static Astro portfolio (restaurant/café template demos) has
+> been archived, unmodified, at [`_archive/astro-portfolio/`](./_archive/astro-portfolio/)
+> for reference. It is not part of the active app.
 
-## Quick start
+## Stack
 
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:4321](http://localhost:4321) — redirects to `/nl` (Dutch portfolio home).
-
-## Deployment
-
-Hosted on **GitHub Pages** with custom domain `empyr-portfolio.com`. See [DEPLOY.md](./DEPLOY.md) for setup steps (GitHub repos, DNS, Pages settings).
-
-## Templates
-
-| Template | Best for | Demo route (NL) | Demo route (EN) |
-|----------|----------|------------------|------------------|
-| **Trattoria** | Italian, Greek, family dining | `/nl/trattoria` | `/en/trattoria` |
-| **Noir** | Fine dining, steakhouse, wine bar | `/nl/noir` | `/en/noir` |
-| **Corner** | Café, brunch, fast-casual | `/nl/corner` | `/en/corner` |
-| **Ocakbasi** | Turkish grill, kebab, halal takeout | `/nl/ocakbasi` | `/en/ocakbasi` |
-
-The `Ocakbasi` template is modeled on a real Turkish ocakbasi/grill restaurant (Reis Ocakbasi & Etli Ekmek, Schiedam) — real address, phone, hours, and menu structure, used here as demo content.
+- **Framework:** Next.js 15 (App Router) + TypeScript
+- **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`)
+- **Auth:** Clerk (`@clerk/nextjs`) — middleware-protected `/dashboard` and `/api/generate`
+- **Database:** Supabase (Postgres) via `@supabase/supabase-js`
+- **Validation:** Zod — shared `LayoutDocument` contract in `src/types/layout.ts`
 
 ## Quick start
 
 ```bash
 npm install
+cp .env.example .env.local   # fill in at least Clerk keys
 npm run dev
 ```
 
-Open [http://localhost:4321](http://localhost:4321) — it redirects to `/nl` (the portfolio landing page, Dutch by default).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Internationalization
+| Path | Purpose |
+|------|---------|
+| `/` | Marketing landing |
+| `/sign-in` / `/sign-up` | Clerk auth |
+| `/dashboard` | Prompt → generate → live preview |
 
-- Default language: **Dutch (`nl`)**. English (`en`) is fully supported and switchable via the NL/EN toggle in the nav on every page.
-- Routes are language-prefixed: `/nl/<slug>` and `/en/<slug>`, statically generated for both languages (SEO-friendly, with `hreflang` alternate tags).
-- UI chrome strings (nav labels, buttons, section headings, legal text) live in `src/i18n/ui.ts`.
-- Per-restaurant content (menu, tagline, description, about text, testimonials, opening hours) is bilingual per config, under `content: { nl: {...}, en: {...} }` in `src/types/site-config.ts`.
-- To add a language: add it to `languages` in `src/i18n/ui.ts`, add its UI strings, and add a matching `content.<lang>` block to each config in `src/data/`.
+Supabase keys are optional for local preview — generation still returns layout
+JSON when persistence env is missing.
 
-## Per-client workflow
+## Environment variables
 
-1. Copy a template config from `src/data/` (e.g. `trattoria-config.ts`)
-2. Update the non-localized fields (name, address, phone, images, theme colors) and both `content.nl` / `content.en` blocks
-3. Register it in `src/data/configs.ts`
-4. Deploy to Netlify or Vercel (free tier)
-5. Point the client's domain via DNS
+See [`.env.example`](./.env.example) for the full list (Clerk, Supabase,
+placeholder LLM adapter config). No secrets are committed.
 
-## Deployment
+## Database
 
-### Netlify (recommended)
+The Postgres schema (`users`, `generated_sites`) lives in
+[`supabase/migrations/001_init.sql`](./supabase/migrations/001_init.sql).
+Apply it via the Supabase SQL editor or the Supabase CLI:
 
-1. Push this repo to GitHub
-2. Connect at [netlify.com](https://netlify.com) → New site from Git
-3. Build command: `npm run build`, publish directory: `dist`
-4. Update `site` in `astro.config.mjs` and `public/robots.txt` with your Netlify URL
-
-### Vercel
-
-1. Push to GitHub
-2. Import at [vercel.com](https://vercel.com) — auto-detects Astro via `vercel.json`
-3. Update `site` in `astro.config.mjs` with your Vercel URL
-
-## Suggested pricing (EU)
-
-| | Setup | Monthly |
-|---|-------|---------|
-| Starter | €750 – €950 | €50 – €70 |
-| Standard | €950 – €1,200 | €70 – €90 |
-| Upsells | +€150 – €500 | — |
-
-## Features
-
-- Mobile-first responsive design
-- Bilingual (NL default / EN) with static per-language routes
-- Explicit contrast-safe theme colors (`onPrimaryText`, `onAccentText`) — no dark-on-dark text bugs
-- Schema.org Restaurant structured data (halal, ratings, opening hours) + Open Graph / Twitter meta
-- Sitemap generation
-- Impressum + Privacy Policy per language (GDPR-friendly, no tracking cookies)
-- Free static hosting
+```bash
+supabase db push
+```
 
 ## Project structure
 
 ```
 src/
-  components/shared/   # Reusable sections (nav, hero, menu, gallery, footer, etc.)
-  components/corner/   # Daily special + Instagram feed (used by Corner & Ocakbasi)
-  data/                # Template configs, one per client, plus configs.ts registry
-  i18n/                # UI string dictionary (ui.ts) + lang helpers (utils.ts)
-  layouts/             # BaseLayout with theme CSS variables
-  pages/[lang]/[slug]/ # Dynamic per-language, per-template routes
-  types/                # TypeScript SiteConfig / LocalizedContent interfaces
-  utils/hours.ts        # Opening-hours formatting + schema.org day mapping
+  middleware.ts                 # Clerk route protection (/dashboard, /api/generate)
+  app/
+    layout.tsx                  # root layout: fonts, ClerkProvider, Empyr tokens
+    globals.css                 # Tailwind + Empyr CSS variables
+    page.tsx                    # marketing landing (Empyr brand)
+    sign-in/[[...sign-in]]/     # Clerk sign-in
+    sign-up/[[...sign-up]]/     # Clerk sign-up
+    dashboard/                  # authenticated shell + generate playground
+    api/generate/route.ts       # secure LLM -> layout JSON endpoint
+  components/
+    blocks/                     # HeroBlock, FeatureGridBlock, FooterBlock, BlockRenderer
+    dashboard/                  # PromptForm, SitePreview, DashboardPlayground
+  lib/
+    supabase/                   # client.ts / server.ts / types.ts
+    llm/                        # placeholder LLM adapter
+  types/
+    layout.ts                   # LayoutDocument Zod schemas + inferred types
+supabase/migrations/001_init.sql
+_archive/astro-portfolio/       # archived Astro app (reference only)
 ```
+
+## Scripts
+
+```bash
+npm run dev         # local dev server
+npm run typecheck   # tsc --noEmit
+npm run build       # production build
+npm run start       # serve production build
+```
+
+## Deployment
+
+GitHub Pages cannot run Next.js API routes or middleware-based auth. Deploy to
+**Vercel** (or another Node-capable host). Set the same env vars from
+`.env.example` in the host dashboard. DNS cutover for `empyr-portfolio.com`
+is intentionally not changed as part of this skeleton.
+
+## Roadmap (post-skeleton)
+
+- Swap placeholder LLM for a real provider (Claude / Fable)
+- Clerk ↔ Supabase JWT bridge + RLS policies
+- Public site publishing / custom slugs
+- Billing / subscriptions

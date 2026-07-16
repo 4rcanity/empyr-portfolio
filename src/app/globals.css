@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+:root {
+  --empyr-bg: #0c0a09;
+  --empyr-surface: #1c1917;
+  --empyr-accent: #f97316;
+  --empyr-text: #f5f5f4;
+  --empyr-muted: #a8a29e;
+}
+
+html,
+body {
+  background-color: var(--empyr-bg);
+  color: var(--empyr-text);
+}
+
+* {
+  box-sizing: border-box;
+}
