@@ -2,8 +2,7 @@
 
 Personal portfolio and demo sites (Astro).
 
-The AI site-generation SaaS now lives in a separate repo:
-**https://github.com/4rcanity/empyr**
+
 
 ## Quick start
 
