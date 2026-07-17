@@ -23,11 +23,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const hasClerk = Boolean(
+    publishableKey && !publishableKey.includes("placeholder"),
+  );
+
   return (
-    <ClerkProvider>
-      <html lang="en" className={inter.variable}>
-        <body className="font-sans antialiased">{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className={inter.variable}>
+      <body className="font-sans antialiased">
+        {hasClerk ? (
+          <ClerkProvider publishableKey={publishableKey}>
+            {children}
+          </ClerkProvider>
+        ) : (
+          children
+        )}
+      </body>
+    </html>
   );
 }
