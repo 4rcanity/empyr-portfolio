@@ -91,10 +91,10 @@ npm run start       # serve production build
 
 ## Deployment
 
-GitHub Pages cannot run Next.js API routes or middleware-based auth. Deploy to
-**Vercel** (or another Node-capable host). Set the same env vars from
-`.env.example` in the host dashboard. DNS cutover for `empyr-portfolio.com`
-is intentionally not changed as part of this skeleton.
+Deploy to **Vercel** (GitHub Pages cannot run this stack). Full steps — env
+vars, Clerk/Supabase, custom domain DNS — are in [DEPLOY.md](./DEPLOY.md).
+
+Repo: https://github.com/4rcanity/empyr-portfolio
 
 ## Roadmap (post-skeleton)
 
