@@ -104,7 +104,7 @@ The dashboard calls `/api/generate`, which talks to an OpenAI-compatible model:
 |----------|-----|----------------|
 | **DeepSeek Coder** | `LLM_PROVIDER=deepseek` + `DEEPSEEK_API_KEY` or `LLM_API_KEY` | `deepseek-v4-flash` |
 | **GLM 4.9B-class** | `LLM_PROVIDER=glm` + `ZHIPU_API_KEY` or `LLM_API_KEY` | `glm-4-flash` |
-| **Ollama (local)** | `LLM_PROVIDER=ollama` | `deepseek-coder-v2-lite` at `http://127.0.0.1:11434/v1` |
+| **Ollama (local)** | `LLM_PROVIDER=ollama` | `glm4:9b` (or `deepseek-coder:6.7b`) at `http://127.0.0.1:11434/v1` |
 
 If no key is set (or the call fails), Empyr falls back to a deterministic offline layout so the playground still works.
 
@@ -113,12 +113,12 @@ If no key is set (or the call fails), Empyr falls back to a deterministic offlin
 LLM_PROVIDER=deepseek
 DEEPSEEK_API_KEY=sk-...
 
-# Or local Ollama (~16B MoE coder + optional GLM 9B)
-ollama pull deepseek-coder-v2-lite
+# Or local Ollama
 ollama pull glm4:9b
+ollama pull deepseek-coder:6.7b
 LLM_PROVIDER=ollama
-LLM_MODEL=deepseek-coder-v2-lite
-# LLM_MODEL=glm4:9b
+LLM_MODEL=glm4:9b
+# LLM_MODEL=deepseek-coder:6.7b
 ```
 
 ## Roadmap (post-skeleton)

@@ -27,10 +27,11 @@ const PROVIDER_DEFAULTS: Record<
     model: "glm-4-flash",
     label: "GLM 4.9B-class (Zhipu)",
   },
-  // Local OpenAI-compatible server (Ollama). Prefer DeepSeek-Coder-V2-Lite (~16B MoE).
+  // Local OpenAI-compatible server (Ollama).
+  // Prefer glm4:9b (installed) or deepseek-coder:6.7b when pulled.
   ollama: {
     baseUrl: "http://127.0.0.1:11434/v1",
-    model: "deepseek-coder-v2-lite",
+    model: "glm4:9b",
     label: "Ollama (local DeepSeek Coder / GLM)",
   },
 };
@@ -94,6 +95,6 @@ export const SUPPORTED_PROVIDERS: Array<{
   {
     id: "ollama",
     label: "Ollama (local)",
-    description: "Local deepseek-coder-v2-lite / glm4:9b via http://127.0.0.1:11434",
+    description: "Local glm4:9b / deepseek-coder:6.7b via http://127.0.0.1:11434",
   },
 ];

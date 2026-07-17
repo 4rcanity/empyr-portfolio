@@ -39,7 +39,7 @@ const PROVIDERS: Array<{ id: ProviderId; label: string; hint: string }> = [
   {
     id: "ollama",
     label: "Ollama (local)",
-    hint: "Local deepseek-coder-v2-lite / glm4:9b on :11434",
+    hint: "Local glm4:9b / deepseek-coder:6.7b on :11434",
   },
 ];
 
