@@ -3,12 +3,19 @@
 import { useState, type FormEvent } from "react";
 import type { LayoutDocument } from "@/types/layout";
 
+type ProviderId = "deepseek" | "glm" | "ollama";
+
 interface PromptFormProps {
   onGenerated: (layout: LayoutDocument) => void;
 }
 
 interface GenerateSuccessResponse {
   layout: LayoutDocument;
+  meta?: {
+    provider: string;
+    model: string | null;
+    usedFallback: boolean;
+  };
 }
 
 interface GenerateErrorResponse {
@@ -18,11 +25,31 @@ interface GenerateErrorResponse {
 
 type GenerateResponse = GenerateSuccessResponse | GenerateErrorResponse;
 
+const PROVIDERS: Array<{ id: ProviderId; label: string; hint: string }> = [
+  {
+    id: "deepseek",
+    label: "DeepSeek Coder",
+    hint: "Hosted DeepSeek V4 Flash (coding-optimized)",
+  },
+  {
+    id: "glm",
+    label: "GLM 4.9B",
+    hint: "Zhipu GLM-4 flash / 9B-class",
+  },
+  {
+    id: "ollama",
+    label: "Ollama (local)",
+    hint: "Local deepseek-coder-v2-lite / glm4:9b on :11434",
+  },
+];
+
 export default function PromptForm({ onGenerated }: PromptFormProps) {
   const [prompt, setPrompt] = useState("");
   const [siteName, setSiteName] = useState("");
+  const [provider, setProvider] = useState<ProviderId>("deepseek");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusNote, setStatusNote] = useState<string | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +62,7 @@ export default function PromptForm({ onGenerated }: PromptFormProps) {
 
     setIsSubmitting(true);
     setError(null);
+    setStatusNote(null);
 
     try {
       const trimmedSiteName = siteName.trim();
@@ -43,6 +71,7 @@ export default function PromptForm({ onGenerated }: PromptFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: trimmedPrompt,
+          provider,
           ...(trimmedSiteName.length > 0 ? { siteName: trimmedSiteName } : {}),
         }),
       });
@@ -58,6 +87,20 @@ export default function PromptForm({ onGenerated }: PromptFormProps) {
         return;
       }
 
+      if (payload.meta) {
+        if (payload.meta.usedFallback) {
+          setStatusNote(
+            "Used offline placeholder — set LLM_API_KEY (DeepSeek/Zhipu) or run Ollama for live AI.",
+          );
+        } else {
+          setStatusNote(
+            `Generated with ${payload.meta.provider}${
+              payload.meta.model ? ` · ${payload.meta.model}` : ""
+            }`,
+          );
+        }
+      }
+
       onGenerated(payload.layout);
     } catch {
       setError("Could not reach the server. Please try again.");
@@ -71,6 +114,28 @@ export default function PromptForm({ onGenerated }: PromptFormProps) {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 rounded-2xl border border-stone-800 bg-stone-900/40 p-6"
     >
+      <div className="flex flex-col gap-2">
+        <label htmlFor="provider" className="text-sm font-medium text-stone-300">
+          AI model
+        </label>
+        <select
+          id="provider"
+          value={provider}
+          onChange={(event) => setProvider(event.target.value as ProviderId)}
+          disabled={isSubmitting}
+          className="rounded-lg border border-stone-700 bg-stone-950/60 px-4 py-2.5 text-sm text-stone-100 outline-none transition-colors focus:border-orange-500 disabled:opacity-60"
+        >
+          {PROVIDERS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-stone-500">
+          {PROVIDERS.find((option) => option.id === provider)?.hint}
+        </p>
+      </div>
+
       <div className="flex flex-col gap-2">
         <label htmlFor="siteName" className="text-sm font-medium text-stone-300">
           Site name <span className="text-stone-500">(optional)</span>
@@ -106,6 +171,12 @@ export default function PromptForm({ onGenerated }: PromptFormProps) {
       {error ? (
         <p role="alert" className="text-sm text-red-400">
           {error}
+        </p>
+      ) : null}
+
+      {statusNote ? (
+        <p className="text-sm text-stone-400" aria-live="polite">
+          {statusNote}
         </p>
       ) : null}
 

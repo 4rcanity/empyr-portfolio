@@ -1,14 +1,25 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { generateLayout } from "@/lib/llm/placeholder";
+import { generateLayoutDetailed } from "@/lib/llm";
 import { createServerClient } from "@/lib/supabase/server";
-import type { GeneratedSiteInsert, UserInsert, UserRow } from "@/lib/supabase/types";
-import { layoutDocumentSchema, type LayoutDocument } from "@/types/layout";
+import type {
+  GeneratedSiteInsert,
+  UserInsert,
+  UserRow,
+} from "@/lib/supabase/types";
+import {
+  layoutDocumentSchema,
+  type LayoutDocument,
+} from "@/types/layout";
+
+/** Allow slower local / remote LLM calls on Vercel Pro; ignored on Hobby. */
+export const maxDuration = 60;
 
 const requestBodySchema = z.object({
   prompt: z.string().min(1).max(4000),
   siteName: z.string().min(1).max(200).optional(),
+  provider: z.enum(["deepseek", "glm", "ollama"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -36,12 +47,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const { prompt, siteName } = parsedBody.data;
+  const { prompt, siteName, provider } = parsedBody.data;
 
   let layout: LayoutDocument;
+  let meta: { provider: string; model: string | null; usedFallback: boolean };
   try {
-    const generated = await generateLayout(prompt, { siteName });
-    layout = layoutDocumentSchema.parse(generated);
+    const generated = await generateLayoutDetailed(prompt, {
+      siteName,
+      provider,
+    });
+    layout = layoutDocumentSchema.parse(generated.layout);
+    meta = {
+      provider: generated.provider,
+      model: generated.model,
+      usedFallback: generated.usedFallback,
+    };
   } catch {
     return NextResponse.json(
       { error: "Failed to generate a valid layout" },
@@ -53,7 +73,7 @@ export async function POST(request: Request) {
     console.error("generated_sites persist failed:", error);
   });
 
-  return NextResponse.json({ layout }, { status: 200 });
+  return NextResponse.json({ layout, meta }, { status: 200 });
 }
 
 interface PersistArgs {

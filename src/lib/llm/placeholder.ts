@@ -5,23 +5,10 @@ import {
   type LayoutDocument,
 } from "@/types/layout";
 
-/**
- * Placeholder LLM adapter (Empyr SaaS skeleton).
- *
- * This module is the single call site the API route uses to turn a user
- * prompt into a `LayoutDocument`. In placeholder mode it derives a
- * deterministic, schema-valid layout from the prompt text with no network
- * calls — safe to run with no `LLM_API_KEY` configured.
- *
- * Swap plan: once a real provider is wired in, replace the body of
- * `callRealProvider` with an HTTP request (e.g. to Claude Sonnet 5 / Fable
- * 5), parse its JSON response into a `LayoutDocument` shape, and let the
- * existing `layoutDocumentSchema.parse(...)` call below continue to act as
- * the final safety net before the document leaves this module.
- */
-
 export interface GenerateLayoutOptions {
   siteName?: string;
+  /** Override env LLM_PROVIDER for this request: deepseek | glm | ollama */
+  provider?: string;
 }
 
 const STOPWORDS = new Set([
@@ -147,7 +134,8 @@ function buildFeatures(prompt: string): FeatureItem[] {
   return features;
 }
 
-function buildPlaceholderLayout(
+/** Deterministic offline layout when no LLM key / provider is available. */
+export function buildPlaceholderLayout(
   prompt: string,
   opts?: GenerateLayoutOptions,
 ): LayoutDocument {
@@ -156,7 +144,7 @@ function buildPlaceholderLayout(
   const features = buildFeatures(prompt);
   const year = new Date().getFullYear();
 
-  return {
+  return layoutDocumentSchema.parse({
     version: 1,
     meta: {
       siteName,
@@ -189,46 +177,5 @@ function buildPlaceholderLayout(
         copyright: `\u00A9 ${year} ${siteName}. All rights reserved.`,
       },
     ],
-  };
-}
-
-/**
- * Reserved swap-in point for a real HTTP LLM call. Currently unreachable in
- * the skeleton — `generateLayout` always falls back to the deterministic
- * placeholder below, since no provider adapter is implemented yet.
- */
-async function callRealProvider(
-  _prompt: string,
-  _opts: GenerateLayoutOptions | undefined,
-  _apiKey: string,
-): Promise<LayoutDocument | null> {
-  return null;
-}
-
-/**
- * Generate a `LayoutDocument` for the given prompt.
- *
- * Placeholder mode (default): when `LLM_PROVIDER` is `placeholder` (or
- * unset) or `LLM_API_KEY` is missing/empty, this returns a deterministic,
- * schema-valid layout derived from the prompt with no network access.
- */
-export async function generateLayout(
-  prompt: string,
-  opts?: GenerateLayoutOptions,
-): Promise<LayoutDocument> {
-  const provider = (process.env.LLM_PROVIDER ?? "placeholder").trim().toLowerCase();
-  const apiKey = (process.env.LLM_API_KEY ?? "").trim();
-  const usePlaceholder = provider === "placeholder" || apiKey.length === 0;
-
-  let document: LayoutDocument | null = null;
-
-  if (!usePlaceholder) {
-    document = await callRealProvider(prompt, opts, apiKey);
-  }
-
-  if (!document) {
-    document = buildPlaceholderLayout(prompt, opts);
-  }
-
-  return layoutDocumentSchema.parse(document);
+  });
 }
