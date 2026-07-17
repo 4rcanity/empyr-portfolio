@@ -1,48 +1,24 @@
+# build output
+dist/
+# generated types
+.astro/
+
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+node_modules/
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-/dist
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# env files (all except example)
+
+# environment variables
 .env
-.env*.local
 .env.production
-.env.development
-!.env.example
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts.bak
-
-# generated Astro types (legacy, unused)
-.astro/
+# macOS-specific files
+.DS_Store
 
 # jetbrains setting folder
 .idea/
-
-# archive: keep tracked in git, just ensure nothing stray leaks in
-!/_archive/
