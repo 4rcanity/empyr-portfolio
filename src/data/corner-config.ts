@@ -5,16 +5,16 @@ export const cornerConfig: SiteConfig = {
   name: 'Pixel & Pour Café',
   businessType: 'cafe',
   theme: {
-    primary: '#FF6B35',
-    secondary: '#004E89',
-    accent: '#FFD23F',
-    background: '#FFFDF8',
-    surface: '#FFFFFF',
-    text: '#1A1A2E',
-    muted: '#5C5C7A',
-    onPrimaryText: '#1A1A2E',
-    onPrimaryMuted: '#3D3D5C',
-    onAccentText: '#1A1A2E',
+    primary: '#e85d2a',
+    secondary: '#0b3d66',
+    accent: '#ffe566',
+    background: '#fff9f0',
+    surface: '#ffffff',
+    text: '#1c1a2e',
+    muted: '#5a5678',
+    onPrimaryText: '#fff9f0',
+    onPrimaryMuted: '#ffe8d6',
+    onAccentText: '#1c1a2e',
     fontHeading: '"Space Grotesk", system-ui, sans-serif',
     fontBody: '"DM Sans", system-ui, sans-serif',
     variant: 'corner',
@@ -58,10 +58,13 @@ export const cornerConfig: SiteConfig = {
   halal: true,
   content: {
     nl: {
-      tagline: 'Verse koffie. Bold flavours. Hele dag door.',
+      tagline: 'Laptopvriendelijk. Halal. Altijd open voor een tweede kop.',
       description:
-        'Jouw buurtplek voor specialty coffee, een volledig halal menu en alcoholvrije all-day brunch. Loop gewoon binnen.',
-      dailySpecial: 'Vandaag: gesmashte avocadotoast + flat white — €12,50',
+        'Specialty espresso, all-day plates en een hoek met stopcontacten — gebouwd voor makers die tussen meetings door willen eten zonder alcoholkaart.',
+      dailySpecial: 'Vandaag: kimchi-scramble bowl + oat cortado — €13,90',
+      ctaLabel: 'Bekijk de dayboard',
+      secondaryCtaLabel: 'Bestel bezorging',
+      menuSectionLabel: 'Dayboard',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:00 – 18:00' },
         { dayKey: 'sat', hours: '08:00 – 19:00' },
@@ -69,41 +72,56 @@ export const cornerConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Koffie & Drinken',
+          name: 'Bar & brouwen',
           items: [
-            { name: 'Flat White', description: 'Dubbele ristretto, zijdezachte microfoam', price: '€4,50', tags: ['vegetarian'] },
-            { name: 'Cold Brew', description: '18 uur gezet, wisselende single origin', price: '€5,00', tags: ['vegan'] },
-            { name: 'Verse Sinaasappelsap', description: 'Vers geperst', price: '€4,00', tags: ['vegan'] },
+            { name: 'Pixel Flat', description: 'Dubbele ristretto, oat of zuivel — microfoam met karakter', price: '€4,20', tags: ['vegetarian'] },
+            { name: 'Batch Cold Brew', description: '20 uur, wisselende single origin, ijs of tonic', price: '€5,20', tags: ['vegan'] },
+            { name: 'Huisgemaakte limo-munt', description: 'Vers geperst, geen siroopbom', price: '€4,40', tags: ['vegan'] },
           ],
         },
         {
-          name: 'Brunch',
+          name: 'All-day plates',
           items: [
-            { name: 'Gesmashte Avocadotoast', description: 'Zuurdesem, feta, chilivlokken, gepocheerd ei', price: '€12,50', tags: ['vegetarian'] },
-            { name: 'Shakshuka', description: 'Gekruide tomatenbasis, gebakken eieren, labneh, pita', price: '€13,50', tags: ['vegetarian', 'spicy'] },
-            { name: 'Granolabowl', description: 'Griekse yoghurt, seizoensfruit, honing, amandelen', price: '€10,00', tags: ['vegetarian'] },
+            { name: 'Kimchi scramble bowl', description: 'Zuurkool-kimchi, soft scramble, sesam, zuurdesem', price: '€13,90', tags: ['vegetarian', 'spicy'] },
+            { name: 'Labneh toast stack', description: 'Chili-olie, komkommer, zaatar, gepocheerd ei', price: '€12,80', tags: ['vegetarian'] },
+            { name: 'Halal smash double', description: 'Twee patties, pickles, secret sauce, brioche', price: '€14,50', tags: ['halal'] },
           ],
         },
         {
-          name: 'Burgers & Bites',
+          name: 'Late lunch bites',
           items: [
-            { name: 'Smash Burger', description: 'Dubbele halal rundvleespatty, kaas, augurk, geheim sausje', price: '€14,00', tags: ['halal'] },
-            { name: 'Krokante Kipsandwich', description: 'Halal kip, koolsalade, hot honey', price: '€13,50', tags: ['halal', 'spicy'] },
-            { name: 'Truffelfriet', description: 'Parmezaan, truffelolie, kruiden', price: '€6,50', tags: ['vegetarian'] },
+            { name: 'Hot-honey chicken bun', description: 'Krokante kip, koolsalade, sesambun', price: '€13,20', tags: ['halal', 'spicy'] },
+            { name: 'Misofriet', description: 'Nori-zout, mayo dip, lente-ui', price: '€6,80', tags: ['vegan'] },
+            { name: 'Cookie flight', description: 'Drie warme koeken — wisselende batch elke ochtend', price: '€5,50', tags: ['vegetarian'] },
           ],
         },
       ],
+      testimonials: [
+        {
+          quote: 'Eindelijk een café waar de wifi werkt én het bord geen avocado-kopie is.',
+          author: 'Tara K.',
+          source: 'Google',
+        },
+        {
+          quote: 'Halal smash + oat cortado tussen twee calls. Dit is mijn kantoorhoek.',
+          author: 'Yusuf B.',
+          source: 'Instagram',
+        },
+      ],
       about: {
-        heading: 'Jouw hoek, jouw café',
+        heading: 'Creatieve buurt, serieuze koffie',
         content:
-          'Pixel & Pour Café is een fictief caféconcept dat laat zien hoe een kleurrijke buurtzaak online kan opvallen. Alle namen, locaties en contactgegevens op deze demo zijn placeholders.',
+          'Pixel & Pour is een fictief café voor makers: kleurrijk, laptopvriendelijk en 100% halal zonder alcoholkaart. Alles hier is demo — de vibe is wat je kunt kopen als template.',
       },
     },
     en: {
-      tagline: 'Fresh coffee. Bold flavours. All day.',
+      tagline: 'Laptop-friendly. Halal. Always open for a second cup.',
       description:
-        'Your neighbourhood spot for specialty coffee, a fully halal menu and alcohol-free all-day brunch. Walk in anytime.',
-      dailySpecial: 'Today: Smashed avocado toast + flat white — €12.50',
+        'Specialty espresso, all-day plates, and a corner full of outlets — built for makers who want to eat between meetings without an alcohol list.',
+      dailySpecial: 'Today: kimchi scramble bowl + oat cortado — €13.90',
+      ctaLabel: 'See the dayboard',
+      secondaryCtaLabel: 'Order delivery',
+      menuSectionLabel: 'Dayboard',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:00 – 18:00' },
         { dayKey: 'sat', hours: '08:00 – 19:00' },
@@ -111,34 +129,46 @@ export const cornerConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Coffee & Drinks',
+          name: 'Bar & brew',
           items: [
-            { name: 'Flat White', description: 'Double ristretto, silky microfoam', price: '€4.50', tags: ['vegetarian'] },
-            { name: 'Cold Brew', description: '18-hour steep, single origin rotating', price: '€5.00', tags: ['vegan'] },
-            { name: 'Fresh Orange Juice', description: 'Squeezed to order', price: '€4.00', tags: ['vegan'] },
+            { name: 'Pixel Flat', description: 'Double ristretto, oat or dairy — microfoam with attitude', price: '€4.20', tags: ['vegetarian'] },
+            { name: 'Batch Cold Brew', description: '20-hour steep, rotating single origin, ice or tonic', price: '€5.20', tags: ['vegan'] },
+            { name: 'House lime-mint', description: 'Fresh pressed, not a syrup bomb', price: '€4.40', tags: ['vegan'] },
           ],
         },
         {
-          name: 'Brunch',
+          name: 'All-day plates',
           items: [
-            { name: 'Smashed Avo Toast', description: 'Sourdough, feta, chilli flakes, poached egg', price: '€12.50', tags: ['vegetarian'] },
-            { name: 'Shakshuka', description: 'Spiced tomato base, baked eggs, labneh, pita', price: '€13.50', tags: ['vegetarian', 'spicy'] },
-            { name: 'Granola Bowl', description: 'Greek yogurt, seasonal fruit, honey, almonds', price: '€10.00', tags: ['vegetarian'] },
+            { name: 'Kimchi scramble bowl', description: 'Kimchi, soft scramble, sesame, sourdough', price: '€13.90', tags: ['vegetarian', 'spicy'] },
+            { name: 'Labneh toast stack', description: 'Chili oil, cucumber, zaatar, poached egg', price: '€12.80', tags: ['vegetarian'] },
+            { name: 'Halal smash double', description: 'Two patties, pickles, secret sauce, brioche', price: '€14.50', tags: ['halal'] },
           ],
         },
         {
-          name: 'Burgers & Bites',
+          name: 'Late lunch bites',
           items: [
-            { name: 'Smash Burger', description: 'Double halal beef patty, cheese, pickles, secret sauce', price: '€14.00', tags: ['halal'] },
-            { name: 'Crispy Chicken Sandwich', description: 'Halal chicken, slaw, hot honey', price: '€13.50', tags: ['halal', 'spicy'] },
-            { name: 'Truffle Fries', description: 'Parmesan, truffle oil, herbs', price: '€6.50', tags: ['vegetarian'] },
+            { name: 'Hot-honey chicken bun', description: 'Crispy chicken, slaw, sesame bun', price: '€13.20', tags: ['halal', 'spicy'] },
+            { name: 'Miso fries', description: 'Nori salt, mayo dip, spring onion', price: '€6.80', tags: ['vegan'] },
+            { name: 'Cookie flight', description: 'Three warm cookies — batch changes every morning', price: '€5.50', tags: ['vegetarian'] },
           ],
         },
       ],
+      testimonials: [
+        {
+          quote: 'Finally a café where the wifi works and the plate is not another avocado clone.',
+          author: 'Tara K.',
+          source: 'Google',
+        },
+        {
+          quote: 'Halal smash + oat cortado between two calls. This is my office corner.',
+          author: 'Yusuf B.',
+          source: 'Instagram',
+        },
+      ],
       about: {
-        heading: 'Your corner, your café',
+        heading: 'Creative block, serious coffee',
         content:
-          'Pixel & Pour Café is a fictional café concept showing how a colourful neighbourhood business can stand out online. All names, locations and contact details in this demo are placeholders.',
+          'Pixel & Pour is a fictional café for makers: colourful, laptop-friendly, and fully halal with no alcohol list. Everything here is demo — the vibe is what you can buy as a template.',
       },
     },
   },
