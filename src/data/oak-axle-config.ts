@@ -1,6 +1,6 @@
 import type { SiteConfig } from '../types/site-config';
 
-/** Family-owned trust shop — deep forest, calm confidence, multi-generation feel. */
+/** Family garage demo — hours, map, services, Call/WhatsApp. No filler lore. */
 export const oakAxleConfig: SiteConfig = {
   slug: 'oak-axle',
   name: 'Oak & Axle Garage',
@@ -22,21 +22,19 @@ export const oakAxleConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=2000&q=80',
-  phone: '+31 20 000 0103',
-  email: 'hello@oakandaxle.example',
+  phone: '+31 10 426 8800',
+  email: 'info@oakandaxle.example',
   address: {
-    street: 'Eikenlaan 4',
-    city: 'Demostad',
-    postalCode: '1234 EF',
+    street: 'Nieuwe Haven 42',
+    city: 'Schiedam',
+    postalCode: '3116 AC',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.03, lng: 5.03 },
-  googleMapsEmbed: 'https://www.google.com/maps?q=52.03,5.03&output=embed',
-  socials: {
-    instagram: 'https://instagram.com',
-    facebook: 'https://facebook.com',
-  },
-  reservationUrl: 'tel:+31200000103',
+  coordinates: { lat: 51.9158, lng: 4.3989 },
+  googleMapsEmbed:
+    'https://www.google.com/maps?q=Nieuwe+Haven+42,+3116+AC+Schiedam&output=embed',
+  socials: {},
+  reservationUrl: 'https://wa.me/31104268800',
   aboutImage:
     'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?auto=format&fit=crop&w=1200&q=80',
   gallery: [
@@ -45,17 +43,14 @@ export const oakAxleConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1493238792120-b42e3a1b7b5e?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1449965403121-adbf74930ec4?auto=format&fit=crop&w=800&q=80',
   ],
-  rating: { value: 4.9, count: 241, source: 'Google' },
   content: {
     nl: {
-      tagline: 'Drie generaties. Eén familiewagen.',
-      description:
-        'Rustige diagnoses, goed/beter/best-opties en foto-updates — voor huishoudens die de auto als tweede keuken zien.',
-      bookingNote: 'Plan online; we appen zodra de diagnose klaar is (meestal voor lunch).',
-      ctaLabel: 'Plan een familiebezoek',
-      secondaryCtaLabel: 'Hoe wij werken',
-      menuSectionLabel: 'Zorg voor het huishouden',
-      ratingNote: '241+ families op Google',
+      tagline: 'Onderhoud, banden en APK',
+      description: 'Plan online via bel of WhatsApp. Ma–vr + zaterdagmorgen.',
+      bookingNote: 'Bel of WhatsApp — we plannen meestal binnen 1–2 werkdagen.',
+      ctaLabel: 'Plan via WhatsApp',
+      secondaryCtaLabel: 'Diensten',
+      menuSectionLabel: 'Diensten & prijzen',
       openingHours: [
         { dayKey: 'mon_fri', hours: '08:30 – 17:30' },
         { dayKey: 'sat', hours: '09:00 – 13:00' },
@@ -63,75 +58,69 @@ export const oakAxleConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Voor de deur',
+          name: 'APK & check',
           items: [
             {
-              name: 'Schoolrun veiligheidscheck',
-              description: 'Kindersloten, banden, remmen en ruiten — 30 minuten rust',
-              price: '€42',
+              name: 'APK',
+              description: 'Keuring personenauto',
+              price: '€52,50',
             },
             {
-              name: 'Seizoenswissel compleet',
-              description: 'Banden, opslaglabel, bandenspanning en een winter/zomerbriefje',
+              name: 'Veiligheidscheck',
+              description: 'Remmen, banden, lichten, ruitenwissers',
+              price: '€35',
+            },
+          ],
+        },
+        {
+          name: 'Onderhoud',
+          items: [
+            {
+              name: 'Oliebeurt',
+              description: 'Synthetische olie + oliefilter',
               price: 'vanaf €85',
             },
             {
-              name: 'Hybrid gezondheidscheck',
-              description: 'HV-accu-indicatie, koeling en regeneratiegedrag uitgelegd in gewoon Nederlands',
-              price: 'vanaf €95',
+              name: 'Airco bijvullen',
+              description: 'Vanaf €49 inclusief controle',
+              price: 'vanaf €49',
             },
-          ],
-        },
-        {
-          name: 'Voorkomen i.p.v. schrikken',
-          items: [
             {
-              name: 'Riem & waterpomp plan',
-              description: 'Preventief schema op jouw kilometerstand — geen verrassing bij 180k',
+              name: 'Automatische transmissie',
+              description: 'Verversen ATF / transmissieolie',
               price: 'op offerte',
             },
-            {
-              name: 'Foto-offerte pack',
-              description: 'Elke slijtage met foto + drie keuzes: goed / beter / best',
-              price: 'inbegrepen',
-            },
-            {
-              name: 'Leenfiets of rit naar huis',
-              description: 'Als de klus langer duurt dan beloofd — wij regelen de terugweg',
-              price: 'op aanvraag',
-            },
           ],
         },
-      ],
-      testimonials: [
         {
-          quote: 'Eindelijk goed / beter / best zonder druk. We kozen midden — en kregen foto\'s erbij.',
-          author: 'Fatima H.',
-          source: 'Google',
-        },
-        {
-          quote: 'Oma\'s Polo en onze hybrid in dezelfde week. Beide netjes, beide uitgelegd.',
-          author: 'Peter L.',
-          source: 'Google',
+          name: 'Banden',
+          items: [
+            {
+              name: 'Seizoenswissel',
+              description: 'Wissel + balanceren + opslaglabel',
+              price: 'vanaf €40',
+            },
+            {
+              name: 'Nieuwe banden',
+              description: 'Levering en montage alle maten',
+              price: 'op offerte',
+            },
+          ],
         },
       ],
       about: {
-        heading: 'Alsof je buur het sleutelgat kent',
+        heading: 'Oak & Axle Garage',
         content:
-          'Oak & Axle is een familiegarage: respect voor schooltijden, budgetten en de auto die iedereen deelt. Same-day updates, eerlijke opties en lokale nazorg als iets wat wij monteerden aandacht vraagt.',
-        chefName: 'Els & Jan van Oak',
-        chefTitle: 'Eigenaren',
+          'Garage in Schiedam. APK, onderhoud, airco, banden en reparatie. Contact: telefoon of WhatsApp.',
       },
     },
     en: {
-      tagline: 'Three generations. One family car.',
-      description:
-        'Calm diagnostics, good/better/best options, and photo updates — for households that treat the car like a second kitchen.',
-      bookingNote: 'Book online; we text when diagnosis is done (usually before lunch).',
-      ctaLabel: 'Book a family visit',
-      secondaryCtaLabel: 'How we work',
-      menuSectionLabel: 'Household car care',
-      ratingNote: '241+ families on Google',
+      tagline: 'Service, tyres and MOT',
+      description: 'Book by phone or WhatsApp. Weekdays + Saturday morning.',
+      bookingNote: 'Call or WhatsApp — usually scheduled within 1–2 working days.',
+      ctaLabel: 'Book via WhatsApp',
+      secondaryCtaLabel: 'Services',
+      menuSectionLabel: 'Services & prices',
       openingHours: [
         { dayKey: 'mon_fri', hours: '08:30 – 17:30' },
         { dayKey: 'sat', hours: '09:00 – 13:00' },
@@ -139,64 +128,60 @@ export const oakAxleConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'At the curb',
+          name: 'MOT & check',
           items: [
             {
-              name: 'School-run safety check',
-              description: 'Child locks, tires, brakes, and glass — thirty quiet minutes',
-              price: '€42',
+              name: 'MOT',
+              description: 'Passenger-car inspection',
+              price: '€52.50',
             },
             {
-              name: 'Season swap complete',
-              description: 'Tires, storage tag, pressures, and a winter/summer note on the dash',
+              name: 'Safety check',
+              description: 'Brakes, tyres, lights, wipers',
+              price: '€35',
+            },
+          ],
+        },
+        {
+          name: 'Service',
+          items: [
+            {
+              name: 'Oil service',
+              description: 'Synthetic oil + oil filter',
               price: 'from €85',
             },
             {
-              name: 'Hybrid health check',
-              description: 'HV battery clue, cooling, and regen behavior explained in plain language',
-              price: 'from €95',
+              name: 'A/C refill',
+              description: 'From €49 including system check',
+              price: 'from €49',
             },
-          ],
-        },
-        {
-          name: 'Prevent, don’t panic',
-          items: [
             {
-              name: 'Belt & water-pump plan',
-              description: 'Preventive schedule on your mileage — no surprise at 180k',
+              name: 'Automatic transmission',
+              description: 'ATF / transmission fluid change',
               price: 'on quote',
             },
-            {
-              name: 'Photo quote pack',
-              description: 'Every wear item with a photo + three choices: good / better / best',
-              price: 'included',
-            },
-            {
-              name: 'Loan bike or ride home',
-              description: 'If the job runs longer than promised — we cover the trip back',
-              price: 'on request',
-            },
           ],
         },
-      ],
-      testimonials: [
         {
-          quote: 'Finally good / better / best without pressure. We picked the middle — with photos.',
-          author: 'Fatima H.',
-          source: 'Google',
-        },
-        {
-          quote: 'Gran’s Polo and our hybrid the same week. Both tidy, both explained.',
-          author: 'Peter L.',
-          source: 'Google',
+          name: 'Tyres',
+          items: [
+            {
+              name: 'Seasonal swap',
+              description: 'Swap + balance + storage tag',
+              price: 'from €40',
+            },
+            {
+              name: 'New tyres',
+              description: 'Supply and fit, all sizes',
+              price: 'on quote',
+            },
+          ],
         },
       ],
       about: {
-        heading: 'Like a neighbor who knows the keyhole',
+        heading: 'Oak & Axle Garage',
         content:
-          'Oak & Axle is a family garage: respect for school runs, budgets, and the car everyone shares. Same-day updates, fair options, and local follow-up if something we fitted needs attention.',
-        chefName: 'Els & Jan van Oak',
-        chefTitle: 'Owners',
+          'Garage in Schiedam. MOT, servicing, A/C, tyres and repairs. Contact by phone or WhatsApp.',
       },
     },
   },

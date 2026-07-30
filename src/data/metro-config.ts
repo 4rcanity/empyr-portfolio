@@ -1,6 +1,6 @@
 import type { SiteConfig } from '../types/site-config';
 
-/** Fast convenience / oil-change lane — clean industrial cyan, speed and clarity. */
+/** Express garage demo — compact services, hours, Call/WhatsApp. */
 export const metroConfig: SiteConfig = {
   slug: 'metro',
   name: 'Metro Quick Lane',
@@ -22,21 +22,19 @@ export const metroConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&w=2000&q=80',
-  phone: '+31 20 000 0104',
-  email: 'hello@metroquicklane.example',
+  phone: '+31 10 737 2200',
+  email: 'info@metroquicklane.example',
   address: {
-    street: 'Ringweg 88',
-    city: 'Demostad',
-    postalCode: '1234 GH',
+    street: 'Rotterdamseweg 120',
+    city: 'Schiedam',
+    postalCode: '3121 AB',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.04, lng: 5.04 },
-  googleMapsEmbed: 'https://www.google.com/maps?q=52.04,5.04&output=embed',
-  socials: {
-    instagram: 'https://instagram.com',
-    facebook: 'https://facebook.com',
-  },
-  reservationUrl: 'tel:+31200000104',
+  coordinates: { lat: 51.9281, lng: 4.4012 },
+  googleMapsEmbed:
+    'https://www.google.com/maps?q=Rotterdamseweg+120,+3121+AB+Schiedam&output=embed',
+  socials: {},
+  reservationUrl: 'https://wa.me/31107372200',
   aboutImage:
     'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80',
   gallery: [
@@ -45,17 +43,14 @@ export const metroConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1609521263047-f8f925109d25?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80',
   ],
-  rating: { value: 4.7, count: 512, source: 'Google' },
   content: {
     nl: {
-      tagline: '45 minuten. Digitale bon. Doorrijden.',
-      description:
-        'Express olie, filters en fleet-lanes voor wie de ringweg niet wil verlaten voor een lange garage-ochtend.',
-      bookingNote: 'Reserveer een lane — live board toont je wachttijd in minuten.',
-      ctaLabel: 'Reserveer een lane',
-      secondaryCtaLabel: 'Express prijzen',
-      menuSectionLabel: 'Lane menu',
-      ratingNote: '512+ snelle stops',
+      tagline: 'Snelle olie · filters · APK',
+      description: 'Express service. Bel of WhatsApp voor een lane.',
+      bookingNote: 'Open 7 dagen. WhatsApp voor wachttijd.',
+      ctaLabel: 'Bel / WhatsApp',
+      secondaryCtaLabel: 'Prijzen',
+      menuSectionLabel: 'Express menu',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:30 – 19:00' },
         { dayKey: 'sat', hours: '08:00 – 17:00' },
@@ -63,75 +58,64 @@ export const metroConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Drive-through zorg',
+          name: 'Express',
           items: [
             {
-              name: 'Synth olie + filter lane',
-              description: 'Volledig synthetisch, cabin-check, QR-bon — target 35 minuten',
+              name: 'Olie + filter',
+              description: 'Synthetisch, incl. cabin-check',
               price: 'vanaf €59',
             },
             {
-              name: 'Bandenrotatie express',
-              description: 'Rotatie, druk, slijtagefoto — terug op de ring binnen het uur',
-              price: 'vanaf €32',
+              name: 'APK express',
+              description: 'Keuring terwijl u wacht (op afspraak)',
+              price: '€54,50',
             },
             {
               name: 'Filter duo',
-              description: 'Lucht + cabin in één stop, geen tweede afspraak',
+              description: 'Luchtfilter + interieurfilter',
               price: 'vanaf €38',
             },
           ],
         },
         {
-          name: 'Fleet & checks',
+          name: 'Extra',
           items: [
             {
-              name: 'Accu load-test',
-              description: 'Meetresultaat op je telefoon vóór je wegrijdt',
+              name: 'Airco bijvullen',
+              description: 'Snelle airco-service',
+              price: 'vanaf €49',
+            },
+            {
+              name: 'Bandenrotatie',
+              description: 'Rotatie, druk, balanceren',
+              price: 'vanaf €32',
+            },
+            {
+              name: 'Accu-test',
+              description: 'Belastingstest + uitslag op de spot',
               price: '€12',
             },
             {
-              name: 'Zichtpakket',
-              description: 'Wissers + ruitensproeier + koelvloeistof peil',
+              name: 'Ruitenwissers + peil',
+              description: 'Wissers, ruitensproeier, koelvloeistof',
               price: 'vanaf €22',
-            },
-            {
-              name: 'Fleet lane account',
-              description: 'Busjes & lichte trucks, maandfactuur, SLA op wachttijd',
-              price: 'op aanvraag',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Live lane board klopte. Ik bleef in de auto, 38 minuten later reed ik weg.',
-          author: 'Joris M.',
-          source: 'Google',
-        },
-        {
-          quote: 'QR-bon met kilometerstand — finance van onze fleets is eindelijk stil.',
-          author: 'FleetCo NL',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Gebouwd als een doorrijbaan',
+        heading: 'Metro Quick Lane',
         content:
-          'Metro Quick Lane is process-first: live bay board, blijf zitten of pak koffie, en een digitale bon met volgende onderhoudsdatum. Geen mystery wait — alleen minuten die je kunt plannen.',
-        chefName: 'Metro Crew',
-        chefTitle: 'Lane operations',
+          'Express garage in Schiedam voor olie, filters, APK, airco en banden. Afspraak: bel of WhatsApp.',
       },
     },
     en: {
-      tagline: '45 minutes. Digital receipt. Roll out.',
-      description:
-        'Express oil, filters, and fleet lanes for drivers who will not leave the ring road for a long garage morning.',
-      bookingNote: 'Reserve a lane — the live board shows wait time in minutes.',
-      ctaLabel: 'Reserve a lane',
-      secondaryCtaLabel: 'Express pricing',
-      menuSectionLabel: 'Lane menu',
-      ratingNote: '512+ quick stops',
+      tagline: 'Fast oil · filters · MOT',
+      description: 'Express service. Call or WhatsApp for a lane.',
+      bookingNote: 'Open 7 days. WhatsApp for wait time.',
+      ctaLabel: 'Call / WhatsApp',
+      secondaryCtaLabel: 'Prices',
+      menuSectionLabel: 'Express menu',
       openingHours: [
         { dayKey: 'mon_fri', hours: '07:30 – 19:00' },
         { dayKey: 'sat', hours: '08:00 – 17:00' },
@@ -139,64 +123,55 @@ export const metroConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Drive-through care',
+          name: 'Express',
           items: [
             {
-              name: 'Synth oil + filter lane',
-              description: 'Full synthetic, cabin check, QR receipt — 35-minute target',
+              name: 'Oil + filter',
+              description: 'Synthetic, includes cabin check',
               price: 'from €59',
             },
             {
-              name: 'Tire rotation express',
-              description: 'Rotate, pressure, wear photo — back on the ring inside an hour',
-              price: 'from €32',
+              name: 'MOT express',
+              description: 'Inspection while you wait (by appointment)',
+              price: '€54.50',
             },
             {
               name: 'Filter duo',
-              description: 'Air + cabin in one stop, no second appointment',
+              description: 'Air filter + cabin filter',
               price: 'from €38',
             },
           ],
         },
         {
-          name: 'Fleet & checks',
+          name: 'Extras',
           items: [
             {
-              name: 'Battery load test',
-              description: 'Result on your phone before you leave the lane',
+              name: 'A/C refill',
+              description: 'Quick A/C service',
+              price: 'from €49',
+            },
+            {
+              name: 'Tyre rotation',
+              description: 'Rotate, pressure, balance',
+              price: 'from €32',
+            },
+            {
+              name: 'Battery test',
+              description: 'Load test with on-the-spot result',
               price: '€12',
             },
             {
-              name: 'Visibility pack',
-              description: 'Wipers + washer fluid + coolant level',
+              name: 'Wipers + levels',
+              description: 'Wipers, washer fluid, coolant',
               price: 'from €22',
-            },
-            {
-              name: 'Fleet lane account',
-              description: 'Vans & light trucks, monthly invoice, wait-time SLA',
-              price: 'on request',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Live lane board was right. Stayed in the car, rolled out in 38 minutes.',
-          author: 'Joris M.',
-          source: 'Google',
-        },
-        {
-          quote: 'QR receipt with mileage — fleet finance finally went quiet.',
-          author: 'FleetCo NL',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Built like a drive-through',
+        heading: 'Metro Quick Lane',
         content:
-          'Metro Quick Lane is process-first: live bay board, stay seated or grab coffee, and a digital receipt with the next due date. No mystery wait — only minutes you can plan.',
-        chefName: 'Metro Crew',
-        chefTitle: 'Lane operations',
+          'Express garage in Schiedam for oil, filters, MOT, A/C and tyres. Book by phone or WhatsApp.',
       },
     },
   },

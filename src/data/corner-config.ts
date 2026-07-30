@@ -55,14 +55,14 @@ export const cornerConfig: SiteConfig = {
     { name: 'Deliveroo', url: 'https://deliveroo.com' },
     { name: 'Thuisbezorgd', url: 'https://thuisbezorgd.nl' },
   ],
+  reservationUrl: 'tel:+31200000003',
   halal: true,
   content: {
     nl: {
-      tagline: 'Laptopvriendelijk. Halal. Altijd open voor een tweede kop.',
-      description:
-        'Specialty espresso, all-day plates en een hoek met stopcontacten — gebouwd voor makers die tussen meetings door willen eten zonder alcoholkaart.',
+      tagline: 'Specialty koffie · all-day plates · 100% halal',
+      description: 'Espresso, dayboard en bezorging. Geen alcoholkaart.',
       dailySpecial: 'Vandaag: kimchi-scramble bowl + oat cortado — €13,90',
-      ctaLabel: 'Bekijk de dayboard',
+      ctaLabel: 'Bel ons',
       secondaryCtaLabel: 'Bestel bezorging',
       menuSectionLabel: 'Dayboard',
       openingHours: [
@@ -74,15 +74,15 @@ export const cornerConfig: SiteConfig = {
         {
           name: 'Bar & brouwen',
           items: [
-            { name: 'Pixel Flat', description: 'Dubbele ristretto, oat of zuivel — microfoam met karakter', price: '€4,20', tags: ['vegetarian'] },
-            { name: 'Batch Cold Brew', description: '20 uur, wisselende single origin, ijs of tonic', price: '€5,20', tags: ['vegan'] },
-            { name: 'Huisgemaakte limo-munt', description: 'Vers geperst, geen siroopbom', price: '€4,40', tags: ['vegan'] },
+            { name: 'Pixel Flat', description: 'Dubbele ristretto, oat of zuivel', price: '€4,20', tags: ['vegetarian'] },
+            { name: 'Batch Cold Brew', description: '20 uur, wisselende single origin', price: '€5,20', tags: ['vegan'] },
+            { name: 'Huisgemaakte limo-munt', description: 'Vers geperst', price: '€4,40', tags: ['vegan'] },
           ],
         },
         {
           name: 'All-day plates',
           items: [
-            { name: 'Kimchi scramble bowl', description: 'Zuurkool-kimchi, soft scramble, sesam, zuurdesem', price: '€13,90', tags: ['vegetarian', 'spicy'] },
+            { name: 'Kimchi scramble bowl', description: 'Kimchi, soft scramble, sesam, zuurdesem', price: '€13,90', tags: ['vegetarian', 'spicy'] },
             { name: 'Labneh toast stack', description: 'Chili-olie, komkommer, zaatar, gepocheerd ei', price: '€12,80', tags: ['vegetarian'] },
             { name: 'Halal smash double', description: 'Twee patties, pickles, secret sauce, brioche', price: '€14,50', tags: ['halal'] },
           ],
@@ -91,35 +91,22 @@ export const cornerConfig: SiteConfig = {
           name: 'Late lunch bites',
           items: [
             { name: 'Hot-honey chicken bun', description: 'Krokante kip, koolsalade, sesambun', price: '€13,20', tags: ['halal', 'spicy'] },
-            { name: 'Misofriet', description: 'Nori-zout, mayo dip, lente-ui', price: '€6,80', tags: ['vegan'] },
-            { name: 'Cookie flight', description: 'Drie warme koeken — wisselende batch elke ochtend', price: '€5,50', tags: ['vegetarian'] },
+            { name: 'Misofriet', description: 'Nori-zout, mayo dip', price: '€6,80', tags: ['vegan'] },
+            { name: 'Cookie flight', description: 'Drie warme koeken — wisselende batch', price: '€5,50', tags: ['vegetarian'] },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Eindelijk een café waar de wifi werkt én het bord geen avocado-kopie is.',
-          author: 'Tara K.',
-          source: 'Google',
-        },
-        {
-          quote: 'Halal smash + oat cortado tussen twee calls. Dit is mijn kantoorhoek.',
-          author: 'Yusuf B.',
-          source: 'Instagram',
-        },
-      ],
       about: {
-        heading: 'Creatieve buurt, serieuze koffie',
+        heading: 'Pixel & Pour Café',
         content:
-          'Pixel & Pour is een fictief café voor makers: kleurrijk, laptopvriendelijk en 100% halal zonder alcoholkaart. Alles hier is demo — de vibe is wat je kunt kopen als template.',
+          'Café met specialty espresso, all-day dayboard en bezorgpartners. 100% halal, geen alcohol. Demoadres voor de template.',
       },
     },
     en: {
-      tagline: 'Laptop-friendly. Halal. Always open for a second cup.',
-      description:
-        'Specialty espresso, all-day plates, and a corner full of outlets — built for makers who want to eat between meetings without an alcohol list.',
+      tagline: 'Specialty coffee · all-day plates · 100% halal',
+      description: 'Espresso, dayboard, and delivery. No alcohol list.',
       dailySpecial: 'Today: kimchi scramble bowl + oat cortado — €13.90',
-      ctaLabel: 'See the dayboard',
+      ctaLabel: 'Call us',
       secondaryCtaLabel: 'Order delivery',
       menuSectionLabel: 'Dayboard',
       openingHours: [
@@ -131,9 +118,9 @@ export const cornerConfig: SiteConfig = {
         {
           name: 'Bar & brew',
           items: [
-            { name: 'Pixel Flat', description: 'Double ristretto, oat or dairy — microfoam with attitude', price: '€4.20', tags: ['vegetarian'] },
-            { name: 'Batch Cold Brew', description: '20-hour steep, rotating single origin, ice or tonic', price: '€5.20', tags: ['vegan'] },
-            { name: 'House lime-mint', description: 'Fresh pressed, not a syrup bomb', price: '€4.40', tags: ['vegan'] },
+            { name: 'Pixel Flat', description: 'Double ristretto, oat or dairy', price: '€4.20', tags: ['vegetarian'] },
+            { name: 'Batch Cold Brew', description: '20-hour steep, rotating single origin', price: '€5.20', tags: ['vegan'] },
+            { name: 'House lime-mint', description: 'Fresh pressed', price: '€4.40', tags: ['vegan'] },
           ],
         },
         {
@@ -148,27 +135,15 @@ export const cornerConfig: SiteConfig = {
           name: 'Late lunch bites',
           items: [
             { name: 'Hot-honey chicken bun', description: 'Crispy chicken, slaw, sesame bun', price: '€13.20', tags: ['halal', 'spicy'] },
-            { name: 'Miso fries', description: 'Nori salt, mayo dip, spring onion', price: '€6.80', tags: ['vegan'] },
-            { name: 'Cookie flight', description: 'Three warm cookies — batch changes every morning', price: '€5.50', tags: ['vegetarian'] },
+            { name: 'Miso fries', description: 'Nori salt, mayo dip', price: '€6.80', tags: ['vegan'] },
+            { name: 'Cookie flight', description: 'Three warm cookies — rotating batch', price: '€5.50', tags: ['vegetarian'] },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Finally a café where the wifi works and the plate is not another avocado clone.',
-          author: 'Tara K.',
-          source: 'Google',
-        },
-        {
-          quote: 'Halal smash + oat cortado between two calls. This is my office corner.',
-          author: 'Yusuf B.',
-          source: 'Instagram',
-        },
-      ],
       about: {
-        heading: 'Creative block, serious coffee',
+        heading: 'Pixel & Pour Café',
         content:
-          'Pixel & Pour is a fictional café for makers: colourful, laptop-friendly, and fully halal with no alcohol list. Everything here is demo — the vibe is what you can buy as a template.',
+          'Café with specialty espresso, all-day dayboard, and delivery partners. 100% halal, no alcohol. Demo address for the template.',
       },
     },
   },

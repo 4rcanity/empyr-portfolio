@@ -1,6 +1,6 @@
 import type { SiteConfig } from '../types/site-config';
 
-/** Classic neighborhood garage — warm steel, trustworthy, walk-in friendly. */
+/** Neighborhood garage demo — practical contact, hours, and priced services only. */
 export const ridgewayConfig: SiteConfig = {
   slug: 'ridgeway',
   name: 'Ridgeway Auto Care',
@@ -22,21 +22,19 @@ export const ridgewayConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=2000&q=80',
-  phone: '+31 20 000 0101',
-  email: 'hello@ridgewayauto.example',
+  phone: '+31 6 3801 1091',
+  email: 'info@ridgewayauto.example',
   address: {
-    street: 'Werkplaatsstraat 12',
-    city: 'Demostad',
-    postalCode: '1234 AB',
+    street: 'Van Beverenstraat 5B',
+    city: 'Schiedam',
+    postalCode: '3117 KS',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.01, lng: 5.01 },
-  googleMapsEmbed: 'https://www.google.com/maps?q=52.01,5.01&output=embed',
-  socials: {
-    instagram: 'https://instagram.com',
-    facebook: 'https://facebook.com',
-  },
-  reservationUrl: 'tel:+31200000101',
+  coordinates: { lat: 51.9194, lng: 4.3883 },
+  googleMapsEmbed:
+    'https://www.google.com/maps?q=Van+Beverenstraat+5B,+3117+KS+Schiedam&output=embed',
+  socials: {},
+  reservationUrl: 'https://wa.me/31638011091',
   aboutImage:
     'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?auto=format&fit=crop&w=1200&q=80',
   gallery: [
@@ -45,158 +43,135 @@ export const ridgewayConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?auto=format&fit=crop&w=800&q=80',
   ],
-  rating: { value: 4.8, count: 186, source: 'Google' },
   content: {
     nl: {
-      tagline: 'De garage die gewoon opneemt',
-      description:
-        'Buurtmonteurs met koffie klaar, APK zonder gedoe, en een prijs die je begrijpt vóór de sleutel valt.',
-      bookingNote: 'Bel tussen 8 en 18 — meestal nog dezelfde dag een plek in de put.',
-      ctaLabel: 'Bel voor een plek',
-      secondaryCtaLabel: 'Wat we doen',
-      menuSectionLabel: 'Buurtmenu',
-      ratingNote: '186+ buren op Google',
+      tagline: 'APK, onderhoud en reparatie in Schiedam',
+      description: 'Bel of WhatsApp voor een afspraak. Alle merken.',
+      bookingNote: 'Ma–za 09:00–18:00. WhatsApp voor snelle planning.',
+      ctaLabel: 'Bel of WhatsApp',
+      secondaryCtaLabel: 'Diensten & prijzen',
+      menuSectionLabel: 'Diensten',
       openingHours: [
-        { dayKey: 'mon_fri', hours: '08:00 – 18:00' },
-        { dayKey: 'sat', hours: '09:00 – 14:00' },
+        { dayKey: 'mon_fri', hours: '09:00 – 18:00' },
+        { dayKey: 'sat', hours: '09:00 – 18:00' },
         { dayKey: 'sun', hours: null },
       ],
       menu: [
         {
-          name: 'Dagelijkse zorg',
+          name: 'Keuring & onderhoud',
           items: [
             {
-              name: 'APK + snelle check',
-              description: 'Keuring met gratis herkeuring bij kleine herstellingen die wij doen',
+              name: 'APK-keuring',
+              description: 'Personenauto’s; gratis herkeuring bij herstel bij ons',
               price: '€54,50',
             },
             {
-              name: 'Olie & filter buurtpakket',
-              description: 'Merkolie, filter, peilvloeistoffen — klaar terwijl je koffie drinkt',
-              price: 'vanaf €79',
+              name: 'APK bij grote beurt',
+              description: 'Gratis APK bij een grote onderhoudsbeurt',
+              price: 'gratis',
             },
             {
-              name: 'Schoolrun-inspectie',
-              description: 'Remmen, banden, lichten en ruitener vóór de winter of vakantie',
-              price: '€35',
+              name: 'Onderhoudsbeurt',
+              description: 'Olie, filters, peilvloeistoffen — op maat per merk',
+              price: 'vanaf €89',
             },
           ],
         },
         {
-          name: 'Als het piept',
+          name: 'Service & reparatie',
           items: [
             {
-              name: 'Remmen eerlijk',
-              description: 'Foto\'s van slijtage + offerte in twee lagen: nodig vs. straks',
+              name: 'Airco bijvullen',
+              description: 'Controle + bijvullen koudemiddel',
+              price: 'vanaf €49',
+            },
+            {
+              name: 'Banden & balanceren',
+              description: 'Nieuwe banden, wissel, balanceren',
               price: 'op offerte',
             },
             {
               name: 'Storingsdiagnose',
-              description: 'Scan + wegtest — we zoeken de oorzaak, niet alleen de code',
-              price: '€49',
+              description: 'Uitlezen storingslampje + diagnose',
+              price: '€45',
             },
             {
-              name: 'Startprobleem spoed',
-              description: 'Accu, starters en dynamo — vaak nog dezelfde middag rijden',
-              price: 'vanaf €65',
+              name: 'Accu controleren / vervangen',
+              description: 'Test en montage op locatie',
+              price: 'vanaf €95',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Tom belde zelf terug. Geen callcenter, geen upsell — gewoon: dit moet, dit kan wachten.',
-          author: 'Sanne V.',
-          source: 'Google',
-        },
-        {
-          quote: 'APK + olie in één ochtend. De sleutel lag klaar met een briefje over de remblokken.',
-          author: 'Mark D.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Sinds ’94 op dezelfde hoek',
+        heading: 'Ridgeway Auto Care',
         content:
-          'Ridgeway Auto Care is de buurtgarage waar je binnenloopt zonder afspraaksscherm. We laten zien wat er speelt, geven een heldere offerte en gaan pas aan de slag als jij knikt. Geen theater — wel warme putten en eerlijke slang.',
-        chefName: 'Tom Ridgeway',
-        chefTitle: 'Eigenaar & monteur',
+          'Autobedrijf in Schiedam voor APK, onderhoud, airco, banden en reparatie. Afspraak via telefoon of WhatsApp.',
       },
     },
     en: {
-      tagline: 'The garage that actually answers',
-      description:
-        'Neighborhood techs with coffee ready, MOT without the runaround, and a price you understand before the keys drop.',
-      bookingNote: 'Call between 8 and 6 — usually a same-day bay.',
-      ctaLabel: 'Call for a bay',
-      secondaryCtaLabel: 'What we fix',
-      menuSectionLabel: 'Neighborhood menu',
-      ratingNote: '186+ neighbors on Google',
+      tagline: 'MOT, service and repair in Schiedam',
+      description: 'Call or WhatsApp to book. All makes.',
+      bookingNote: 'Mon–Sat 09:00–18:00. WhatsApp for quick scheduling.',
+      ctaLabel: 'Call or WhatsApp',
+      secondaryCtaLabel: 'Services & prices',
+      menuSectionLabel: 'Services',
       openingHours: [
-        { dayKey: 'mon_fri', hours: '08:00 – 18:00' },
-        { dayKey: 'sat', hours: '09:00 – 14:00' },
+        { dayKey: 'mon_fri', hours: '09:00 – 18:00' },
+        { dayKey: 'sat', hours: '09:00 – 18:00' },
         { dayKey: 'sun', hours: null },
       ],
       menu: [
         {
-          name: 'Everyday care',
+          name: 'Inspection & service',
           items: [
             {
-              name: 'MOT + quick check',
-              description: 'Inspection with free recheck on minor fixes we handle',
+              name: 'MOT inspection',
+              description: 'Passenger cars; free recheck when we fix the issues',
               price: '€54.50',
             },
             {
-              name: 'Oil & filter corner pack',
-              description: 'Brand oil, filter, fluids topped — done while you grab coffee',
-              price: 'from €79',
+              name: 'MOT with major service',
+              description: 'Free MOT with a major maintenance service',
+              price: 'free',
             },
             {
-              name: 'School-run inspection',
-              description: 'Brakes, tires, lights and wipers before winter or holiday trips',
-              price: '€35',
+              name: 'Maintenance service',
+              description: 'Oil, filters, fluids — priced per make',
+              price: 'from €89',
             },
           ],
         },
         {
-          name: 'When it squeaks',
+          name: 'Repair & care',
           items: [
             {
-              name: 'Honest brakes',
-              description: 'Wear photos + a two-tier quote: needed now vs. soon',
+              name: 'A/C refill',
+              description: 'System check + refrigerant top-up',
+              price: 'from €49',
+            },
+            {
+              name: 'Tyres & balancing',
+              description: 'New tyres, seasonal swap, balancing',
               price: 'on quote',
             },
             {
               name: 'Fault diagnosis',
-              description: 'Scan plus road test — we chase the cause, not just the code',
-              price: '€49',
+              description: 'Warning-light scan + diagnosis',
+              price: '€45',
             },
             {
-              name: 'No-start rush',
-              description: 'Battery, starter, alternator — often driving again that afternoon',
-              price: 'from €65',
+              name: 'Battery test / replace',
+              description: 'Load test and on-site fitting',
+              price: 'from €95',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Tom called me back himself. No call center, no upsell — just: this now, this can wait.',
-          author: 'Sanne V.',
-          source: 'Google',
-        },
-        {
-          quote: 'MOT and oil in one morning. Keys waiting with a note about the pads.',
-          author: 'Mark D.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Same corner since ’94',
+        heading: 'Ridgeway Auto Care',
         content:
-          'Ridgeway Auto Care is the walk-in garage without the booking maze. We show what is going on, quote it clearly, and only start once you nod. No theatre — warm bays and straight talk.',
-        chefName: 'Tom Ridgeway',
-        chefTitle: 'Owner & technician',
+          'Garage in Schiedam for MOT, servicing, A/C, tyres and repairs. Book by phone or WhatsApp.',
       },
     },
   },

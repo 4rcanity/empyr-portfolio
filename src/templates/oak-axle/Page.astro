@@ -15,6 +15,11 @@ interface Props {
 const { config, lang } = Astro.props;
 const content = config.content[lang];
 const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const whatsappHref =
+  config.reservationUrl?.startsWith('https://wa.me/')
+    ? config.reservationUrl
+    : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
 const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(Boolean) as string[];
 ---
 
@@ -37,18 +42,6 @@ const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(
         <h1 id="oak-story-heading">{content.about.heading}</h1>
         <p class="oak-lead">{content.description}</p>
         <p class="oak-copy">{content.about.content}</p>
-        {content.about.chefName && (
-          <p class="oak-people">
-            <strong>{content.about.chefName}</strong>
-            {content.about.chefTitle && <span> · {content.about.chefTitle}</span>}
-          </p>
-        )}
-        {config.rating && (
-          <p class="oak-rating">
-            {config.rating.value}/5 · {config.rating.count} {config.rating.source}
-            {content.ratingNote && <> — {content.ratingNote}</>}
-          </p>
-        )}
         <img class="oak-portrait" src={config.heroImage} alt="" loading="eager" />
       </article>
 
@@ -67,12 +60,13 @@ const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(
         </ul>
 
         <div class="oak-book">
-          <h3>{content.ctaLabel ?? t('nav.reserve')}</h3>
+          <h3>{content.ctaLabel ?? t('cta.callNow')}</h3>
           {content.bookingNote && <p>{content.bookingNote}</p>}
-          {config.reservationUrl && (
-            <a href={config.reservationUrl} class="oak-cta">{content.ctaLabel ?? t('cta.callNow')}</a>
-          )}
-          <a href={`tel:${config.phone.replace(/\s/g, '')}`} class="oak-phone">{config.phone}</a>
+          <div class="oak-cta-row">
+            <a href={telHref} class="oak-cta">{t('cta.callNow')}</a>
+            <a href={whatsappHref} class="oak-wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          </div>
+          <a href={telHref} class="oak-phone">{config.phone}</a>
         </div>
 
         <p class="oak-addr">
@@ -232,12 +226,6 @@ const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(
     max-width: 48ch;
   }
 
-  .oak-people,
-  .oak-rating {
-    margin: 1.25rem 0 0;
-    color: var(--color-muted);
-  }
-
   .oak-portrait {
     display: block;
     width: 100%;
@@ -291,15 +279,30 @@ const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(
     font-size: 0.92rem;
   }
 
-  .oak-cta {
-    display: inline-flex;
+  .oak-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
     margin-top: 1rem;
+  }
+
+  .oak-cta,
+  .oak-wa {
+    display: inline-flex;
     padding: 0.8rem 1.1rem;
-    background: var(--color-accent);
-    color: var(--color-on-accent-text);
     text-decoration: none;
     font-weight: 700;
     border-radius: 999px;
+  }
+
+  .oak-cta {
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+  }
+
+  .oak-wa {
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
   }
 
   .oak-phone {

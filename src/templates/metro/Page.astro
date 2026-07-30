@@ -15,6 +15,11 @@ interface Props {
 const { config, lang } = Astro.props;
 const content = config.content[lang];
 const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const whatsappHref =
+  config.reservationUrl?.startsWith('https://wa.me/')
+    ? config.reservationUrl
+    : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
 const services = content.menu.flatMap((cat) =>
   cat.items.map((item) => ({ ...item, category: cat.name }))
 );
@@ -61,21 +66,14 @@ const services = content.menu.flatMap((cat) =>
         </ul>
       </article>
 
-      {config.rating && (
-        <article class="metro-tile metro-rating">
-          <p class="metro-score">{config.rating.value}</p>
-          <p>{config.rating.count} {config.rating.source}</p>
-          {content.ratingNote && <p class="metro-note">{content.ratingNote}</p>}
-        </article>
-      )}
-
       <article class="metro-tile metro-cta" id="contact">
         <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
         {content.bookingNote && <p>{content.bookingNote}</p>}
-        {config.reservationUrl && (
-          <a href={config.reservationUrl}>{content.ctaLabel ?? t('cta.callNow')}</a>
-        )}
-        <a class="metro-mail" href={`mailto:${config.email}`}>{config.email}</a>
+        <div class="metro-cta-row">
+          <a href={telHref}>{t('cta.callNow')}</a>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
+        <a class="metro-mail" href={telHref}>{config.phone}</a>
       </article>
 
       {services.slice(4).map((item) => (
@@ -201,7 +199,6 @@ const services = content.menu.flatMap((cat) =>
     .metro-s3 { grid-column: span 2; }
     .metro-s4 { grid-column: span 2; }
     .metro-hours { grid-column: span 2; grid-row: span 2; }
-    .metro-rating { grid-column: span 2; }
     .metro-cta { grid-column: span 4; }
     .metro-service:not(.metro-s1):not(.metro-s2):not(.metro-s3):not(.metro-s4) {
       grid-column: span 3;
@@ -258,25 +255,19 @@ const services = content.menu.flatMap((cat) =>
     font-size: 0.85rem;
   }
 
-  .metro-score {
-    margin: 0 !important;
-    font-family: var(--font-heading);
-    font-size: 3.5rem;
-    line-height: 1;
-    color: var(--color-accent);
-  }
-
-  .metro-note {
-    color: var(--color-text) !important;
-  }
-
   .metro-cta {
     background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
   }
 
-  .metro-cta a {
-    display: inline-flex;
+  .metro-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
     margin-top: 1rem;
+  }
+
+  .metro-cta-row a {
+    display: inline-flex;
     padding: 0.75rem 1.1rem;
     background: var(--color-accent);
     color: var(--color-on-accent-text);
@@ -285,6 +276,12 @@ const services = content.menu.flatMap((cat) =>
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.78rem;
+  }
+
+  .metro-cta-row a:last-child {
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
   }
 
   .metro-mail {

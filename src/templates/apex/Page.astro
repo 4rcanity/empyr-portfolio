@@ -14,6 +14,11 @@ interface Props {
 const { config, lang } = Astro.props;
 const content = config.content[lang];
 const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const whatsappHref =
+  config.reservationUrl?.startsWith('https://wa.me/')
+    ? config.reservationUrl
+    : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
 const services = content.menu.flatMap((cat) =>
   cat.items.map((item) => ({ ...item, category: cat.name }))
 );
@@ -81,14 +86,12 @@ const chapters = [
 
     <!-- 5. End-of-scroll CTA takeover -->
     <section class="apex-takeover" id="contact">
-      <p class="apex-takeover-kicker">{config.rating ? `${config.rating.value} · ${config.rating.source}` : 'Apex'}</p>
+      <p class="apex-takeover-kicker">{config.phone}</p>
       <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
       <p>{content.bookingNote ?? content.description}</p>
       <div class="apex-takeover-actions">
-        {config.reservationUrl && (
-          <a href={config.reservationUrl} class="apex-primary">{content.ctaLabel ?? t('cta.callNow')}</a>
-        )}
-        <a href={`mailto:${config.email}`} class="apex-ghost">{config.email}</a>
+        <a href={telHref} class="apex-primary">{t('cta.callNow')}</a>
+        <a href={whatsappHref} class="apex-ghost" target="_blank" rel="noopener noreferrer">WhatsApp</a>
       </div>
       <p class="apex-addr">
         {config.address.street}, {config.address.postalCode} {config.address.city}

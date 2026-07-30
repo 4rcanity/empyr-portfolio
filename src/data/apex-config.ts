@@ -1,6 +1,6 @@
 import type { SiteConfig } from '../types/site-config';
 
-/** Performance / specialty shop — graphite floor, acid lime, motorsport energy. */
+/** Specialty garage demo — contact, hours, priced services, Call/WhatsApp only. */
 export const apexConfig: SiteConfig = {
   slug: 'apex',
   name: 'Apex Motorsport',
@@ -22,21 +22,19 @@ export const apexConfig: SiteConfig = {
   },
   heroImage:
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=2000&q=80',
-  phone: '+31 20 000 0102',
-  email: 'builds@apexmotorsport.example',
+  phone: '+31 10 820 4410',
+  email: 'info@apexmotorsport.example',
   address: {
-    street: 'Pitlane 7',
-    city: 'Demostad',
-    postalCode: '1234 CD',
+    street: 'Vijfsluizenweg 18',
+    city: 'Schiedam',
+    postalCode: '3125 AE',
     country: 'Netherlands',
   },
-  coordinates: { lat: 52.02, lng: 5.02 },
-  googleMapsEmbed: 'https://www.google.com/maps?q=52.02,5.02&output=embed',
-  socials: {
-    instagram: 'https://instagram.com',
-    facebook: 'https://facebook.com',
-  },
-  reservationUrl: 'tel:+31200000102',
+  coordinates: { lat: 51.9352, lng: 4.3721 },
+  googleMapsEmbed:
+    'https://www.google.com/maps?q=Vijfsluizenweg+18,+3125+AE+Schiedam&output=embed',
+  socials: {},
+  reservationUrl: 'https://wa.me/31108204410',
   aboutImage:
     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
   gallery: [
@@ -45,162 +43,159 @@ export const apexConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&w=800&q=80',
   ],
-  rating: { value: 4.9, count: 92, source: 'Google' },
   content: {
     nl: {
-      tagline: 'Lap times first. Street manners second.',
-      description:
-        'Dyno-backed maps, chassis geometry en brake packages voor drivers die hun weekend in sectoren splitsen.',
-      bookingNote: 'Build-slots gaan naar racekalenders — stuur je events mee.',
-      ctaLabel: 'Claim een build-slot',
-      secondaryCtaLabel: 'Shop spec',
-      menuSectionLabel: 'Bay capabilities',
-      ratingNote: '92+ gemeten reviews',
+      tagline: 'APK-station · onderhoud · reparatie',
+      description: 'Afspraak via bel of WhatsApp. Alle merken voertuigen.',
+      bookingNote: 'Di–za open. Bel of WhatsApp voor een put.',
+      ctaLabel: 'WhatsApp ons',
+      secondaryCtaLabel: 'Bekijk diensten',
+      menuSectionLabel: 'Prijzen',
       openingHours: [
-        { dayKey: 'tue_thu', hours: '09:00 – 19:00' },
-        { dayKey: 'fri', hours: '09:00 – 18:00' },
-        { dayKey: 'sat', hours: '10:00 – 16:00' },
-        { dayKey: 'sun', hours: null },
         { dayKey: 'mon', hours: null },
+        { dayKey: 'tue_thu', hours: '08:30 – 17:30' },
+        { dayKey: 'fri', hours: '08:30 – 17:00' },
+        { dayKey: 'sat', hours: '09:00 – 14:00' },
+        { dayKey: 'sun', hours: null },
       ],
       menu: [
         {
-          name: 'Powerlab',
+          name: 'Keuring',
           items: [
             {
-              name: 'Stage map + log review',
-              description: 'Custom flash met warmte- en knock-grenzen voor jouw brandstof',
-              price: 'vanaf €520',
+              name: 'APK-keuring',
+              description: 'RDW-erkend · personenauto',
+              price: '€49,95',
             },
             {
-              name: 'Boost hardware package',
-              description: 'Turbo of supercharger met fuel rail, intercooler en wastegate',
-              price: 'project',
-            },
-            {
-              name: 'Half-day dyno',
-              description: 'Vier pulls, delta-log en een print die je in de paddock hangt',
-              price: '€195',
+              name: 'Aankoopkeuring',
+              description: 'Grondige check vóór aankoop',
+              price: 'vanaf €99',
             },
           ],
         },
         {
-          name: 'Chassis lab',
+          name: 'Onderhoud',
           items: [
             {
-              name: 'Corner-balance setup',
-              description: 'Coilovers, camber plates, weight distribution voor jouw banden',
-              price: 'vanaf €380',
+              name: 'Kleine beurt',
+              description: 'Olie + filter + veiligheidscheck',
+              price: 'vanaf €79',
             },
             {
-              name: 'Endurance brake kit',
-              description: 'Big brake + high-temp pads die een double-stint overleven',
+              name: 'Grote beurt',
+              description: 'Volledig onderhoud volgens schema',
+              price: 'vanaf €189',
+            },
+            {
+              name: 'Airco service',
+              description: 'Controle, reiniging, bijvullen',
+              price: 'vanaf €49',
+            },
+          ],
+        },
+        {
+          name: 'Reparatie',
+          items: [
+            {
+              name: 'Remmen',
+              description: 'Blokken, schijven, vloeistof',
               price: 'op offerte',
             },
             {
-              name: 'Paddock retainer',
-              description: 'Pre-event checklist + mid-weekend fixes op locatie',
-              price: 'op seizoen',
+              name: 'Distributieriem',
+              description: 'Vervanging incl. waterpomp op aanvraag',
+              price: 'op offerte',
+            },
+            {
+              name: 'Koppeling',
+              description: 'Vervanging koppelingsset',
+              price: 'op offerte',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Map was scherp op straat, stabiel op Zandvoort. Logs speken voor zich.',
-          author: 'Lars K.',
-          source: 'Instagram',
-        },
-        {
-          quote: 'Eindelijk een shop die een scope tekent vóór ze bouten aandraaien.',
-          author: 'Nina P.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Data boven drama',
+        heading: 'Apex Motorsport',
         content:
-          'Apex Motorsport bouwt street-legal power en weekend weapons met dezelfde discipline: scope, meet, documenteer. Geen sticker-horsepower — wel dyno-curves en chassis-notes die je kunt herhalen.',
-        chefName: 'Alex Visser',
-        chefTitle: 'Lead calibrator',
+          'Garage in Schiedam voor APK, onderhoud en reparatie. Plan via telefoon of WhatsApp.',
       },
     },
     en: {
-      tagline: 'Lap times first. Street manners second.',
-      description:
-        'Dyno-backed maps, chassis geometry, and brake packages for drivers who split weekends into sectors.',
-      bookingNote: 'Build slots follow race calendars — send your event list.',
-      ctaLabel: 'Claim a build slot',
-      secondaryCtaLabel: 'Shop spec',
-      menuSectionLabel: 'Bay capabilities',
-      ratingNote: '92+ measured reviews',
+      tagline: 'MOT station · service · repair',
+      description: 'Book by phone or WhatsApp. All vehicle makes.',
+      bookingNote: 'Tue–Sat open. Call or WhatsApp for a bay.',
+      ctaLabel: 'WhatsApp us',
+      secondaryCtaLabel: 'See services',
+      menuSectionLabel: 'Pricing',
       openingHours: [
-        { dayKey: 'tue_thu', hours: '09:00 – 19:00' },
-        { dayKey: 'fri', hours: '09:00 – 18:00' },
-        { dayKey: 'sat', hours: '10:00 – 16:00' },
-        { dayKey: 'sun', hours: null },
         { dayKey: 'mon', hours: null },
+        { dayKey: 'tue_thu', hours: '08:30 – 17:30' },
+        { dayKey: 'fri', hours: '08:30 – 17:00' },
+        { dayKey: 'sat', hours: '09:00 – 14:00' },
+        { dayKey: 'sun', hours: null },
       ],
       menu: [
         {
-          name: 'Power lab',
+          name: 'Inspection',
           items: [
             {
-              name: 'Stage map + log review',
-              description: 'Custom flash with heat and knock limits for your fuel',
-              price: 'from €520',
+              name: 'MOT inspection',
+              description: 'Authorised station · passenger cars',
+              price: '€49.95',
             },
             {
-              name: 'Boost hardware package',
-              description: 'Turbo or supercharger with fuel rail, cooler, and wastegate',
-              price: 'project',
-            },
-            {
-              name: 'Half-day dyno',
-              description: 'Four pulls, delta log, and a sheet you hang in the paddock',
-              price: '€195',
+              name: 'Pre-purchase inspection',
+              description: 'Full check before you buy',
+              price: 'from €99',
             },
           ],
         },
         {
-          name: 'Chassis lab',
+          name: 'Service',
           items: [
             {
-              name: 'Corner-balance setup',
-              description: 'Coilovers, camber plates, weight distribution for your tires',
-              price: 'from €380',
+              name: 'Minor service',
+              description: 'Oil + filter + safety check',
+              price: 'from €79',
             },
             {
-              name: 'Endurance brake kit',
-              description: 'Big brake + high-temp pads that survive a double stint',
+              name: 'Major service',
+              description: 'Full schedule-based maintenance',
+              price: 'from €189',
+            },
+            {
+              name: 'A/C service',
+              description: 'Check, clean, refrigerant top-up',
+              price: 'from €49',
+            },
+          ],
+        },
+        {
+          name: 'Repair',
+          items: [
+            {
+              name: 'Brakes',
+              description: 'Pads, discs, fluid',
               price: 'on quote',
             },
             {
-              name: 'Paddock retainer',
-              description: 'Pre-event checklist + mid-weekend fixes on site',
-              price: 'seasonal',
+              name: 'Timing belt',
+              description: 'Replacement; water pump on request',
+              price: 'on quote',
+            },
+            {
+              name: 'Clutch',
+              description: 'Clutch kit replacement',
+              price: 'on quote',
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'Map was sharp on street, stable at Zandvoort. The logs speak.',
-          author: 'Lars K.',
-          source: 'Instagram',
-        },
-        {
-          quote: 'Finally a shop that drafts a scope before they turn a bolt.',
-          author: 'Nina P.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Data over drama',
+        heading: 'Apex Motorsport',
         content:
-          'Apex Motorsport builds street-legal power and weekend weapons with the same discipline: scope, measure, document. No sticker horsepower — dyno curves and chassis notes you can repeat.',
-        chefName: 'Alex Visser',
-        chefTitle: 'Lead calibrator',
+          'Garage in Schiedam for MOT, servicing and repairs. Book by phone or WhatsApp.',
       },
     },
   },

@@ -35,7 +35,7 @@ export const noirConfig: SiteConfig = {
     instagram: 'https://instagram.com',
   },
   reservationUrl: 'mailto:reservations@ateliernocturne.example?subject=Table%20Reservation',
-  aboutImage: 'https://images.unsplash.com/photo-1577219491135-ce391730e2c2?w=900&q=80&sat=-30',
+  aboutImage: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80&sat=-30',
   gallery: [
     'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80&sat=-50',
     'https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80&sat=-50',
@@ -45,10 +45,10 @@ export const noirConfig: SiteConfig = {
   halal: true,
   content: {
     nl: {
-      tagline: 'Halal fine dining na zonsondergang',
+      tagline: 'Halal fine dining · alcoholvrij',
       description:
-        'Twaalf tafels, kaarslicht en een alcoholvrij pairingprogramma gebouwd op thee, gefermenteerde sappen en huisgemaakte cordials.',
-      bookingNote: 'Reserveringen openen om middernacht, 28 dagen van tevoren. Dresscode: quiet luxury.',
+        'Twaalf tafels. Seizoensmenu met optionele botanical pairing (thee, gefermenteerde sappen, cordials).',
+      bookingNote: 'Reserveren per e-mail, 28 dagen vooruit.',
       ctaLabel: 'Reserveer een tafel',
       secondaryCtaLabel: 'Bekijk de avondkaart',
       menuSectionLabel: 'Avondkaart',
@@ -60,18 +60,17 @@ export const noirConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Nocturne Menu',
+          name: 'Menu',
           items: [
             {
               name: 'Negen Gangen — Nocturne',
-              description:
-                'Seizoensritme met optionele botanical pairing. Dieetwensen 72u van tevoren — wij bouwen de avond eromheen.',
+              description: 'Seizoensritme met optionele botanical pairing. Dieetwensen 72u van tevoren.',
               price: '€118',
               tags: ['halal'],
             },
             {
               name: 'Zes Gangen — Première',
-              description: 'Kortere boog voor midweek: dezelfde keuken, minder uur aan tafel.',
+              description: 'Kortere midweekboog: dezelfde keuken, minder uur aan tafel.',
               price: '€84',
               tags: ['halal'],
             },
@@ -100,38 +99,24 @@ export const noirConfig: SiteConfig = {
             },
             {
               name: 'Cacao & bergamot',
-              description: 'Glazen bol, hazelnootpraliné, eetbaar goud',
+              description: 'Glazen bol, hazelnootpraliné',
               price: '€18',
               tags: ['vegetarian'],
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'De pairing zonder alcohol was beter dan menige wijnavond. Stil, precies, warm.',
-          author: 'Lina R.',
-          source: 'Resy',
-        },
-        {
-          quote: 'Twaalf tafels voelen als een privéatelier. Geen haast, wel ritme.',
-          author: 'Omar S.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Chef Mira Al-Hassan',
+        heading: 'Atelier Nocturne',
         content:
-          'Atelier Nocturne is een fictief avondrestaurant: halal keuken, alcoholvrij pairing en een zaal die fluistert in plaats van schreeuwt. Namen en adressen op deze demo zijn placeholders — de toon is het product.',
-        chefName: 'Mira Al-Hassan',
-        chefTitle: 'Chef-patron',
+          'Halal avondrestaurant met alcoholvrij pairingprogramma. Reserveren via e-mail. Demoadres — ter illustratie van de template.',
       },
     },
     en: {
-      tagline: 'Halal fine dining after dark',
+      tagline: 'Halal fine dining · alcohol-free',
       description:
-        'Twelve tables, candlelight, and an alcohol-free pairing program built on tea, fermented juices, and house cordials.',
-      bookingNote: 'Reservations open at midnight, 28 days out. Dress code: quiet luxury.',
+        'Twelve tables. Seasonal menu with optional botanical pairing (tea, fermented juices, cordials).',
+      bookingNote: 'Reserve by email, 28 days ahead.',
       ctaLabel: 'Reserve a table',
       secondaryCtaLabel: 'See the evening card',
       menuSectionLabel: 'Evening card',
@@ -143,12 +128,11 @@ export const noirConfig: SiteConfig = {
       ],
       menu: [
         {
-          name: 'Nocturne Menu',
+          name: 'Menu',
           items: [
             {
               name: 'Nine Courses — Nocturne',
-              description:
-                'Seasonal arc with optional botanical pairing. Dietary notes 72h ahead — we rebuild the night around them.',
+              description: 'Seasonal arc with optional botanical pairing. Dietary notes 72h ahead.',
               price: '€118',
               tags: ['halal'],
             },
@@ -183,31 +167,17 @@ export const noirConfig: SiteConfig = {
             },
             {
               name: 'Cacao & bergamot',
-              description: 'Glass sphere, hazelnut praline, edible gold',
+              description: 'Glass sphere, hazelnut praline',
               price: '€18',
               tags: ['vegetarian'],
             },
           ],
         },
       ],
-      testimonials: [
-        {
-          quote: 'The alcohol-free pairing outran most wine nights. Quiet, precise, warm.',
-          author: 'Lina R.',
-          source: 'Resy',
-        },
-        {
-          quote: 'Twelve tables feel like a private atelier. No rush — just rhythm.',
-          author: 'Omar S.',
-          source: 'Google',
-        },
-      ],
       about: {
-        heading: 'Chef Mira Al-Hassan',
+        heading: 'Atelier Nocturne',
         content:
-          'Atelier Nocturne is a fictional evening restaurant: halal kitchen, alcohol-free pairing, and a room that whispers instead of shouts. Names and addresses in this demo are placeholders — the tone is the product.',
-        chefName: 'Mira Al-Hassan',
-        chefTitle: 'Chef-patron',
+          'Halal evening restaurant with an alcohol-free pairing program. Reserve by email. Demo address — for template illustration.',
       },
     },
   },
