@@ -54,34 +54,106 @@ const templateMeta: Record<string, { bestFor: string[]; nlBestFor: string[] }> =
   },
 };
 
-const templates = [
-  ...configs.map((config) => {
+type TemplateCard = {
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  accent: string;
+  bestFor: string[];
+};
+
+const templatesBySlug: Record<string, TemplateCard> = Object.fromEntries(
+  configs.map((config) => {
     const content = config.content[lang];
     const meta = templateMeta[config.slug];
-    return {
-      slug: config.slug,
-      name: config.name,
-      tagline: content.tagline,
-      description: content.description,
-      accent: config.theme.accent,
-      bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
-    };
+    return [
+      config.slug,
+      {
+        slug: config.slug,
+        name: config.name,
+        tagline: content.tagline,
+        description: content.description,
+        accent: config.theme.accent,
+        bestFor: lang === 'nl' ? meta.nlBestFor : meta.bestFor,
+      },
+    ];
   }),
-  {
-    slug: 'medrese',
-    name: 'Medrese',
-    tagline: lang === 'nl' ? 'Kennis die hart en verstand verbindt' : 'Knowledge that connects heart and mind',
-    description:
-      lang === 'nl'
-        ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
-        : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
-    accent: '#BD8B35',
-    bestFor:
-      lang === 'nl'
-        ? ['Educatie', 'Gemeenschap', 'NL · TR · EN']
-        : ['Education', 'Community', 'NL · TR · EN'],
-  },
-];
+);
+
+templatesBySlug.medrese = {
+  slug: 'medrese',
+  name: 'Medrese',
+  tagline: lang === 'nl' ? 'Kennis die hart en verstand verbindt' : 'Knowledge that connects heart and mind',
+  description:
+    lang === 'nl'
+      ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
+      : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
+  accent: '#BD8B35',
+  bestFor:
+    lang === 'nl'
+      ? ['Educatie', 'Gemeenschap', 'NL · TR · EN']
+      : ['Education', 'Community', 'NL · TR · EN'],
+};
+
+const workCategories =
+  lang === 'nl'
+    ? [
+        {
+          id: 'restaurants',
+          title: 'Restaurants & cafés',
+          body: 'Vier concepten voor horeca — van familiezaak tot fine dining.',
+          slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
+        },
+        {
+          id: 'barbers',
+          title: 'Barbershops',
+          body: 'Strak merkwerk voor kappers en grooming studio\'s.',
+          slugs: ['barberhouse'],
+        },
+        {
+          id: 'garages',
+          title: 'Garages & autoservice',
+          body: 'Vier templates voor buurtgarage tot performance shop.',
+          slugs: ['ridgeway', 'apex', 'oak-axle', 'metro'],
+        },
+        {
+          id: 'education',
+          title: 'Educatie & platforms',
+          body: 'Meertalige leerervaringen voor gemeenschap en kennis.',
+          slugs: ['medrese'],
+        },
+      ]
+    : [
+        {
+          id: 'restaurants',
+          title: 'Restaurants & cafés',
+          body: 'Four concepts for hospitality — from family dining to fine dining.',
+          slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
+        },
+        {
+          id: 'barbers',
+          title: 'Barbershops',
+          body: 'Sharp brand work for barbers and grooming studios.',
+          slugs: ['barberhouse'],
+        },
+        {
+          id: 'garages',
+          title: 'Garages & auto service',
+          body: 'Four templates from neighborhood shops to performance bays.',
+          slugs: ['ridgeway', 'apex', 'oak-axle', 'metro'],
+        },
+        {
+          id: 'education',
+          title: 'Education & platforms',
+          body: 'Multilingual learning experiences for community and knowledge.',
+          slugs: ['medrese'],
+        },
+      ];
+
+const heroPreview = ['trattoria', 'noir', 'ridgeway', 'medrese']
+  .map((slug) => templatesBySlug[slug])
+  .filter(Boolean);
 
 const copy =
   lang === 'nl'
@@ -95,7 +167,8 @@ const copy =
         secondaryCta: 'Start een project',
         workEyebrow: 'Geselecteerd werk',
         workTitle: 'Gebouwd om op te vallen.',
-        workBody: 'Tien concepten, elk met een eigen merkgevoel, doelgroep en conversiedoel — inclusief garage-templates om op de werkvloer te laten zien.',
+        workBody:
+          'Tien concepten in vier categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel, van horeca tot garagevloer.',
         games: 'Game development',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
@@ -112,7 +185,8 @@ const copy =
         secondaryCta: 'Start a project',
         workEyebrow: 'Selected work',
         workTitle: 'Built to stand out.',
-        workBody: 'Ten concepts, each with its own brand feel, audience and conversion goal — including garage templates ready to show on the shop floor.',
+        workBody:
+          'Ten concepts across four categories — each with its own brand feel, audience and conversion goal, from hospitality to the shop floor.',
         games: 'Game development',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
@@ -223,7 +297,7 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
                 <span class="ml-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-600">Empyr / Selected work</span>
               </div>
               <div class="grid grid-cols-2 gap-3 p-3">
-                {templates.slice(0, 4).map((tpl, index) => (
+                {heroPreview.map((tpl, index) => (
                   <a href={`/${lang}/${tpl.slug}`} class:list={["group relative overflow-hidden rounded-2xl", index === 0 && "col-span-2 aspect-[2/1]", index !== 0 && "aspect-square"]}>
                     <ProjectIcon slug={tpl.slug} name={tpl.name} compact={true} />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
@@ -245,34 +319,52 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
           <p class="mt-5 max-w-2xl text-base leading-7 text-stone-600">{copy.workBody}</p>
         </div>
 
-      <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-6">
-        {templates.map((tpl) => (
-          <article class="group relative col-span-2 flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl lg:[&:nth-child(-n+2)]:col-span-3">
-            <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
-              <ProjectIcon slug={tpl.slug} name={tpl.name} />
-              <span
-                class="absolute left-5 top-5 rounded-full border border-white/20 bg-black/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
-              >
-                {tpl.name}
-              </span>
-            </div>
-            <div class="flex flex-1 flex-col p-7">
-              <p class="text-lg font-semibold tracking-tight text-stone-900">{tpl.tagline}</p>
-              <p class="mt-3 flex-1 text-sm leading-6 text-stone-500">{tpl.description}</p>
-              <ul class="mt-4 flex flex-wrap gap-2">
-                {tpl.bestFor.map((tag) => (
-                  <li class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">{tag}</li>
+      <div class="mt-16 space-y-20">
+        {workCategories.map((category) => {
+          const items = category.slugs.map((slug) => templatesBySlug[slug]).filter(Boolean);
+          return (
+            <div id={`work-${category.id}`}>
+              <div class="max-w-2xl border-t border-stone-200 pt-10">
+                <h3 class="text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">{category.title}</h3>
+                <p class="mt-3 text-sm leading-6 text-stone-500 sm:text-base">{category.body}</p>
+              </div>
+
+              <div class:list={[
+                'mt-8 grid gap-6 sm:grid-cols-2',
+                items.length === 1 && 'max-w-xl sm:grid-cols-1',
+                items.length === 4 && 'lg:grid-cols-2',
+              ]}>
+                {items.map((tpl) => (
+                  <article class="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
+                      <ProjectIcon slug={tpl.slug} name={tpl.name} />
+                      <span
+                        class="absolute left-5 top-5 rounded-full border border-white/20 bg-black/25 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md"
+                      >
+                        {tpl.name}
+                      </span>
+                    </div>
+                    <div class="flex flex-1 flex-col p-7">
+                      <p class="text-lg font-semibold tracking-tight text-stone-900">{tpl.tagline}</p>
+                      <p class="mt-3 flex-1 text-sm leading-6 text-stone-500">{tpl.description}</p>
+                      <ul class="mt-4 flex flex-wrap gap-2">
+                        {tpl.bestFor.map((tag) => (
+                          <li class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">{tag}</li>
+                        ))}
+                      </ul>
+                      <a
+                        href={`/${lang}/${tpl.slug}`}
+                        class="mt-7 inline-flex items-center gap-2 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
+                      >
+                        {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
+                      </a>
+                    </div>
+                  </article>
                 ))}
-              </ul>
-              <a
-                href={`/${lang}/${tpl.slug}`}
-                class="mt-7 inline-flex items-center gap-2 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
-              >
-                {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
-              </a>
+              </div>
             </div>
-          </article>
-        ))}
+          );
+        })}
       </div>
       </div>
     </section>
