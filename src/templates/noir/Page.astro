@@ -1,0 +1,456 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="noir" data-archetype="cinematic-chapters">
+    <!-- 1. Full-screen typography hero -->
+    <section class="noir-hero" id="top">
+      <div class="noir-hero-bar">
+        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+      </div>
+      <div class="noir-hero-type">
+        <p class="noir-eyebrow">{content.tagline}</p>
+        <h1>{config.name}</h1>
+        <p class="noir-lede">{content.description}</p>
+        <a href="#menu" class="noir-link">{content.secondaryCtaLabel ?? t('hero.viewMenu')}</a>
+      </div>
+      <div class="noir-hero-grain" aria-hidden="true" />
+    </section>
+
+    <!-- 2. Long-form minimal menu list -->
+    <section class="noir-menu" id="menu" aria-labelledby="noir-menu-heading">
+      <h2 id="noir-menu-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
+      {content.menu.map((cat) => (
+        <div class="noir-course">
+          <h3>{cat.name}</h3>
+          <ul>
+            {cat.items.map((item) => (
+              <li>
+                <div class="noir-dish">
+                  <span class="noir-dish-name">{item.name}</span>
+                  <span class="noir-rule" aria-hidden="true" />
+                  <span class="noir-price">{item.price}</span>
+                </div>
+                <p>{item.description}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+
+    <!-- 3. About vignette -->
+    <section class="noir-about" id="about">
+      <div class="noir-about-copy">
+        <h2>{content.about.heading}</h2>
+        <p>{content.about.content}</p>
+        {content.about.chefName && (
+          <p class="noir-chef">
+            {content.about.chefName}
+            {content.about.chefTitle && <span> — {content.about.chefTitle}</span>}
+          </p>
+        )}
+      </div>
+      {config.aboutImage && (
+        <figure>
+          <img src={config.aboutImage} alt="" loading="lazy" />
+        </figure>
+      )}
+    </section>
+
+    <!-- 4. Full-bleed gallery slides -->
+    <section class="noir-slides" id="gallery" aria-label={t('gallery.title')}>
+      {config.gallery.map((src, i) => (
+        <figure class="noir-slide" style={`--img: url(${src})`}>
+          <figcaption>{String(i + 1).padStart(2, '0')}</figcaption>
+        </figure>
+      ))}
+    </section>
+
+    <!-- 5. Contact / hours (before sticky bar) -->
+    <section class="noir-visit" id="contact">
+      <div>
+        <h2>{t('contact.visitUs')}</h2>
+        <p>
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </p>
+        <p><a href={`mailto:${config.email}`}>{config.email}</a></p>
+        <p><a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a></p>
+      </div>
+      <ul>
+        {content.openingHours.map((hour) => {
+          const row = formatOpeningHours(t, hour);
+          return (
+            <li>
+              <span>{row.label}</span>
+              <span>{row.value}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    {content.testimonials && content.testimonials.length > 0 && (
+      <section class="noir-quotes" aria-label={t('testimonials.title')}>
+        {content.testimonials.map((item) => (
+          <blockquote>
+            <p>“{item.quote}”</p>
+            <footer>{item.author}</footer>
+          </blockquote>
+        ))}
+      </section>
+    )}
+
+    <Footer config={config} lang={lang} />
+
+    <!-- Sticky reserve bar -->
+    {config.reservationUrl && (
+      <div class="noir-sticky" role="region" aria-label={content.ctaLabel ?? t('nav.reserve')}>
+        <div>
+          <strong>{config.name}</strong>
+          {content.bookingNote && <span>{content.bookingNote}</span>}
+        </div>
+        <a href={config.reservationUrl}>{content.ctaLabel ?? t('nav.reserve')}</a>
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .noir {
+    padding-bottom: 5rem;
+  }
+
+  .noir-hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 5rem 1.25rem 4rem;
+    background:
+      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 50%),
+      var(--color-background);
+    overflow: hidden;
+  }
+
+  .noir-hero-bar {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+  }
+
+  .noir-hero-type {
+    max-width: 48rem;
+    text-align: center;
+  }
+
+  .noir-eyebrow {
+    margin: 0;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    font-size: 0.75rem;
+  }
+
+  .noir-hero h1 {
+    margin: 1.25rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(3.4rem, 12vw, 7.5rem);
+    font-weight: 600;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
+
+  .noir-lede {
+    margin: 1.5rem auto 0;
+    max-width: 36ch;
+    color: var(--color-muted);
+    line-height: 1.7;
+  }
+
+  .noir-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--color-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-accent);
+    padding-bottom: 0.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+  }
+
+  .noir-hero-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .noir-menu {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 5rem 1.25rem 4rem;
+  }
+
+  .noir-menu > h2 {
+    margin: 0 0 3rem;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .noir-course + .noir-course {
+    margin-top: 3rem;
+  }
+
+  .noir-course h3 {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    text-align: center;
+  }
+
+  .noir-course ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .noir-course li + li {
+    margin-top: 1.5rem;
+  }
+
+  .noir-dish {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .noir-dish-name {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+  }
+
+  .noir-rule {
+    flex: 1;
+    border-bottom: 1px dotted color-mix(in srgb, var(--color-muted) 45%, transparent);
+    transform: translateY(-0.35rem);
+  }
+
+  .noir-price {
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .noir-course p {
+    margin: 0.4rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .noir-about {
+    display: grid;
+    gap: 2rem;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 5rem;
+  }
+
+  @media (min-width: 860px) {
+    .noir-about {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+  }
+
+  .noir-about h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 500;
+  }
+
+  .noir-about p {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.75;
+  }
+
+  .noir-chef {
+    color: var(--color-text) !important;
+    letter-spacing: 0.04em;
+  }
+
+  .noir-about figure {
+    margin: 0;
+  }
+
+  .noir-about img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    filter: saturate(0.7) contrast(1.05);
+  }
+
+  .noir-slides {
+    display: grid;
+  }
+
+  .noir-slide {
+    margin: 0;
+    min-height: 85vh;
+    min-height: 85svh;
+    display: grid;
+    align-items: end;
+    padding: 1.5rem;
+    background:
+      linear-gradient(transparent 60%, rgba(0, 0, 0, 0.75)),
+      var(--img) center / cover no-repeat;
+  }
+
+  .noir-slide figcaption {
+    font-family: var(--font-heading);
+    letter-spacing: 0.2em;
+    color: var(--color-accent);
+  }
+
+  .noir-visit {
+    display: grid;
+    gap: 2rem;
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 4rem 1.25rem;
+  }
+
+  @media (min-width: 720px) {
+    .noir-visit { grid-template-columns: 1fr 1fr; }
+  }
+
+  .noir-visit h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 500;
+  }
+
+  .noir-visit p {
+    margin: 0.75rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  .noir-visit a {
+    color: var(--color-text);
+  }
+
+  .noir-visit ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .noir-visit li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+    font-size: 0.92rem;
+  }
+
+  .noir-quotes {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 0 1.25rem 4rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  .noir-quotes blockquote {
+    margin: 0;
+    text-align: center;
+  }
+
+  .noir-quotes p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    line-height: 1.35;
+  }
+
+  .noir-quotes footer {
+    margin-top: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  .noir-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .noir-sticky strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+  }
+
+  .noir-sticky span {
+    display: none;
+    color: var(--color-muted);
+    font-size: 0.8rem;
+  }
+
+  @media (min-width: 720px) {
+    .noir-sticky span { display: block; }
+  }
+
+  .noir-sticky a {
+    flex-shrink: 0;
+    padding: 0.75rem 1.15rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

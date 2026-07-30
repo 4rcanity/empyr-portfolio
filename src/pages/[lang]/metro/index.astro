@@ -1,0 +1,13 @@
+---
+import Page from '../../../templates/metro/Page.astro';
+import { metroConfig } from '../../../data/metro-config';
+import { languages, type Lang } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+---
+
+<Page config={metroConfig} lang={lang} />

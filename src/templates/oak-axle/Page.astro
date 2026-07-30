@@ -1,0 +1,434 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(Boolean) as string[];
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="oak" data-archetype="split-pane-trust">
+    <header class="oak-bar">
+      <a href={`/${lang}/${config.slug}`} class="oak-brand">{config.name}</a>
+      <nav class="oak-nav" aria-label="Primary">
+        <a href="#story">{t('nav.about')}</a>
+        <a href="#care">{content.menuSectionLabel ?? t('nav.menu')}</a>
+        <a href="#gallery">{t('nav.gallery')}</a>
+      </nav>
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+    </header>
+
+    <!-- 1. Split pane: family story | hours / map / booking -->
+    <section class="oak-split" id="story" aria-labelledby="oak-story-heading">
+      <article class="oak-pane oak-story">
+        <p class="oak-kicker">{content.tagline}</p>
+        <h1 id="oak-story-heading">{content.about.heading}</h1>
+        <p class="oak-lead">{content.description}</p>
+        <p class="oak-copy">{content.about.content}</p>
+        {content.about.chefName && (
+          <p class="oak-people">
+            <strong>{content.about.chefName}</strong>
+            {content.about.chefTitle && <span> · {content.about.chefTitle}</span>}
+          </p>
+        )}
+        {config.rating && (
+          <p class="oak-rating">
+            {config.rating.value}/5 · {config.rating.count} {config.rating.source}
+            {content.ratingNote && <> — {content.ratingNote}</>}
+          </p>
+        )}
+        <img class="oak-portrait" src={config.heroImage} alt="" loading="eager" />
+      </article>
+
+      <aside class="oak-pane oak-trust" id="contact">
+        <h2>{t('hours.title')}</h2>
+        <ul class="oak-hours">
+          {content.openingHours.map((hour) => {
+            const row = formatOpeningHours(t, hour);
+            return (
+              <li>
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div class="oak-book">
+          <h3>{content.ctaLabel ?? t('nav.reserve')}</h3>
+          {content.bookingNote && <p>{content.bookingNote}</p>}
+          {config.reservationUrl && (
+            <a href={config.reservationUrl} class="oak-cta">{content.ctaLabel ?? t('cta.callNow')}</a>
+          )}
+          <a href={`tel:${config.phone.replace(/\s/g, '')}`} class="oak-phone">{config.phone}</a>
+        </div>
+
+        <p class="oak-addr">
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </p>
+        <iframe
+          title={`${config.name} map`}
+          src={config.googleMapsEmbed}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="oak-map"
+        />
+      </aside>
+    </section>
+
+    <!-- 2. Care / services below the split -->
+    <section class="oak-care" id="care" aria-labelledby="oak-care-heading">
+      <h2 id="oak-care-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
+      <div class="oak-care-grid">
+        {content.menu.map((cat) => (
+          <div class="oak-care-col">
+            <h3>{cat.name}</h3>
+            <ul>
+              {cat.items.map((item) => (
+                <li>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <p>{item.description}</p>
+                  </div>
+                  <span>{item.price}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 3. Masonry gallery -->
+    <section class="oak-masonry" id="gallery" aria-label={t('gallery.title')}>
+      {masonry.map((src, i) => (
+        <figure class={`oak-brick oak-brick-${(i % 5) + 1}`}>
+          <img src={src} alt="" loading="lazy" />
+        </figure>
+      ))}
+    </section>
+
+    <!-- 4. Testimonials -->
+    {content.testimonials && content.testimonials.length > 0 && (
+      <section class="oak-voices" aria-labelledby="oak-voices-heading">
+        <h2 id="oak-voices-heading">{t('testimonials.title')}</h2>
+        <div class="oak-voice-row">
+          {content.testimonials.map((item) => (
+            <blockquote>
+              <p>“{item.quote}”</p>
+              <footer>{item.author}{item.source && ` · ${item.source}`}</footer>
+            </blockquote>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <Footer config={config} lang={lang} />
+  </div>
+</BaseLayout>
+
+<style>
+  .oak-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+  }
+
+  .oak-brand {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .oak-nav {
+    display: none;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 800px) {
+    .oak-nav { display: flex; }
+  }
+
+  .oak-nav a {
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+
+  .oak-split {
+    display: grid;
+    min-height: calc(100vh - 4rem);
+  }
+
+  @media (min-width: 980px) {
+    .oak-split {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+  }
+
+  .oak-pane {
+    padding: 2.5rem 1.5rem;
+  }
+
+  @media (min-width: 980px) {
+    .oak-pane {
+      padding: 3.5rem 2.5rem;
+    }
+
+    .oak-trust {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+      border-left: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+      background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    }
+  }
+
+  .oak-kicker {
+    margin: 0;
+    color: var(--color-accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .oak-story h1 {
+    margin: 0.8rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.05;
+  }
+
+  .oak-lead {
+    margin: 1.25rem 0 0;
+    font-size: 1.15rem;
+    color: var(--color-muted);
+    max-width: 40ch;
+  }
+
+  .oak-copy {
+    margin: 1.25rem 0 0;
+    line-height: 1.75;
+    max-width: 48ch;
+  }
+
+  .oak-people,
+  .oak-rating {
+    margin: 1.25rem 0 0;
+    color: var(--color-muted);
+  }
+
+  .oak-portrait {
+    display: block;
+    width: 100%;
+    max-width: 36rem;
+    margin-top: 2rem;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 0.35rem;
+  }
+
+  .oak-trust h2,
+  .oak-care h2,
+  .oak-voices h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+  }
+
+  .oak-hours {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+
+  .oak-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+    font-size: 0.92rem;
+  }
+
+  .oak-book {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--color-background) 55%, transparent);
+  }
+
+  .oak-book h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+  }
+
+  .oak-book p {
+    margin: 0.6rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .oak-cta {
+    display: inline-flex;
+    margin-top: 1rem;
+    padding: 0.8rem 1.1rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 999px;
+  }
+
+  .oak-phone {
+    display: block;
+    margin-top: 0.75rem;
+    color: var(--color-text);
+  }
+
+  .oak-addr {
+    margin: 1.5rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.55;
+  }
+
+  .oak-map {
+    width: 100%;
+    height: 200px;
+    margin-top: 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+  }
+
+  .oak-care {
+    padding: 4rem 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  .oak-care-grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: 2rem;
+    max-width: 72rem;
+  }
+
+  @media (min-width: 800px) {
+    .oak-care-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .oak-care-col h3 {
+    margin: 0 0 1rem;
+    font-family: var(--font-heading);
+    color: var(--color-accent);
+  }
+
+  .oak-care-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .oak-care-col li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-muted) 22%, transparent);
+  }
+
+  .oak-care-col p {
+    margin: 0.35rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .oak-care-col span {
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  .oak-masonry {
+    column-count: 2;
+    column-gap: 0.75rem;
+    padding: 0 1rem 3rem;
+  }
+
+  @media (min-width: 900px) {
+    .oak-masonry { column-count: 3; padding-inline: 1.5rem; }
+  }
+
+  .oak-brick {
+    break-inside: avoid;
+    margin: 0 0 0.75rem;
+  }
+
+  .oak-brick img {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0.35rem;
+  }
+
+  .oak-brick-1 img { aspect-ratio: 4 / 5; }
+  .oak-brick-2 img { aspect-ratio: 1 / 1; }
+  .oak-brick-3 img { aspect-ratio: 5 / 4; }
+  .oak-brick-4 img { aspect-ratio: 3 / 4; }
+  .oak-brick-5 img { aspect-ratio: 16 / 11; }
+
+  .oak-voices {
+    padding: 3.5rem 1.5rem 4.5rem;
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  }
+
+  .oak-voice-row {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    max-width: 72rem;
+  }
+
+  @media (min-width: 800px) {
+    .oak-voice-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  .oak-voices blockquote {
+    margin: 0;
+    padding: 1.25rem;
+    border-left: 3px solid var(--color-accent);
+  }
+
+  .oak-voices p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+
+  .oak-voices footer {
+    margin-top: 0.85rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+</style>

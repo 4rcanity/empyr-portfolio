@@ -12,17 +12,19 @@ import DeliveryLinks from '../../../components/shared/DeliveryLinks.astro';
 import RatingBadge from '../../../components/shared/RatingBadge.astro';
 import Team from '../../../components/shared/Team.astro';
 import Footer from '../../../components/shared/Footer.astro';
-import DailySpecial from '../../../components/corner/DailySpecial.astro';
 import InstagramFeed from '../../../components/shared/InstagramFeed.astro';
 import { configs } from '../../../data/configs';
 import { languages } from '../../../i18n/ui';
 
 export function getStaticPaths() {
+  const sharedStackSlugs = new Set(['trattoria', 'ocakbasi', 'barberhouse']);
   return languages.flatMap((lang) =>
-    configs.map((config) => ({
-      params: { lang, slug: config.slug },
-      props: { config },
-    }))
+    configs
+      .filter((config) => sharedStackSlugs.has(config.slug))
+      .map((config) => ({
+        params: { lang, slug: config.slug },
+        props: { config },
+      }))
   );
 }
 
@@ -33,11 +35,10 @@ const variant = config.theme.variant;
 ---
 
 <BaseLayout config={config} content={content} lang={lang as 'nl' | 'en'} canonicalPath={`/${lang}/${config.slug}`}>
-  {variant === 'corner' && <DailySpecial content={content} />}
   <Nav config={config} content={content} lang={lang as 'nl' | 'en'} />
   <Hero config={config} content={content} lang={lang as 'nl' | 'en'} overlay={true} />
 
-  {(variant === 'ocakbasi' || variant === 'barberhouse' || variant === 'garage') && (
+  {(variant === 'ocakbasi' || variant === 'barberhouse') && (
     <div class="border-b py-6" style="background: var(--color-surface); border-color: color-mix(in srgb, var(--color-muted) 15%, transparent);">
       <div class="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
         <RatingBadge config={config} content={content} lang={lang as 'nl' | 'en'} />
@@ -48,13 +49,13 @@ const variant = config.theme.variant;
   <MenuSection
     content={content}
     lang={lang as 'nl' | 'en'}
-    layout={variant === 'noir' ? 'minimal' : variant === 'ocakbasi' ? 'photo-grid' : 'cards'}
+    layout={variant === 'ocakbasi' ? 'photo-grid' : 'cards'}
     variant={variant}
   />
 
   {variant === 'barberhouse' && <Team content={content} lang={lang as 'nl' | 'en'} variant={variant} />}
 
-  {(variant === 'corner' || variant === 'ocakbasi') && (
+  {variant === 'ocakbasi' && (
     <>
       <InstagramFeed config={config} lang={lang as 'nl' | 'en'} />
       <DeliveryLinks config={config} lang={lang as 'nl' | 'en'} />
@@ -71,7 +72,7 @@ const variant = config.theme.variant;
   <OpeningHours content={content} lang={lang as 'nl' | 'en'} variant={variant} />
 
   {config.reservationUrl && (
-    <ReservationCTA config={config} content={content} lang={lang as 'nl' | 'en'} sticky={variant === 'noir'} />
+    <ReservationCTA config={config} content={content} lang={lang as 'nl' | 'en'} sticky={false} />
   )}
 
   <Footer config={config} lang={lang as 'nl' | 'en'} />

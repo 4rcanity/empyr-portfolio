@@ -1,0 +1,381 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { useTranslations } from '../../i18n/utils';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const services = content.menu.flatMap((cat) =>
+  cat.items.map((item) => ({ ...item, category: cat.name }))
+);
+const chapters = [
+  { src: config.heroImage, label: content.tagline, body: content.description },
+  {
+    src: config.aboutImage ?? config.gallery[0],
+    label: content.about.heading,
+    body: content.about.content,
+  },
+];
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="apex" data-archetype="immersive-full-bleed">
+    <div class="apex-float">
+      <a href={`/${lang}/${config.slug}`} class="apex-logo">{config.name}</a>
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+    </div>
+
+    <!-- 1–2. Full-viewport media chapters -->
+    {chapters.map((chapter, i) => (
+      <section class="apex-chapter" id={i === 0 ? 'top' : 'about'} style={`--chapter-img: url(${chapter.src})`}>
+        <div class="apex-chapter-veil" />
+        <div class="apex-chapter-copy">
+          <p class="apex-index">0{i + 1}</p>
+          <h1 class={i === 0 ? 'apex-hero-title' : 'apex-chapter-title'}>
+            {i === 0 ? config.name : chapter.label}
+          </h1>
+          {i === 0 && <p class="apex-tag">{chapter.label}</p>}
+          <p class="apex-body">{chapter.body}</p>
+          {i === 0 && (
+            <a class="apex-jump" href="#services">{content.secondaryCtaLabel ?? t('hero.viewMenu')}</a>
+          )}
+        </div>
+      </section>
+    ))}
+
+    <!-- 3. Services as horizontal snap rail -->
+    <section class="apex-rail-wrap" id="services" aria-labelledby="apex-services-heading">
+      <div class="apex-rail-head">
+        <h2 id="apex-services-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
+        <p>{content.bookingNote}</p>
+      </div>
+      <div class="apex-rail" tabindex="0">
+        {services.map((item) => (
+          <article class="apex-card">
+            <p class="apex-cat">{item.category}</p>
+            <h3>{item.name}</h3>
+            <p>{item.description}</p>
+            <strong>{item.price}</strong>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. Full-bleed gallery chapters -->
+    <section class="apex-gallery" id="gallery" aria-label={t('gallery.title')}>
+      {config.gallery.map((src, i) => (
+        <figure class="apex-slide" style={`--slide-img: url(${src})`}>
+          <figcaption>{String(i + 1).padStart(2, '0')} / {String(config.gallery.length).padStart(2, '0')}</figcaption>
+        </figure>
+      ))}
+    </section>
+
+    <!-- 5. End-of-scroll CTA takeover -->
+    <section class="apex-takeover" id="contact">
+      <p class="apex-takeover-kicker">{config.rating ? `${config.rating.value} · ${config.rating.source}` : 'Apex'}</p>
+      <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
+      <p>{content.bookingNote ?? content.description}</p>
+      <div class="apex-takeover-actions">
+        {config.reservationUrl && (
+          <a href={config.reservationUrl} class="apex-primary">{content.ctaLabel ?? t('cta.callNow')}</a>
+        )}
+        <a href={`mailto:${config.email}`} class="apex-ghost">{config.email}</a>
+      </div>
+      <p class="apex-addr">
+        {config.address.street}, {config.address.postalCode} {config.address.city}
+      </p>
+    </section>
+
+    <Footer config={config} lang={lang} />
+  </div>
+</BaseLayout>
+
+<style>
+  .apex {
+    background: var(--color-background);
+  }
+
+  .apex-float {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    pointer-events: none;
+  }
+
+  .apex-float > * {
+    pointer-events: auto;
+  }
+
+  .apex-logo {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    text-decoration: none;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.65);
+  }
+
+  .apex-chapter {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: grid;
+    align-items: end;
+    padding: 6rem 1.25rem 3.5rem;
+    background:
+      linear-gradient(180deg, rgba(8, 9, 12, 0.15), rgba(8, 9, 12, 0.88)),
+      var(--chapter-img) center / cover no-repeat;
+  }
+
+  .apex-chapter-veil {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 20%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 45%);
+    pointer-events: none;
+  }
+
+  .apex-chapter-copy {
+    position: relative;
+    max-width: 40rem;
+  }
+
+  .apex-index {
+    margin: 0 0 0.75rem;
+    color: var(--color-accent);
+    font-family: var(--font-heading);
+    letter-spacing: 0.2em;
+  }
+
+  .apex-hero-title,
+  .apex-chapter-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 10vw, 6.5rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+
+  .apex-chapter-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+  }
+
+  .apex-tag {
+    margin: 1rem 0 0;
+    color: var(--color-accent);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .apex-body {
+    margin: 1rem 0 0;
+    max-width: 38ch;
+    color: color-mix(in srgb, var(--color-text) 88%, transparent);
+    line-height: 1.65;
+  }
+
+  .apex-jump {
+    display: inline-flex;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.2rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    font-weight: 800;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+  }
+
+  .apex-rail-wrap {
+    padding: 4rem 0 3rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+    background: var(--color-surface);
+  }
+
+  .apex-rail-head {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 1.25rem 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .apex-rail-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    text-transform: uppercase;
+  }
+
+  .apex-rail-head p {
+    margin: 0;
+    color: var(--color-muted);
+    max-width: 32ch;
+  }
+
+  .apex-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(260px, 78vw);
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 0.5rem 1.25rem 1.5rem;
+    scrollbar-width: thin;
+  }
+
+  @media (min-width: 900px) {
+    .apex-rail {
+      grid-auto-columns: minmax(300px, 22rem);
+    }
+  }
+
+  .apex-card {
+    scroll-snap-align: start;
+    min-height: 240px;
+    padding: 1.4rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+    background: color-mix(in srgb, var(--color-background) 80%, var(--color-surface));
+    display: flex;
+    flex-direction: column;
+  }
+
+  .apex-cat {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .apex-card h3 {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    text-transform: uppercase;
+  }
+
+  .apex-card p {
+    margin: 0.7rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .apex-card strong {
+    margin-top: 1.2rem;
+    color: var(--color-accent);
+    font-size: 1.1rem;
+  }
+
+  .apex-gallery {
+    display: grid;
+  }
+
+  .apex-slide {
+    margin: 0;
+    min-height: 70vh;
+    min-height: 70svh;
+    display: grid;
+    align-items: end;
+    padding: 1.5rem;
+    background:
+      linear-gradient(transparent 55%, rgba(0, 0, 0, 0.7)),
+      var(--slide-img) center / cover no-repeat;
+  }
+
+  .apex-slide figcaption {
+    font-family: var(--font-heading);
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+  }
+
+  .apex-takeover {
+    min-height: 90vh;
+    min-height: 90svh;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    padding: 4rem 1.25rem;
+    background:
+      radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 50%),
+      var(--color-background);
+  }
+
+  .apex-takeover-kicker {
+    margin: 0;
+    color: var(--color-accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .apex-takeover h2 {
+    margin: 1rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.6rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .apex-takeover > p {
+    margin: 1rem auto 0;
+    max-width: 36ch;
+    color: var(--color-muted);
+  }
+
+  .apex-takeover-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .apex-primary,
+  .apex-ghost {
+    padding: 0.95rem 1.35rem;
+    text-decoration: none;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.8rem;
+  }
+
+  .apex-primary {
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+  }
+
+  .apex-ghost {
+    border: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+    color: var(--color-text);
+  }
+
+  .apex-addr {
+    margin-top: 2rem !important;
+    font-size: 0.85rem;
+  }
+</style>

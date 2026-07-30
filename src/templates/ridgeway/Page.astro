@@ -1,0 +1,439 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const cascade = [config.heroImage, config.aboutImage, ...config.gallery].filter(Boolean) as string[];
+const services = content.menu.flatMap((cat) =>
+  cat.items.map((item) => ({ ...item, category: cat.name }))
+);
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="ridgeway" data-archetype="editorial-asymmetrical">
+    <header class="ridge-top">
+      <a href={`/${lang}/${config.slug}`} class="ridge-brand">{config.name}</a>
+      <div class="ridge-top-actions">
+        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+        <a href={`tel:${config.phone.replace(/\s/g, '')}`} class="ridge-call">{content.ctaLabel ?? t('cta.callNow')}</a>
+      </div>
+    </header>
+
+    <!-- 1. Sticky left story + right vertical image cascade -->
+    <section class="ridge-editorial" id="about" aria-labelledby="ridge-about-heading">
+      <aside class="ridge-story">
+        <p class="ridge-kicker">{content.tagline}</p>
+        <h1 id="ridge-about-heading" class="ridge-title">{content.about.heading}</h1>
+        <p class="ridge-lead">{content.description}</p>
+        <p class="ridge-body">{content.about.content}</p>
+        {content.about.chefName && (
+          <p class="ridge-byline">
+            <strong>{content.about.chefName}</strong>
+            {content.about.chefTitle && <span> — {content.about.chefTitle}</span>}
+          </p>
+        )}
+        {config.rating && (
+          <p class="ridge-rating">
+            {config.rating.value} · {config.rating.count} {config.rating.source}
+            {content.ratingNote && <span> · {content.ratingNote}</span>}
+          </p>
+        )}
+      </aside>
+      <div class="ridge-cascade" aria-hidden="true">
+        {cascade.map((src, i) => (
+          <figure class="ridge-cascade-item" style={`--i: ${i}`}>
+            <img src={src} alt="" loading={i === 0 ? 'eager' : 'lazy'} />
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <!-- 2. Numbered editorial services (NOT card grid) -->
+    <section class="ridge-services" id="menu" aria-labelledby="ridge-services-heading">
+      <h2 id="ridge-services-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
+      <ol class="ridge-service-list">
+        {services.map((item, i) => (
+          <li class="ridge-service">
+            <span class="ridge-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="ridge-service-copy">
+              <div class="ridge-service-head">
+                <h3>{item.name}</h3>
+                <span class="ridge-price">{item.price}</span>
+              </div>
+              <p>{item.description}</p>
+              <p class="ridge-cat">{item.category}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- 3. Testimonials as editorial pull-quotes -->
+    {content.testimonials && content.testimonials.length > 0 && (
+      <section class="ridge-quotes" aria-labelledby="ridge-quotes-heading">
+        <h2 id="ridge-quotes-heading">{t('testimonials.title')}</h2>
+        <div class="ridge-quote-stack">
+          {content.testimonials.map((item) => (
+            <blockquote>
+              <p>“{item.quote}”</p>
+              <footer>
+                — {item.author}
+                {item.source && <span> · {item.source}</span>}
+              </footer>
+            </blockquote>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- 4. Hours + map contact band -->
+    <section class="ridge-visit" id="contact" aria-labelledby="ridge-visit-heading">
+      <div>
+        <h2 id="ridge-visit-heading">{t('contact.visitUs')}</h2>
+        <p>
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </p>
+        <p><a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a></p>
+        <p><a href={`mailto:${config.email}`}>{config.email}</a></p>
+        {content.bookingNote && <p class="ridge-note">{content.bookingNote}</p>}
+        <ul class="ridge-hours">
+          {content.openingHours.map((hour) => {
+            const row = formatOpeningHours(t, hour);
+            return (
+              <li>
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <iframe
+        title={`${config.name} map`}
+        src={config.googleMapsEmbed}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        class="ridge-map"
+      />
+    </section>
+
+    <Footer config={config} lang={lang} />
+  </div>
+</BaseLayout>
+
+<style>
+  .ridgeway {
+    --ridge-rule: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  }
+
+  .ridge-top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--ridge-rule);
+    background: color-mix(in srgb, var(--color-background) 92%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .ridge-brand {
+    font-family: var(--font-heading);
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ridge-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ridge-call {
+    display: none;
+    padding: 0.55rem 0.95rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @media (min-width: 640px) {
+    .ridge-call { display: inline-flex; }
+  }
+
+  .ridge-editorial {
+    display: grid;
+    gap: 2rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  @media (min-width: 960px) {
+    .ridge-editorial {
+      grid-template-columns: minmax(18rem, 0.95fr) 1.05fr;
+      gap: 3.5rem;
+      align-items: start;
+      padding-top: 3.5rem;
+    }
+  }
+
+  .ridge-story {
+    position: relative;
+  }
+
+  @media (min-width: 960px) {
+    .ridge-story {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  .ridge-kicker {
+    margin: 0 0 0.75rem;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .ridge-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+  }
+
+  .ridge-lead {
+    margin: 1.25rem 0 0;
+    font-size: 1.15rem;
+    color: var(--color-muted);
+    max-width: 34ch;
+  }
+
+  .ridge-body {
+    margin: 1.25rem 0 0;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-text) 88%, var(--color-muted));
+  }
+
+  .ridge-byline {
+    margin: 1.5rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  .ridge-rating {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+
+  .ridge-cascade {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ridge-cascade-item {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .ridge-cascade-item:nth-child(even) {
+    margin-left: 12%;
+  }
+
+  .ridge-cascade-item:nth-child(3n) {
+    margin-right: 8%;
+    margin-left: 0;
+  }
+
+  .ridge-cascade-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    filter: saturate(0.92) contrast(1.05);
+  }
+
+  .ridge-services {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 5rem;
+  }
+
+  .ridge-services h2,
+  .ridge-quotes h2,
+  .ridge-visit h2 {
+    margin: 0 0 1.75rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ridge-service-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--ridge-rule);
+  }
+
+  .ridge-service {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 1rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--ridge-rule);
+  }
+
+  .ridge-num {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: var(--color-accent);
+    line-height: 1.2;
+  }
+
+  .ridge-service-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .ridge-service h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    text-transform: uppercase;
+  }
+
+  .ridge-price {
+    color: var(--color-accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .ridge-service p {
+    margin: 0.4rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.55;
+  }
+
+  .ridge-cat {
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .ridge-quotes {
+    border-top: 1px solid var(--ridge-rule);
+    border-bottom: 1px solid var(--ridge-rule);
+    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    padding: 4rem 1.25rem;
+  }
+
+  .ridge-quote-stack {
+    max-width: 42rem;
+    margin: 0 auto;
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .ridge-quotes blockquote {
+    margin: 0;
+  }
+
+  .ridge-quotes blockquote p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    line-height: 1.25;
+  }
+
+  .ridge-quotes footer {
+    margin-top: 0.85rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .ridge-visit {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 4rem 1.25rem;
+  }
+
+  @media (min-width: 860px) {
+    .ridge-visit {
+      grid-template-columns: 1fr 1.2fr;
+      gap: 2.5rem;
+      align-items: stretch;
+    }
+  }
+
+  .ridge-visit p {
+    margin: 0.65rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  .ridge-visit a {
+    color: var(--color-text);
+  }
+
+  .ridge-note {
+    color: var(--color-accent) !important;
+    font-weight: 600;
+  }
+
+  .ridge-hours {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    max-width: 22rem;
+  }
+
+  .ridge-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--ridge-rule);
+    font-size: 0.92rem;
+  }
+
+  .ridge-map {
+    width: 100%;
+    min-height: 280px;
+    border: 0;
+    filter: grayscale(0.35) contrast(1.05);
+  }
+</style>

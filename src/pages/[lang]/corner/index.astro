@@ -1,0 +1,13 @@
+---
+import Page from '../../../templates/corner/Page.astro';
+import { cornerConfig } from '../../../data/corner-config';
+import { languages, type Lang } from '../../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+---
+
+<Page config={cornerConfig} lang={lang} />
