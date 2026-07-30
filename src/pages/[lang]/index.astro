@@ -80,30 +80,6 @@ const templateMeta: Record<
     status: 'in-consideration',
     kind: 'live',
   },
-  ridgeway: {
-    bestFor: ['Neighborhood garages', 'Independent shops', 'Same-day repair'],
-    nlBestFor: ['Buurtgarages', 'Onafhankelijke garages', 'Reparatie dezelfde dag'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  apex: {
-    bestFor: ['Performance shops', 'Tuning', 'Track prep'],
-    nlBestFor: ['Performance garages', 'Tuning', 'Track prep'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  'oak-axle': {
-    bestFor: ['Family garages', 'Suburban service', 'Trust brands'],
-    nlBestFor: ['Familiegarages', 'Suburbane service', 'Vertrouwensmerken'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  metro: {
-    bestFor: ['Quick lube', 'Express service', 'Light fleets'],
-    nlBestFor: ['Snelle olie-wissel', 'Express service', 'Lichte fleets'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
   medrese: {
     bestFor: ['Education', 'Community', 'NL · TR · EN'],
     nlBestFor: ['Educatie', 'Gemeenschap', 'NL · TR · EN'],
@@ -204,12 +180,6 @@ const workCategories =
           slugs: ['barberhouse'],
         },
         {
-          id: 'garages',
-          title: 'Garages & autoservice',
-          body: 'Vier templates voor buurtgarage tot performance shop.',
-          slugs: ['ridgeway', 'apex', 'oak-axle', 'metro'],
-        },
-        {
           id: 'education',
           title: 'Educatie & platforms',
           body: 'Meertalige leerervaringen voor gemeenschap en kennis.',
@@ -230,12 +200,6 @@ const workCategories =
           slugs: ['barberhouse'],
         },
         {
-          id: 'garages',
-          title: 'Garages & auto service',
-          body: 'Four templates from neighborhood shops to performance bays.',
-          slugs: ['ridgeway', 'apex', 'oak-axle', 'metro'],
-        },
-        {
           id: 'education',
           title: 'Education & platforms',
           body: 'Multilingual learning experiences for community and knowledge.',
@@ -243,7 +207,7 @@ const workCategories =
         },
       ];
 
-const heroPreview = ['trattoria', 'noir', 'ridgeway', 'medrese']
+const heroPreview = ['trattoria', 'noir', 'corner', 'medrese']
   .map((slug) => templatesBySlug[slug])
   .filter(Boolean);
 
@@ -260,7 +224,7 @@ const copy =
         workEyebrow: 'Geselecteerd werk',
         workTitle: 'Gebouwd om op te vallen.',
         workBody:
-          'Tien concepten in vier categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel, van horeca tot garagevloer.',
+          'Zes concepten in drie categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel.',
         games: 'Game development',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
@@ -278,7 +242,7 @@ const copy =
         workEyebrow: 'Selected work',
         workTitle: 'Built to stand out.',
         workBody:
-          'Ten concepts across four categories — each with its own brand feel, audience and conversion goal, from hospitality to the shop floor.',
+          'Six concepts across three categories — each with its own brand feel, audience and conversion goal.',
         games: 'Game development',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
