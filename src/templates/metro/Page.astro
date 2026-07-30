@@ -20,358 +20,506 @@ const whatsappHref =
   config.reservationUrl?.startsWith('https://wa.me/')
     ? config.reservationUrl
     : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
-const services = content.menu.flatMap((cat) =>
-  cat.items.map((item) => ({ ...item, category: cat.name }))
-);
+const tickerParts = [
+  content.tagline,
+  config.address.city,
+  config.phone,
+  content.ctaLabel ?? t('cta.callNow'),
+];
 ---
 
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
-  <div class="metro" data-archetype="modular-bento">
-    <!-- 1. Compact hero strip (not tall overlay hero) -->
-    <header class="metro-strip">
-      <div class="metro-strip-copy">
-        <div class="metro-strip-top">
-          <a href={`/${lang}/${config.slug}`} class="metro-brand">{config.name}</a>
-          <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+  <div class="mx" data-archetype="ticker-terminal">
+    <aside class="mx-rail" aria-label={config.name}>
+      <a class="mx-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <nav class="mx-nav">
+        <a href="#services">{content.menuSectionLabel ?? t('menu.title')}</a>
+        <a href="#hours">{t('hours.title')}</a>
+        <a href="#contact">{t('nav.contact')}</a>
+      </nav>
+      <div class="mx-rail-actions">
+        <a class="mx-btn mx-btn-fill" href={telHref}>{t('cta.callNow')}</a>
+        <a class="mx-btn" href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      </div>
+      <div class="mx-lang">
+        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+      </div>
+    </aside>
+
+    <div class="mx-main">
+      <div class="mx-ticker" aria-hidden="true">
+        <div class="mx-ticker-track">
+          {[...tickerParts, ...tickerParts, ...tickerParts].map((part) => (
+            <span>{part}<i>·</i></span>
+          ))}
         </div>
+      </div>
+
+      <header class="mx-hero">
+        <p class="mx-kicker">{config.address.city.toUpperCase()} TERMINAL</p>
         <h1>{content.tagline}</h1>
-        <p>{content.description}</p>
-      </div>
-      <div class="metro-strip-media" style={`background-image: url(${config.heroImage})`} role="img" aria-label={config.name} />
-    </header>
+        <p class="mx-lead">{content.description}</p>
+        <div class="mx-hero-media" style={`background-image: url(${config.heroImage})`} role="img" aria-label={config.name} />
+      </header>
 
-    <!-- 2. Dense bento: services / hours / rating / CTA -->
-    <section class="metro-bento" id="menu" aria-label={content.menuSectionLabel ?? t('menu.title')}>
-      {services.slice(0, 4).map((item, i) => (
-        <article class={`metro-tile metro-service metro-s${i + 1}`}>
-          <p class="metro-cat">{item.category}</p>
-          <h2>{item.name}</h2>
-          <p>{item.description}</p>
-          <strong>{item.price}</strong>
-        </article>
-      ))}
-
-      <article class="metro-tile metro-hours">
-        <h2>{t('hours.title')}</h2>
-        <ul>
-          {content.openingHours.map((hour) => {
-            const row = formatOpeningHours(t, hour);
-            return (
-              <li>
-                <span>{row.label}</span>
-                <span>{row.value}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </article>
-
-      <article class="metro-tile metro-cta" id="contact">
-        <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
-        {content.bookingNote && <p>{content.bookingNote}</p>}
-        <div class="metro-cta-row">
-          <a href={telHref}>{t('cta.callNow')}</a>
-          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <section class="mx-board" id="services" aria-label={content.menuSectionLabel ?? t('menu.title')}>
+        <div class="mx-board-head">
+          <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+          <span>LIVE · {config.phone}</span>
         </div>
-        <a class="metro-mail" href={telHref}>{config.phone}</a>
-      </article>
-
-      {services.slice(4).map((item) => (
-        <article class="metro-tile metro-service">
-          <p class="metro-cat">{item.category}</p>
-          <h2>{item.name}</h2>
-          <p>{item.description}</p>
-          <strong>{item.price}</strong>
-        </article>
-      ))}
-    </section>
-
-    <!-- 3. Compact photo strip -->
-    <section class="metro-photos" id="gallery" aria-label={t('gallery.title')}>
-      {[config.aboutImage, ...config.gallery].filter(Boolean).map((src) => (
-        <img src={src as string} alt="" loading="lazy" />
-      ))}
-    </section>
-
-    <!-- 4. Short about + map -->
-    <section class="metro-about" id="about">
-      <div>
-        <h2>{content.about.heading}</h2>
-        <p>{content.about.content}</p>
-        <p class="metro-addr">
-          {config.address.street}, {config.address.postalCode} {config.address.city} · {config.phone}
-        </p>
-      </div>
-      <iframe
-        title={`${config.name} map`}
-        src={config.googleMapsEmbed}
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-      />
-    </section>
-
-    {content.testimonials && content.testimonials.length > 0 && (
-      <section class="metro-quotes" aria-label={t('testimonials.title')}>
-        {content.testimonials.map((item) => (
-          <blockquote>
-            <p>“{item.quote}”</p>
-            <footer>{item.author}</footer>
-          </blockquote>
+        {content.menu.map((cat) => (
+          <div class="mx-cat">
+            <h3>{cat.name}</h3>
+            <table>
+              <tbody>
+                {cat.items.map((item) => (
+                  <tr>
+                    <th scope="row">
+                      <strong>{item.name}</strong>
+                      <span>{item.description}</span>
+                    </th>
+                    <td>{item.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ))}
       </section>
-    )}
 
-    <Footer config={config} lang={lang} />
+      <section class="mx-split" id="hours">
+        <div>
+          <h2>{t('hours.title')}</h2>
+          <ul class="mx-hours">
+            {content.openingHours.map((hour) => {
+              const row = formatOpeningHours(t, hour);
+              return (
+                <li>
+                  <span>{row.label}</span>
+                  <span>{row.value}</span>
+                </li>
+              );
+            })}
+          </ul>
+          {content.bookingNote && <p class="mx-note">{content.bookingNote}</p>}
+        </div>
+        <div id="contact" class="mx-contact">
+          <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
+          <p class="mx-phone"><a href={telHref}>{config.phone}</a></p>
+          <p>
+            {config.address.street}<br />
+            {config.address.postalCode} {config.address.city}
+          </p>
+          <div class="mx-contact-actions">
+            <a class="mx-btn mx-btn-fill" href={telHref}>{t('cta.callNow')}</a>
+            <a class="mx-btn" href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+          </div>
+          <iframe
+            title={`${config.name} map`}
+            src={config.googleMapsEmbed}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      <Footer config={config} lang={lang} />
+    </div>
   </div>
 </BaseLayout>
 
 <style>
-  .metro-strip {
-    display: grid;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  .mx {
+    --mx-line: color-mix(in srgb, var(--color-accent) 35%, transparent);
+    min-height: 100vh;
   }
 
-  @media (min-width: 860px) {
-    .metro-strip {
-      grid-template-columns: 1.2fr 0.8fr;
-      min-height: 220px;
+  @media (min-width: 960px) {
+    .mx {
+      display: grid;
+      grid-template-columns: 13.5rem minmax(0, 1fr);
     }
   }
 
-  .metro-strip-copy {
-    padding: 1.25rem 1.25rem 1.5rem;
+  .mx-rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem 1.25rem;
+    padding: 0.9rem 1rem;
+    border-bottom: 2px solid var(--color-accent);
+    background: #04080d;
+    position: sticky;
+    top: 0;
+    z-index: 40;
   }
 
-  .metro-strip-top {
+  @media (min-width: 960px) {
+    .mx-rail {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 1.5rem;
+      padding: 1.5rem 1.1rem;
+      border-bottom: 0;
+      border-right: 2px solid var(--color-accent);
+    }
+  }
+
+  .mx-brand {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-text);
+    line-height: 1.15;
+    max-width: 11rem;
+  }
+
+  .mx-nav {
+    display: flex;
+    gap: 0.85rem;
+    flex: 1;
+  }
+
+  @media (min-width: 960px) {
+    .mx-nav {
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+  }
+
+  .mx-nav a {
+    color: var(--color-muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .mx-nav a:hover {
+    color: var(--color-accent);
+  }
+
+  .mx-rail-actions {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    .mx-rail-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+  }
+
+  .mx-lang {
+    margin-left: auto;
+  }
+
+  @media (min-width: 960px) {
+    .mx-lang {
+      margin-left: 0;
+      margin-top: 1rem;
+    }
+  }
+
+  .mx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .mx-btn-fill {
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+  }
+
+  .mx-ticker {
+    overflow: hidden;
+    border-bottom: 2px solid var(--mx-line);
+    background: #020508;
+  }
+
+  .mx-ticker-track {
+    display: flex;
+    width: max-content;
+    gap: 0;
+    animation: mx-marquee 28s linear infinite;
+    padding: 0.65rem 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .mx-ticker-track span {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 0.35rem;
+  }
+
+  .mx-ticker-track i {
+    font-style: normal;
+    color: var(--color-accent);
+    margin: 0 1.1rem;
+  }
+
+  @keyframes mx-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-33.333%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mx-ticker-track { animation: none; }
+  }
+
+  .mx-hero {
+    padding: 1.5rem 1.15rem 0;
+    max-width: 56rem;
+  }
+
+  .mx-kicker {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    font-weight: 800;
+  }
+
+  .mx-hero h1 {
+    margin: 0.55rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 7vw, 4.4rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+
+  .mx-lead {
+    margin: 0.9rem 0 0;
+    color: var(--color-muted);
+    max-width: 42ch;
+    font-size: 1.02rem;
+    line-height: 1.5;
+  }
+
+  .mx-hero-media {
+    margin: 1.35rem 0 0;
+    height: clamp(160px, 28vw, 280px);
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--mx-line);
+    clip-path: polygon(0 0, 100% 0, 100% 78%, 92% 100%, 0 100%);
+  }
+
+  .mx-board {
+    padding: 1.75rem 1.15rem 1rem;
+    max-width: 56rem;
+  }
+
+  .mx-board-head {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    align-items: center;
+    align-items: baseline;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 0.55rem;
+    margin-bottom: 1.25rem;
   }
 
-  .metro-brand {
+  .mx-board-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .mx-board-head span {
+    color: var(--color-accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .mx-cat + .mx-cat {
+    margin-top: 1.5rem;
+  }
+
+  .mx-cat h3 {
+    margin: 0 0 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .mx-cat table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .mx-cat tr {
+    border-top: 1px solid var(--mx-line);
+  }
+
+  .mx-cat th,
+  .mx-cat td {
+    padding: 0.85rem 0;
+    vertical-align: top;
+    text-align: left;
+  }
+
+  .mx-cat th {
+    font-weight: 400;
+    padding-right: 1rem;
+  }
+
+  .mx-cat th strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .mx-cat th span {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .mx-cat td {
+    width: 7.5rem;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--color-accent);
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .mx-split {
+    display: grid;
+    gap: 2rem;
+    padding: 1.5rem 1.15rem 3rem;
+    max-width: 56rem;
+    border-top: 2px solid var(--mx-line);
+  }
+
+  @media (min-width: 760px) {
+    .mx-split {
+      grid-template-columns: 1fr 1.15fr;
+      gap: 2.5rem;
+    }
+  }
+
+  .mx-split h2 {
+    margin: 0;
     font-family: var(--font-heading);
     font-size: 1.1rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-text);
-    text-decoration: none;
-    font-weight: 700;
   }
 
-  .metro-strip h1 {
+  .mx-hours {
+    list-style: none;
     margin: 1rem 0 0;
-    font-family: var(--font-heading);
-    font-size: clamp(1.6rem, 3.5vw, 2.3rem);
-    line-height: 1.05;
-    text-transform: uppercase;
-    max-width: 22ch;
+    padding: 0;
   }
 
-  .metro-strip p {
-    margin: 0.65rem 0 0;
-    color: var(--color-muted);
-    max-width: 48ch;
-    font-size: 0.95rem;
+  .mx-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--mx-line);
+    font-size: 0.92rem;
   }
 
-  .metro-strip-media {
-    min-height: 140px;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .metro-bento {
-    display: grid;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    grid-template-columns: 1fr;
-  }
-
-  @media (min-width: 720px) {
-    .metro-bento {
-      grid-template-columns: repeat(6, 1fr);
-      grid-auto-rows: minmax(140px, auto);
-    }
-
-    .metro-s1 { grid-column: span 3; }
-    .metro-s2 { grid-column: span 3; }
-    .metro-s3 { grid-column: span 2; }
-    .metro-s4 { grid-column: span 2; }
-    .metro-hours { grid-column: span 2; grid-row: span 2; }
-    .metro-cta { grid-column: span 4; }
-    .metro-service:not(.metro-s1):not(.metro-s2):not(.metro-s3):not(.metro-s4) {
-      grid-column: span 3;
-    }
-  }
-
-  .metro-tile {
-    padding: 1.1rem;
-    border: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
-    background: var(--color-surface);
-  }
-
-  .metro-cat {
-    margin: 0;
-    color: var(--color-accent);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-
-  .metro-tile h2 {
-    margin: 0.45rem 0 0;
-    font-family: var(--font-heading);
-    font-size: 1.25rem;
-    text-transform: uppercase;
-  }
-
-  .metro-tile p {
-    margin: 0.5rem 0 0;
+  .mx-note {
+    margin: 1rem 0 0;
     color: var(--color-muted);
     font-size: 0.9rem;
     line-height: 1.45;
   }
 
-  .metro-tile strong {
-    display: inline-block;
-    margin-top: 0.85rem;
-    color: var(--color-accent);
+  .mx-phone {
+    margin: 0.75rem 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 4vw, 2rem);
   }
 
-  .metro-hours ul {
-    list-style: none;
-    margin: 0.85rem 0 0;
-    padding: 0;
+  .mx-phone a {
+    color: var(--color-text);
+    text-decoration: none;
   }
 
-  .metro-hours li {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 20%, transparent);
-    font-size: 0.85rem;
+  .mx-contact p {
+    margin: 0;
+    color: var(--color-muted);
+    line-height: 1.55;
   }
 
-  .metro-cta {
-    background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
-  }
-
-  .metro-cta-row {
+  .mx-contact-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
-    margin-top: 1rem;
+    margin: 1.1rem 0 1.25rem;
   }
 
-  .metro-cta-row a {
-    display: inline-flex;
-    padding: 0.75rem 1.1rem;
-    background: var(--color-accent);
-    color: var(--color-on-accent-text);
-    text-decoration: none;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.78rem;
-  }
-
-  .metro-cta-row a:last-child {
-    background: transparent;
-    border: 1px solid var(--color-accent);
-    color: var(--color-accent);
-  }
-
-  .metro-mail {
-    display: block !important;
-    margin-top: 0.75rem !important;
-    background: transparent !important;
-    color: var(--color-text) !important;
-    padding: 0 !important;
-    text-transform: none !important;
-    letter-spacing: 0 !important;
-    font-weight: 500 !important;
-  }
-
-  .metro-photos {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(160px, 28vw);
-    overflow-x: auto;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem 1rem;
-  }
-
-  .metro-photos img {
+  .mx-contact iframe {
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+    min-height: 200px;
+    border: 2px solid var(--mx-line);
   }
 
-  .metro-about {
-    display: grid;
-    gap: 1rem;
-    padding: 2rem 1.25rem 3rem;
-    max-width: 72rem;
-    margin: 0 auto;
-  }
-
-  @media (min-width: 860px) {
-    .metro-about {
-      grid-template-columns: 1fr 1fr;
-      align-items: stretch;
+  /* Mobile sticky call bar */
+  @media (max-width: 959px) {
+    .mx-main {
+      padding-bottom: 4.5rem;
     }
-  }
 
-  .metro-about h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.8rem;
-    text-transform: uppercase;
-  }
+    .mx-contact-actions {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+      margin: 0;
+      padding: 0.65rem 0.85rem calc(0.65rem + env(safe-area-inset-bottom));
+      background: color-mix(in srgb, #04080d 92%, transparent);
+      border-top: 2px solid var(--color-accent);
+      backdrop-filter: blur(8px);
+    }
 
-  .metro-about p {
-    margin: 0.85rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.65;
-  }
-
-  .metro-addr {
-    color: var(--color-text) !important;
-  }
-
-  .metro-about iframe {
-    width: 100%;
-    min-height: 240px;
-    border: 0;
-  }
-
-  .metro-quotes {
-    display: grid;
-    gap: 0.75rem;
-    padding: 0 0.75rem 3rem;
-  }
-
-  @media (min-width: 800px) {
-    .metro-quotes { grid-template-columns: 1fr 1fr; }
-  }
-
-  .metro-quotes blockquote {
-    margin: 0;
-    padding: 1rem;
-    border: 1px dashed color-mix(in srgb, var(--color-accent) 35%, transparent);
-  }
-
-  .metro-quotes p {
-    margin: 0;
-    font-size: 0.98rem;
-  }
-
-  .metro-quotes footer {
-    margin-top: 0.65rem;
-    color: var(--color-muted);
-    font-size: 0.85rem;
+    .mx-contact-actions .mx-btn {
+      flex: 1;
+    }
   }
 </style>

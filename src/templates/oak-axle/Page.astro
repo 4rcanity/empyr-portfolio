@@ -20,34 +20,62 @@ const whatsappHref =
   config.reservationUrl?.startsWith('https://wa.me/')
     ? config.reservationUrl
     : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
-const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(Boolean) as string[];
+const photos = [config.aboutImage, ...config.gallery].filter(Boolean) as string[];
 ---
 
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
-  <div class="oak" data-archetype="split-pane-trust">
+  <div class="oak" data-archetype="warm-asym-columns">
     <header class="oak-bar">
-      <a href={`/${lang}/${config.slug}`} class="oak-brand">{config.name}</a>
-      <nav class="oak-nav" aria-label="Primary">
-        <a href="#story">{t('nav.about')}</a>
-        <a href="#care">{content.menuSectionLabel ?? t('nav.menu')}</a>
-        <a href="#gallery">{t('nav.gallery')}</a>
+      <a class="oak-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <nav>
+        <a href="#care">{content.menuSectionLabel ?? t('menu.title')}</a>
+        <a href="#plan">{t('nav.contact')}</a>
       </nav>
-      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="light" />
     </header>
 
-    <!-- 1. Split pane: family story | hours / map / booking -->
-    <section class="oak-split" id="story" aria-labelledby="oak-story-heading">
-      <article class="oak-pane oak-story">
-        <p class="oak-kicker">{content.tagline}</p>
-        <h1 id="oak-story-heading">{content.about.heading}</h1>
-        <p class="oak-lead">{content.description}</p>
-        <p class="oak-copy">{content.about.content}</p>
-        <img class="oak-portrait" src={config.heroImage} alt="" loading="eager" />
-      </article>
+    <section class="oak-hero">
+      <div class="oak-hero-copy">
+        <p class="oak-eyebrow">{config.address.city}</p>
+        <h1>{content.tagline}</h1>
+        <p>{content.description}</p>
+        <div class="oak-actions">
+          <a href={telHref}>{t('cta.callNow')}</a>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
+      </div>
+      <figure class="oak-hero-photo">
+        <img src={config.heroImage} alt="" />
+      </figure>
+    </section>
 
-      <aside class="oak-pane oak-trust" id="contact">
+    <section class="oak-bleed" aria-hidden="true">
+      <img src={photos[0] ?? config.heroImage} alt="" />
+    </section>
+
+    <section class="oak-split" id="care">
+      <div class="oak-col oak-col-wide">
+        <h2>{content.about.heading}</h2>
+        <p class="oak-lead">{content.about.content}</p>
+        {content.menu.map((cat) => (
+          <div class="oak-group">
+            <h3>{cat.name}</h3>
+            {cat.items.map((item) => (
+              <div class="oak-line">
+                <div>
+                  <strong>{item.name}</strong>
+                  <p>{item.description}</p>
+                </div>
+                <span>{item.price}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <aside class="oak-col oak-pane" id="plan">
         <h2>{t('hours.title')}</h2>
-        <ul class="oak-hours">
+        <ul>
           {content.openingHours.map((hour) => {
             const row = formatOpeningHours(t, hour);
             return (
@@ -58,380 +86,303 @@ const masonry = [config.aboutImage, ...config.gallery, config.heroImage].filter(
             );
           })}
         </ul>
-
-        <div class="oak-book">
-          <h3>{content.ctaLabel ?? t('cta.callNow')}</h3>
-          {content.bookingNote && <p>{content.bookingNote}</p>}
-          <div class="oak-cta-row">
-            <a href={telHref} class="oak-cta">{t('cta.callNow')}</a>
-            <a href={whatsappHref} class="oak-wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-          </div>
-          <a href={telHref} class="oak-phone">{config.phone}</a>
-        </div>
-
+        {content.bookingNote && <p class="oak-note">{content.bookingNote}</p>}
         <p class="oak-addr">
           {config.address.street}<br />
-          {config.address.postalCode} {config.address.city}
+          {config.address.postalCode} {config.address.city}<br />
+          <a href={telHref}>{config.phone}</a>
         </p>
+        <div class="oak-actions">
+          <a href={telHref}>{t('cta.callNow')}</a>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
         <iframe
           title={`${config.name} map`}
           src={config.googleMapsEmbed}
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          class="oak-map"
         />
       </aside>
     </section>
 
-    <!-- 2. Care / services below the split -->
-    <section class="oak-care" id="care" aria-labelledby="oak-care-heading">
-      <h2 id="oak-care-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
-      <div class="oak-care-grid">
-        {content.menu.map((cat) => (
-          <div class="oak-care-col">
-            <h3>{cat.name}</h3>
-            <ul>
-              {cat.items.map((item) => (
-                <li>
-                  <div>
-                    <strong>{item.name}</strong>
-                    <p>{item.description}</p>
-                  </div>
-                  <span>{item.price}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+    <section class="oak-bleed oak-bleed-alt" aria-label={t('gallery.title')}>
+      <img src={photos[1] ?? config.heroImage} alt="" loading="lazy" />
+      <img src={photos[2] ?? config.heroImage} alt="" loading="lazy" />
     </section>
-
-    <!-- 3. Masonry gallery -->
-    <section class="oak-masonry" id="gallery" aria-label={t('gallery.title')}>
-      {masonry.map((src, i) => (
-        <figure class={`oak-brick oak-brick-${(i % 5) + 1}`}>
-          <img src={src} alt="" loading="lazy" />
-        </figure>
-      ))}
-    </section>
-
-    <!-- 4. Testimonials -->
-    {content.testimonials && content.testimonials.length > 0 && (
-      <section class="oak-voices" aria-labelledby="oak-voices-heading">
-        <h2 id="oak-voices-heading">{t('testimonials.title')}</h2>
-        <div class="oak-voice-row">
-          {content.testimonials.map((item) => (
-            <blockquote>
-              <p>“{item.quote}”</p>
-              <footer>{item.author}{item.source && ` · ${item.source}`}</footer>
-            </blockquote>
-          ))}
-        </div>
-      </section>
-    )}
 
     <Footer config={config} lang={lang} />
   </div>
 </BaseLayout>
 
 <style>
+  .oak {
+    background:
+      radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 60%),
+      var(--color-background);
+  }
+
   .oak-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+    padding: 1rem 1.35rem;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: color-mix(in srgb, var(--color-background) 88%, white 12%);
+    backdrop-filter: blur(12px);
   }
 
   .oak-brand {
     font-family: var(--font-heading);
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     color: var(--color-text);
     text-decoration: none;
   }
 
-  .oak-nav {
+  .oak-bar nav {
     display: none;
     gap: 1.25rem;
+    margin-right: auto;
+    margin-left: 1.5rem;
   }
 
-  @media (min-width: 800px) {
-    .oak-nav { display: flex; }
+  @media (min-width: 720px) {
+    .oak-bar nav { display: flex; }
   }
 
-  .oak-nav a {
+  .oak-bar nav a {
     color: var(--color-muted);
     text-decoration: none;
     font-size: 0.9rem;
+  }
+
+  .oak-hero {
+    display: grid;
+    gap: 2rem;
+    padding: 2rem 1.35rem 3rem;
+    max-width: 78rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 900px) {
+    .oak-hero {
+      grid-template-columns: 0.92fr 1.08fr;
+      align-items: center;
+      min-height: 72vh;
+      gap: 4rem;
+    }
+  }
+
+  .oak-eyebrow {
+    margin: 0;
+    color: color-mix(in srgb, var(--color-accent) 80%, white);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .oak-hero h1 {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    line-height: 1.05;
+    max-width: 12ch;
+  }
+
+  .oak-hero-copy > p:last-of-type {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    font-size: 1.08rem;
+    line-height: 1.65;
+    max-width: 36ch;
+  }
+
+  .oak-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.5rem;
+  }
+
+  .oak-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.9rem;
+    padding: 0.7rem 1.15rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .oak-actions a:last-child {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--color-text) 28%, transparent);
+    color: var(--color-text);
+  }
+
+  .oak-hero-photo {
+    margin: 0;
+    justify-self: end;
+    width: min(100%, 34rem);
+  }
+
+  .oak-hero-photo img {
+    width: 100%;
+    aspect-ratio: 5 / 6;
+    object-fit: cover;
+    border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%;
+  }
+
+  .oak-bleed {
+    width: 100%;
+    max-height: 42vh;
+    overflow: hidden;
+  }
+
+  .oak-bleed img {
+    width: 100%;
+    height: 42vh;
+    object-fit: cover;
+    display: block;
+  }
+
+  .oak-bleed-alt {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    max-height: none;
+  }
+
+  .oak-bleed-alt img {
+    height: 36vh;
   }
 
   .oak-split {
     display: grid;
-    min-height: calc(100vh - 4rem);
+    gap: 2.5rem;
+    padding: 3.5rem 1.35rem;
+    max-width: 78rem;
+    margin: 0 auto;
   }
 
-  @media (min-width: 980px) {
+  @media (min-width: 960px) {
     .oak-split {
-      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 4.5rem;
+      align-items: start;
     }
   }
 
-  .oak-pane {
-    padding: 2.5rem 1.5rem;
-  }
-
-  @media (min-width: 980px) {
-    .oak-pane {
-      padding: 3.5rem 2.5rem;
-    }
-
-    .oak-trust {
-      position: sticky;
-      top: 0;
-      align-self: start;
-      max-height: 100vh;
-      overflow: auto;
-      border-left: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
-      background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-    }
-  }
-
-  .oak-kicker {
+  .oak-col-wide h2 {
     margin: 0;
-    color: var(--color-accent);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-    font-weight: 700;
-  }
-
-  .oak-story h1 {
-    margin: 0.8rem 0 0;
     font-family: var(--font-heading);
-    font-size: clamp(2.4rem, 5vw, 3.8rem);
-    line-height: 1.05;
+    font-size: clamp(2rem, 4vw, 3rem);
   }
 
   .oak-lead {
-    margin: 1.25rem 0 0;
-    font-size: 1.15rem;
+    margin: 1rem 0 2rem;
     color: var(--color-muted);
-    max-width: 40ch;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    max-width: 46ch;
   }
 
-  .oak-copy {
-    margin: 1.25rem 0 0;
-    line-height: 1.75;
-    max-width: 48ch;
+  .oak-group + .oak-group {
+    margin-top: 2.25rem;
   }
 
-  .oak-portrait {
-    display: block;
-    width: 100%;
-    max-width: 36rem;
-    margin-top: 2rem;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
-    border-radius: 0.35rem;
+  .oak-group h3 {
+    margin: 0 0 0.85rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-accent) 75%, white);
   }
 
-  .oak-trust h2,
-  .oak-care h2,
-  .oak-voices h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.8rem;
-  }
-
-  .oak-hours {
-    list-style: none;
-    margin: 1.25rem 0 0;
-    padding: 0;
-  }
-
-  .oak-hours li {
+  .oak-line {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
-    font-size: 0.92rem;
+    gap: 1.25rem;
+    padding: 0.95rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
   }
 
-  .oak-book {
-    margin-top: 2rem;
-    padding: 1.25rem;
-    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
-    border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--color-background) 55%, transparent);
-  }
-
-  .oak-book h3 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.25rem;
-  }
-
-  .oak-book p {
-    margin: 0.6rem 0 0;
-    color: var(--color-muted);
-    font-size: 0.92rem;
-  }
-
-  .oak-cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 1rem;
-  }
-
-  .oak-cta,
-  .oak-wa {
-    display: inline-flex;
-    padding: 0.8rem 1.1rem;
-    text-decoration: none;
-    font-weight: 700;
-    border-radius: 999px;
-  }
-
-  .oak-cta {
-    background: var(--color-accent);
-    color: var(--color-on-accent-text);
-  }
-
-  .oak-wa {
-    border: 1px solid var(--color-accent);
-    color: var(--color-accent);
-  }
-
-  .oak-phone {
+  .oak-line strong {
     display: block;
-    margin-top: 0.75rem;
-    color: var(--color-text);
+    font-size: 1.05rem;
   }
 
-  .oak-addr {
-    margin: 1.5rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.55;
-  }
-
-  .oak-map {
-    width: 100%;
-    height: 200px;
-    margin-top: 1rem;
-    border: 0;
-    border-radius: 0.5rem;
-  }
-
-  .oak-care {
-    padding: 4rem 1.5rem;
-    border-top: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
-  }
-
-  .oak-care-grid {
-    display: grid;
-    gap: 2rem;
-    margin-top: 2rem;
-    max-width: 72rem;
-  }
-
-  @media (min-width: 800px) {
-    .oak-care-grid { grid-template-columns: 1fr 1fr; }
-  }
-
-  .oak-care-col h3 {
-    margin: 0 0 1rem;
-    font-family: var(--font-heading);
-    color: var(--color-accent);
-  }
-
-  .oak-care-col ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .oak-care-col li {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-top: 1px solid color-mix(in srgb, var(--color-muted) 22%, transparent);
-  }
-
-  .oak-care-col p {
-    margin: 0.35rem 0 0;
+  .oak-line p {
+    margin: 0.3rem 0 0;
     color: var(--color-muted);
     font-size: 0.92rem;
+    line-height: 1.45;
   }
 
-  .oak-care-col span {
+  .oak-line span {
     white-space: nowrap;
     font-weight: 700;
+    color: var(--color-accent);
   }
 
-  .oak-masonry {
-    column-count: 2;
-    column-gap: 0.75rem;
-    padding: 0 1rem 3rem;
+  .oak-pane {
+    padding: 1.5rem;
+    border-radius: 1.75rem;
+    background: color-mix(in srgb, var(--color-surface) 80%, white 8%);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
   }
 
-  @media (min-width: 900px) {
-    .oak-masonry { column-count: 3; padding-inline: 1.5rem; }
+  @media (min-width: 960px) {
+    .oak-pane {
+      position: sticky;
+      top: 5rem;
+    }
   }
 
-  .oak-brick {
-    break-inside: avoid;
-    margin: 0 0 0.75rem;
-  }
-
-  .oak-brick img {
-    display: block;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 0.35rem;
-  }
-
-  .oak-brick-1 img { aspect-ratio: 4 / 5; }
-  .oak-brick-2 img { aspect-ratio: 1 / 1; }
-  .oak-brick-3 img { aspect-ratio: 5 / 4; }
-  .oak-brick-4 img { aspect-ratio: 3 / 4; }
-  .oak-brick-5 img { aspect-ratio: 16 / 11; }
-
-  .oak-voices {
-    padding: 3.5rem 1.5rem 4.5rem;
-    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  }
-
-  .oak-voice-row {
-    display: grid;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-    max-width: 72rem;
-  }
-
-  @media (min-width: 800px) {
-    .oak-voice-row { grid-template-columns: 1fr 1fr; }
-  }
-
-  .oak-voices blockquote {
-    margin: 0;
-    padding: 1.25rem;
-    border-left: 3px solid var(--color-accent);
-  }
-
-  .oak-voices p {
+  .oak-pane h2 {
     margin: 0;
     font-family: var(--font-heading);
-    font-size: 1.25rem;
-    line-height: 1.35;
+    font-size: 1.6rem;
   }
 
-  .oak-voices footer {
-    margin-top: 0.85rem;
-    color: var(--color-muted);
+  .oak-pane ul {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .oak-pane li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     font-size: 0.9rem;
+  }
+
+  .oak-note,
+  .oak-addr {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  .oak-addr a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .oak-pane iframe {
+    width: 100%;
+    min-height: 180px;
+    border: 0;
+    border-radius: 1rem;
+    margin-top: 1.15rem;
   }
 </style>

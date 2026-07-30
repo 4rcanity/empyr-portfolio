@@ -15,442 +15,404 @@ interface Props {
 const { config, lang } = Astro.props;
 const content = config.content[lang];
 const t = useTranslations(lang);
+const reserveHref = config.reservationUrl ?? `mailto:${config.email}`;
+const gallery = config.gallery;
 ---
 
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
-  <div class="noir" data-archetype="cinematic-chapters">
-    <!-- 1. Full-screen typography hero -->
-    <section class="noir-hero" id="top">
-      <div class="noir-hero-bar">
-        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
-      </div>
-      <div class="noir-hero-type">
-        <p class="noir-eyebrow">{content.tagline}</p>
+  <div class="nr" data-archetype="cinematic-editorial">
+    <header class="nr-top">
+      <a href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+    </header>
+
+    <section class="nr-hero">
+      <img src={config.heroImage} alt="" class="nr-hero-img" />
+      <div class="nr-hero-veil" />
+      <div class="nr-hero-copy">
+        <p>{config.address.city}</p>
         <h1>{config.name}</h1>
-        <p class="noir-lede">{content.description}</p>
-        <a href="#menu" class="noir-link">{content.secondaryCtaLabel ?? t('hero.viewMenu')}</a>
+        <p class="nr-tag">{content.tagline}</p>
       </div>
-      <div class="noir-hero-grain" aria-hidden="true" />
+      <p class="nr-float nr-float-a">{content.description}</p>
     </section>
 
-    <!-- 2. Long-form minimal menu list -->
-    <section class="noir-menu" id="menu" aria-labelledby="noir-menu-heading">
-      <h2 id="noir-menu-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
-      {content.menu.map((cat) => (
-        <div class="noir-course">
-          <h3>{cat.name}</h3>
-          <ul>
+    <section class="nr-menu" id="menu">
+      <div class="nr-menu-intro">
+        <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+        <p>{content.bookingNote}</p>
+      </div>
+      <div class="nr-menu-list">
+        {content.menu.map((cat) => (
+          <div class="nr-course">
+            <h3>{cat.name}</h3>
             {cat.items.map((item) => (
-              <li>
-                <div class="noir-dish">
-                  <span class="noir-dish-name">{item.name}</span>
-                  <span class="noir-rule" aria-hidden="true" />
-                  <span class="noir-price">{item.price}</span>
+              <article>
+                <div>
+                  <h4>{item.name}</h4>
+                  <p>{item.description}</p>
                 </div>
-                <p>{item.description}</p>
-              </li>
+                <span>{item.price}</span>
+              </article>
             ))}
-          </ul>
-        </div>
-      ))}
-    </section>
-
-    <!-- 3. About vignette -->
-    <section class="noir-about" id="about">
-      <div class="noir-about-copy">
-        <h2>{content.about.heading}</h2>
-        <p>{content.about.content}</p>
-        {content.about.chefName && (
-          <p class="noir-chef">
-            {content.about.chefName}
-            {content.about.chefTitle && <span> — {content.about.chefTitle}</span>}
-          </p>
-        )}
+          </div>
+        ))}
       </div>
-      {config.aboutImage && (
-        <figure>
-          <img src={config.aboutImage} alt="" loading="lazy" />
-        </figure>
-      )}
     </section>
 
-    <!-- 4. Full-bleed gallery slides -->
-    <section class="noir-slides" id="gallery" aria-label={t('gallery.title')}>
-      {config.gallery.map((src, i) => (
-        <figure class="noir-slide" style={`--img: url(${src})`}>
-          <figcaption>{String(i + 1).padStart(2, '0')}</figcaption>
+    <section class="nr-lateral" id="gallery" aria-label={t('gallery.title')}>
+      {gallery.map((src, i) => (
+        <figure class={`nr-panel nr-panel-${i % 3}`}>
+          <img src={src} alt="" loading="lazy" />
+          {i === 0 && <figcaption class="nr-float nr-float-b">{content.about.heading}</figcaption>}
+          {i === 1 && <figcaption class="nr-float nr-float-c">{content.about.content}</figcaption>}
         </figure>
       ))}
     </section>
 
-    <!-- 5. Contact / hours (before sticky bar) -->
-    <section class="noir-visit" id="contact">
+    <section class="nr-visit" id="contact">
       <div>
         <h2>{t('contact.visitUs')}</h2>
         <p>
           {config.address.street}<br />
           {config.address.postalCode} {config.address.city}
         </p>
-        <p><a href={`mailto:${config.email}`}>{config.email}</a></p>
         <p><a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a></p>
+        <ul>
+          {content.openingHours.map((hour) => {
+            const row = formatOpeningHours(t, hour);
+            return (
+              <li>
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-      <ul>
-        {content.openingHours.map((hour) => {
-          const row = formatOpeningHours(t, hour);
-          return (
-            <li>
-              <span>{row.label}</span>
-              <span>{row.value}</span>
-            </li>
-          );
-        })}
-      </ul>
+      <iframe
+        title={`${config.name} map`}
+        src={config.googleMapsEmbed}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      />
     </section>
 
-    {content.testimonials && content.testimonials.length > 0 && (
-      <section class="noir-quotes" aria-label={t('testimonials.title')}>
-        {content.testimonials.map((item) => (
-          <blockquote>
-            <p>“{item.quote}”</p>
-            <footer>{item.author}</footer>
-          </blockquote>
-        ))}
-      </section>
-    )}
+    <div class="nr-reserve">
+      <span>{content.ctaLabel ?? t('nav.reserve')}</span>
+      <a href={reserveHref}>{content.ctaLabel ?? t('cta.bookNow')}</a>
+    </div>
 
     <Footer config={config} lang={lang} />
-
-    <!-- Sticky reserve bar -->
-    {config.reservationUrl && (
-      <div class="noir-sticky" role="region" aria-label={content.ctaLabel ?? t('nav.reserve')}>
-        <div>
-          <strong>{config.name}</strong>
-          {content.bookingNote && <span>{content.bookingNote}</span>}
-        </div>
-        <a href={config.reservationUrl}>{content.ctaLabel ?? t('nav.reserve')}</a>
-      </div>
-    )}
   </div>
 </BaseLayout>
 
 <style>
-  .noir {
+  .nr {
     padding-bottom: 5rem;
   }
 
-  .noir-hero {
-    position: relative;
-    min-height: 100vh;
-    min-height: 100svh;
-    display: grid;
-    place-items: center;
-    padding: 5rem 1.25rem 4rem;
-    background:
-      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 50%),
-      var(--color-background);
-    overflow: hidden;
-  }
-
-  .noir-hero-bar {
+  .nr-top {
     position: absolute;
-    top: 1rem;
-    right: 1.25rem;
-  }
-
-  .noir-hero-type {
-    max-width: 48rem;
-    text-align: center;
-  }
-
-  .noir-eyebrow {
-    margin: 0;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    font-size: 0.75rem;
-  }
-
-  .noir-hero h1 {
-    margin: 1.25rem 0 0;
-    font-family: var(--font-heading);
-    font-size: clamp(3.4rem, 12vw, 7.5rem);
-    font-weight: 600;
-    line-height: 0.92;
-    letter-spacing: -0.02em;
-  }
-
-  .noir-lede {
-    margin: 1.5rem auto 0;
-    max-width: 36ch;
-    color: var(--color-muted);
-    line-height: 1.7;
-  }
-
-  .noir-link {
-    display: inline-block;
-    margin-top: 2rem;
-    color: var(--color-text);
-    text-decoration: none;
-    border-bottom: 1px solid var(--color-accent);
-    padding-bottom: 0.2rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-  }
-
-  .noir-hero-grain {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.12;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  .noir-menu {
-    max-width: 40rem;
-    margin: 0 auto;
-    padding: 5rem 1.25rem 4rem;
-  }
-
-  .noir-menu > h2 {
-    margin: 0 0 3rem;
-    font-family: var(--font-heading);
-    font-size: clamp(2rem, 4vw, 2.8rem);
-    font-weight: 500;
-    text-align: center;
-  }
-
-  .noir-course + .noir-course {
-    margin-top: 3rem;
-  }
-
-  .noir-course h3 {
-    margin: 0 0 1.25rem;
-    font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    text-align: center;
-  }
-
-  .noir-course ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .noir-course li + li {
-    margin-top: 1.5rem;
-  }
-
-  .noir-dish {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-  }
-
-  .noir-dish-name {
-    font-family: var(--font-heading);
-    font-size: 1.35rem;
-  }
-
-  .noir-rule {
-    flex: 1;
-    border-bottom: 1px dotted color-mix(in srgb, var(--color-muted) 45%, transparent);
-    transform: translateY(-0.35rem);
-  }
-
-  .noir-price {
-    color: var(--color-accent);
-    white-space: nowrap;
-  }
-
-  .noir-course p {
-    margin: 0.4rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
-
-  .noir-about {
-    display: grid;
-    gap: 2rem;
-    max-width: 64rem;
-    margin: 0 auto;
-    padding: 2rem 1.25rem 5rem;
-  }
-
-  @media (min-width: 860px) {
-    .noir-about {
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-    }
-  }
-
-  .noir-about h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 500;
-  }
-
-  .noir-about p {
-    margin: 1rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.75;
-  }
-
-  .noir-chef {
-    color: var(--color-text) !important;
-    letter-spacing: 0.04em;
-  }
-
-  .noir-about figure {
-    margin: 0;
-  }
-
-  .noir-about img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    filter: saturate(0.7) contrast(1.05);
-  }
-
-  .noir-slides {
-    display: grid;
-  }
-
-  .noir-slide {
-    margin: 0;
-    min-height: 85vh;
-    min-height: 85svh;
-    display: grid;
-    align-items: end;
-    padding: 1.5rem;
-    background:
-      linear-gradient(transparent 60%, rgba(0, 0, 0, 0.75)),
-      var(--img) center / cover no-repeat;
-  }
-
-  .noir-slide figcaption {
-    font-family: var(--font-heading);
-    letter-spacing: 0.2em;
-    color: var(--color-accent);
-  }
-
-  .noir-visit {
-    display: grid;
-    gap: 2rem;
-    max-width: 48rem;
-    margin: 0 auto;
-    padding: 4rem 1.25rem;
-  }
-
-  @media (min-width: 720px) {
-    .noir-visit { grid-template-columns: 1fr 1fr; }
-  }
-
-  .noir-visit h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 2rem;
-    font-weight: 500;
-  }
-
-  .noir-visit p {
-    margin: 0.75rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.6;
-  }
-
-  .noir-visit a {
-    color: var(--color-text);
-  }
-
-  .noir-visit ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .noir-visit li {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
-    font-size: 0.92rem;
-  }
-
-  .noir-quotes {
-    max-width: 40rem;
-    margin: 0 auto;
-    padding: 0 1.25rem 4rem;
-    display: grid;
-    gap: 2rem;
-  }
-
-  .noir-quotes blockquote {
-    margin: 0;
-    text-align: center;
-  }
-
-  .noir-quotes p {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    line-height: 1.35;
-  }
-
-  .noir-quotes footer {
-    margin-top: 0.75rem;
-    color: var(--color-muted);
-  }
-
-  .noir-sticky {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 60;
+    inset: 0 0 auto;
+    z-index: 20;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    padding: 0.85rem 1.25rem;
-    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
-    border-top: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
-    backdrop-filter: blur(12px);
+    padding: 1.15rem 1.35rem;
   }
 
-  .noir-sticky strong {
-    display: block;
+  .nr-top a {
+    color: var(--color-text);
+    text-decoration: none;
     font-family: var(--font-heading);
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+  }
+
+  .nr-hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    place-items: end start;
+    overflow: hidden;
+  }
+
+  .nr-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .nr-hero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(8, 7, 6, 0.35), rgba(8, 7, 6, 0.78) 70%, var(--color-background));
+  }
+
+  .nr-hero-copy {
+    position: relative;
+    z-index: 1;
+    padding: 0 1.35rem 18vh;
+    max-width: 28rem;
+  }
+
+  .nr-hero-copy > p:first-child {
+    margin: 0;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    color: var(--color-accent);
+  }
+
+  .nr-hero h1 {
+    margin: 0.6rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(3rem, 10vw, 6.5rem);
+    line-height: 0.9;
+    font-weight: 500;
+  }
+
+  .nr-tag {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    font-size: 1.05rem;
+  }
+
+  .nr-float {
+    margin: 0;
+    position: absolute;
+    z-index: 2;
+    max-width: min(28rem, 72vw);
+    padding: 1rem 1.15rem;
+    background: color-mix(in srgb, #0c0b0a 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--color-text);
+    line-height: 1.55;
+    font-size: 0.95rem;
+  }
+
+  .nr-float-a {
+    right: 1.25rem;
+    bottom: 8vh;
+  }
+
+  @media (max-width: 760px) {
+    .nr-float-a {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      margin: 0 1.35rem 2rem;
+      z-index: 1;
+    }
+  }
+
+  .nr-menu {
+    display: grid;
+    gap: 2.5rem;
+    padding: 5rem 1.35rem 4rem;
+    max-width: 58rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 880px) {
+    .nr-menu {
+      grid-template-columns: 0.7fr 1.3fr;
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+
+  .nr-menu-intro h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .nr-menu-intro p {
+    margin: 1rem 0 0;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  .nr-course + .nr-course {
+    margin-top: 2.5rem;
+  }
+
+  .nr-course h3 {
+    margin: 0 0 1rem;
+    color: var(--color-accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .nr-course article {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.15rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+
+  .nr-course h4 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 500;
+  }
+
+  .nr-course p {
+    margin: 0.4rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .nr-course span {
+    color: var(--color-accent);
+    white-space: nowrap;
     font-size: 1rem;
   }
 
-  .noir-sticky span {
-    display: none;
+  .nr-lateral {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0 0 4rem;
+  }
+
+  @media (min-width: 800px) {
+    .nr-lateral {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(68vw, 1fr);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 5rem;
+    }
+  }
+
+  .nr-panel {
+    margin: 0;
+    position: relative;
+    scroll-snap-align: start;
+  }
+
+  .nr-panel img {
+    width: 100%;
+    height: min(72vh, 640px);
+    object-fit: cover;
+    display: block;
+  }
+
+  .nr-float-b {
+    left: 1.25rem;
+    bottom: 1.25rem;
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+  }
+
+  .nr-float-c {
+    left: 1.25rem;
+    bottom: 1.25rem;
+    max-width: min(34rem, 80%);
+  }
+
+  .nr-visit {
+    display: grid;
+    gap: 1.5rem;
+    padding: 0 1.35rem 4rem;
+    max-width: 70rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 800px) {
+    .nr-visit {
+      grid-template-columns: 0.85fr 1.15fr;
+    }
+  }
+
+  .nr-visit h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 2.4rem;
+    font-weight: 500;
+  }
+
+  .nr-visit p {
+    margin: 0.85rem 0 0;
     color: var(--color-muted);
-    font-size: 0.8rem;
+    line-height: 1.55;
   }
 
-  @media (min-width: 720px) {
-    .noir-sticky span { display: block; }
+  .nr-visit a {
+    color: var(--color-text);
+    text-decoration: none;
   }
 
-  .noir-sticky a {
-    flex-shrink: 0;
-    padding: 0.75rem 1.15rem;
+  .nr-visit ul {
+    list-style: none;
+    margin: 1.25rem 0 0;
+    padding: 0;
+  }
+
+  .nr-visit li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    font-size: 0.92rem;
+  }
+
+  .nr-visit iframe {
+    width: 100%;
+    min-height: 280px;
+    border: 0;
+  }
+
+  .nr-reserve {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 0.55rem 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #0c0b0a 88%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+    backdrop-filter: blur(10px);
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .nr-reserve span {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nr-reserve a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.6rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
     background: var(--color-accent);
     color: var(--color-on-accent-text);
     text-decoration: none;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    white-space: nowrap;
   }
 </style>

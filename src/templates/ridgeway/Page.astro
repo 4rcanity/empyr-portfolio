@@ -20,94 +20,88 @@ const whatsappHref =
   config.reservationUrl?.startsWith('https://wa.me/')
     ? config.reservationUrl
     : `https://wa.me/${config.phone.replace(/\D/g, '')}`;
-const cascade = [config.heroImage, config.aboutImage, ...config.gallery].filter(Boolean) as string[];
-const services = content.menu.flatMap((cat) =>
-  cat.items.map((item) => ({ ...item, category: cat.name }))
-);
+const rail = [config.heroImage, config.aboutImage, ...config.gallery].filter(Boolean) as string[];
+let serviceIndex = 0;
 ---
 
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
-  <div class="ridgeway" data-archetype="editorial-asymmetrical">
-    <header class="ridge-top">
-      <a href={`/${lang}/${config.slug}`} class="ridge-brand">{config.name}</a>
-      <div class="ridge-top-actions">
-        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
-        <a href={telHref} class="ridge-call">{t('cta.callNow')}</a>
-        <a href={whatsappHref} class="ridge-wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
-      </div>
+  <div class="rw" data-archetype="editorial-magazine">
+    <header class="rw-masthead">
+      <a class="rw-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <nav class="rw-nav" aria-label="Primary">
+        <a href="#story">{content.about.heading}</a>
+        <a href="#services">{content.menuSectionLabel ?? t('menu.title')}</a>
+        <a href="#visit">{t('nav.contact')}</a>
+      </nav>
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
     </header>
 
-    <!-- 1. Sticky left story + right vertical image cascade -->
-    <section class="ridge-editorial" id="about" aria-labelledby="ridge-about-heading">
-      <aside class="ridge-story">
-        <p class="ridge-kicker">{content.tagline}</p>
-        <h1 id="ridge-about-heading" class="ridge-title">{content.about.heading}</h1>
-        <p class="ridge-lead">{content.description}</p>
-        <p class="ridge-body">{content.about.content}</p>
-        <div class="ridge-cta-row">
-          <a href={telHref} class="ridge-call">{t('cta.callNow')}</a>
-          <a href={whatsappHref} class="ridge-wa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+    <section class="rw-cover">
+      <div class="rw-cover-copy">
+        <p class="rw-issue">{config.address.city} · {config.address.postalCode}</p>
+        <h1>{content.tagline}</h1>
+        <p class="rw-deck">{content.description}</p>
+        <div class="rw-cta">
+          <a href={telHref}>{t('cta.callNow')}</a>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
         </div>
-      </aside>
-      <div class="ridge-cascade" aria-hidden="true">
-        {cascade.map((src, i) => (
-          <figure class="ridge-cascade-item" style={`--i: ${i}`}>
-            <img src={src} alt="" loading={i === 0 ? 'eager' : 'lazy'} />
-          </figure>
-        ))}
+      </div>
+      <div class="rw-cover-stack" aria-hidden="true">
+        <img class="rw-cut rw-cut-a" src={rail[0]} alt="" />
+        <img class="rw-cut rw-cut-b" src={rail[1] ?? rail[0]} alt="" />
+        <img class="rw-cut rw-cut-c" src={rail[2] ?? rail[0]} alt="" />
       </div>
     </section>
 
-    <!-- 2. Numbered editorial services (NOT card grid) -->
-    <section class="ridge-services" id="menu" aria-labelledby="ridge-services-heading">
-      <h2 id="ridge-services-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
-      <ol class="ridge-service-list">
-        {services.map((item, i) => (
-          <li class="ridge-service">
-            <span class="ridge-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            <div class="ridge-service-copy">
-              <div class="ridge-service-head">
-                <h3>{item.name}</h3>
-                <span class="ridge-price">{item.price}</span>
-              </div>
-              <p>{item.description}</p>
-              <p class="ridge-cat">{item.category}</p>
-            </div>
-          </li>
+    <section class="rw-story" id="story">
+      <div class="rw-story-col">
+        <h2>{content.about.heading}</h2>
+        <p>{content.about.content}</p>
+        {content.bookingNote && <p class="rw-aside">{content.bookingNote}</p>}
+      </div>
+      <aside class="rw-rail" aria-label={t('gallery.title')}>
+        {rail.slice(0, 5).map((src) => (
+          <img src={src} alt="" loading="lazy" />
         ))}
-      </ol>
+      </aside>
     </section>
 
-    <!-- 3. Testimonials as editorial pull-quotes -->
-    {content.testimonials && content.testimonials.length > 0 && (
-      <section class="ridge-quotes" aria-labelledby="ridge-quotes-heading">
-        <h2 id="ridge-quotes-heading">{t('testimonials.title')}</h2>
-        <div class="ridge-quote-stack">
-          {content.testimonials.map((item) => (
-            <blockquote>
-              <p>“{item.quote}”</p>
-              <footer>
-                — {item.author}
-                {item.source && <span> · {item.source}</span>}
-              </footer>
-            </blockquote>
-          ))}
+    <section class="rw-services" id="services">
+      <header class="rw-services-head">
+        <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+        <p>{config.phone}</p>
+      </header>
+      {content.menu.map((cat) => (
+        <div class="rw-service-block">
+          <h3>{cat.name}</h3>
+          <ol>
+            {cat.items.map((item) => {
+              serviceIndex += 1;
+              const n = String(serviceIndex).padStart(2, '0');
+              return (
+                <li>
+                  <span class="rw-num">{n}</span>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <p>{item.description}</p>
+                  </div>
+                  <em>{item.price}</em>
+                </li>
+              );
+            })}
+          </ol>
         </div>
-      </section>
-    )}
+      ))}
+    </section>
 
-    <!-- 4. Hours + map contact band -->
-    <section class="ridge-visit" id="contact" aria-labelledby="ridge-visit-heading">
+    <section class="rw-visit" id="visit">
       <div>
-        <h2 id="ridge-visit-heading">{t('contact.visitUs')}</h2>
+        <h2>{t('contact.visitUs')}</h2>
         <p>
           {config.address.street}<br />
           {config.address.postalCode} {config.address.city}
         </p>
-        <p><a href={telHref}>{config.phone}</a></p>
-        <p><a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a></p>
-        {content.bookingNote && <p class="ridge-note">{content.bookingNote}</p>}
-        <ul class="ridge-hours">
+        <ul>
           {content.openingHours.map((hour) => {
             const row = formatOpeningHours(t, hour);
             return (
@@ -118,13 +112,16 @@ const services = content.menu.flatMap((cat) =>
             );
           })}
         </ul>
+        <div class="rw-cta">
+          <a href={telHref}>{t('cta.callNow')}</a>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        </div>
       </div>
       <iframe
         title={`${config.name} map`}
         src={config.googleMapsEmbed}
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
-        class="ridge-map"
       />
     </section>
 
@@ -133,317 +130,371 @@ const services = content.menu.flatMap((cat) =>
 </BaseLayout>
 
 <style>
-  .ridgeway {
-    --ridge-rule: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  .rw {
+    overflow-x: clip;
   }
 
-  .ridge-top {
-    position: sticky;
-    top: 0;
-    z-index: 40;
+  .rw-masthead {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
-    padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid var(--ridge-rule);
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+    position: sticky;
+    top: 0;
+    z-index: 30;
     background: color-mix(in srgb, var(--color-background) 92%, transparent);
     backdrop-filter: blur(10px);
   }
 
-  .ridge-brand {
+  .rw-brand {
     font-family: var(--font-heading);
-    font-size: clamp(1.1rem, 2vw, 1.45rem);
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+    text-decoration: none;
     color: var(--color-text);
-    text-decoration: none;
-  }
-
-  .ridge-top-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .ridge-call,
-  .ridge-wa {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.55rem 0.95rem;
-    font-size: 0.8rem;
     font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .rw-nav {
+    display: none;
+    gap: 1.25rem;
+    margin-right: auto;
+    margin-left: 1.5rem;
+  }
+
+  @media (min-width: 760px) {
+    .rw-nav { display: flex; }
+  }
+
+  .rw-nav a {
+    color: var(--color-muted);
     text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    font-size: 0.85rem;
   }
 
-  .ridge-call {
-    background: var(--color-accent);
-    color: var(--color-on-accent-text);
+  .rw-nav a:hover { color: var(--color-accent); }
+
+  .rw-cover {
+    display: grid;
+    gap: 2rem;
+    padding: 2rem 1.25rem 3rem;
+    max-width: 78rem;
+    margin: 0 auto;
   }
 
-  .ridge-wa {
-    border: 1px solid var(--color-accent);
+  @media (min-width: 900px) {
+    .rw-cover {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      align-items: end;
+      min-height: min(88vh, 820px);
+      padding-top: 3rem;
+    }
+  }
+
+  .rw-issue {
+    margin: 0;
     color: var(--color-accent);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 700;
   }
 
-  .ridge-cta-row {
+  .rw-cover h1 {
+    margin: 0.75rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.6rem, 8vw, 5.6rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    max-width: 11ch;
+  }
+
+  .rw-deck {
+    margin: 1.1rem 0 0;
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    line-height: 1.55;
+    max-width: 34ch;
+  }
+
+  .rw-cta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.65rem;
     margin-top: 1.5rem;
   }
 
-  .ridge-top-actions .ridge-call,
-  .ridge-top-actions .ridge-wa {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .ridge-top-actions .ridge-call,
-    .ridge-top-actions .ridge-wa { display: inline-flex; }
-  }
-
-  .ridge-editorial {
-    display: grid;
-    gap: 2rem;
-    max-width: 72rem;
-    margin: 0 auto;
-    padding: 2.5rem 1.25rem 4rem;
-  }
-
-  @media (min-width: 960px) {
-    .ridge-editorial {
-      grid-template-columns: minmax(18rem, 0.95fr) 1.05fr;
-      gap: 3.5rem;
-      align-items: start;
-      padding-top: 3.5rem;
-    }
-  }
-
-  .ridge-story {
-    position: relative;
-  }
-
-  @media (min-width: 960px) {
-    .ridge-story {
-      position: sticky;
-      top: 5.5rem;
-    }
-  }
-
-  .ridge-kicker {
-    margin: 0 0 0.75rem;
-    color: var(--color-accent);
-    font-size: 0.8rem;
+  .rw-cta a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.85rem;
+    padding: 0.7rem 1.15rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 0.86rem;
   }
 
-  .ridge-title {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: clamp(2.4rem, 5vw, 3.8rem);
-    line-height: 0.95;
-    text-transform: uppercase;
+  .rw-cta a:last-child {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+    color: var(--color-text);
   }
 
-  .ridge-lead {
-    margin: 1.25rem 0 0;
-    font-size: 1.15rem;
-    color: var(--color-muted);
-    max-width: 34ch;
+  .rw-cover-stack {
+    position: relative;
+    min-height: 280px;
   }
 
-  .ridge-body {
-    margin: 1.25rem 0 0;
-    line-height: 1.7;
-    color: color-mix(in srgb, var(--color-text) 88%, var(--color-muted));
-  }
-
-  .ridge-cascade {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .ridge-cascade-item {
-    margin: 0;
-    overflow: hidden;
-  }
-
-  .ridge-cascade-item:nth-child(even) {
-    margin-left: 12%;
-  }
-
-  .ridge-cascade-item:nth-child(3n) {
-    margin-right: 8%;
-    margin-left: 0;
-  }
-
-  .ridge-cascade-item img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 4 / 5;
+  .rw-cut {
+    position: absolute;
     object-fit: cover;
-    filter: saturate(0.92) contrast(1.05);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   }
 
-  .ridge-services {
-    max-width: 48rem;
-    margin: 0 auto;
-    padding: 1rem 1.25rem 5rem;
+  .rw-cut-a {
+    width: 72%;
+    aspect-ratio: 4 / 5;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    border-radius: 0 2.5rem 0 2.5rem;
   }
 
-  .ridge-services h2,
-  .ridge-quotes h2,
-  .ridge-visit h2 {
-    margin: 0 0 1.75rem;
-    font-family: var(--font-heading);
-    font-size: clamp(1.8rem, 3vw, 2.4rem);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  .rw-cut-b {
+    width: 48%;
+    aspect-ratio: 1;
+    right: 0;
+    top: 12%;
+    z-index: 2;
+    border-radius: 50%;
   }
 
-  .ridge-service-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--ridge-rule);
+  .rw-cut-c {
+    width: 42%;
+    aspect-ratio: 5 / 4;
+    right: 8%;
+    bottom: 0;
+    z-index: 3;
+    border-radius: 1.5rem 0;
   }
 
-  .ridge-service {
+  .rw-story {
     display: grid;
-    grid-template-columns: 3.5rem 1fr;
-    gap: 1rem;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--ridge-rule);
+    gap: 1.5rem;
+    padding: 0 0 3rem;
+    max-width: 78rem;
+    margin: 0 auto;
   }
 
-  .ridge-num {
+  @media (min-width: 900px) {
+    .rw-story {
+      grid-template-columns: minmax(0, 1fr) 14rem;
+      padding-left: 1.25rem;
+      align-items: start;
+    }
+  }
+
+  .rw-story-col {
+    padding: 0 1.25rem;
+    max-width: 42rem;
+  }
+
+  .rw-story h2 {
+    margin: 0;
     font-family: var(--font-heading);
-    font-size: 1.4rem;
-    color: var(--color-accent);
-    line-height: 1.2;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    text-transform: uppercase;
   }
 
-  .ridge-service-head {
+  .rw-story-col > p {
+    margin: 1rem 0 0;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--color-text) 88%, transparent);
+  }
+
+  .rw-aside {
+    margin-top: 1.25rem !important;
+    padding-left: 1rem;
+    border-left: 3px solid var(--color-accent);
+    color: var(--color-muted) !important;
+    font-size: 0.98rem !important;
+  }
+
+  .rw-rail {
+    display: flex;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding: 0 1.25rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (min-width: 900px) {
+    .rw-rail {
+      position: sticky;
+      top: 5rem;
+      flex-direction: column;
+      overflow-x: visible;
+      overflow-y: auto;
+      max-height: calc(100vh - 6rem);
+      padding: 0 1.25rem 0 0;
+      scroll-snap-type: y mandatory;
+    }
+  }
+
+  .rw-rail img {
+    flex: 0 0 auto;
+    width: min(70vw, 260px);
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    scroll-snap-align: start;
+    border-radius: 0 1.25rem;
+  }
+
+  @media (min-width: 900px) {
+    .rw-rail img {
+      width: 100%;
+    }
+  }
+
+  .rw-services {
+    padding: 2.5rem 1.25rem 3rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 14%, transparent);
+    max-width: 52rem;
+    margin: 0 auto;
+  }
+
+  .rw-services-head {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    align-items: baseline;
+    align-items: end;
+    margin-bottom: 2rem;
   }
 
-  .ridge-service h3 {
+  .rw-services-head h2 {
     margin: 0;
     font-family: var(--font-heading);
-    font-size: 1.25rem;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
     text-transform: uppercase;
+    line-height: 1;
   }
 
-  .ridge-price {
+  .rw-services-head p {
+    margin: 0;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .rw-service-block + .rw-service-block {
+    margin-top: 2.25rem;
+  }
+
+  .rw-service-block h3 {
+    margin: 0 0 0.85rem;
+    color: var(--color-accent);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+
+  .rw-service-block ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rw-service-block li {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+    gap: 0.85rem;
+    align-items: start;
+    padding: 1rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+
+  .rw-num {
+    font-family: var(--font-heading);
+    color: var(--color-muted);
+    font-size: 0.95rem;
+  }
+
+  .rw-service-block strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .rw-service-block p {
+    margin: 0.3rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .rw-service-block em {
+    font-style: normal;
     color: var(--color-accent);
     font-weight: 700;
     white-space: nowrap;
   }
 
-  .ridge-service p {
-    margin: 0.4rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.55;
-  }
-
-  .ridge-cat {
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .ridge-quotes {
-    border-top: 1px solid var(--ridge-rule);
-    border-bottom: 1px solid var(--ridge-rule);
-    background: color-mix(in srgb, var(--color-surface) 70%, transparent);
-    padding: 4rem 1.25rem;
-  }
-
-  .ridge-quote-stack {
-    max-width: 42rem;
-    margin: 0 auto;
-    display: grid;
-    gap: 2.5rem;
-  }
-
-  .ridge-quotes blockquote {
-    margin: 0;
-  }
-
-  .ridge-quotes blockquote p {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
-    line-height: 1.25;
-  }
-
-  .ridge-quotes footer {
-    margin-top: 0.85rem;
-    color: var(--color-muted);
-    font-size: 0.9rem;
-  }
-
-  .ridge-visit {
+  .rw-visit {
     display: grid;
     gap: 1.5rem;
+    padding: 0 1.25rem 3rem;
     max-width: 72rem;
     margin: 0 auto;
-    padding: 4rem 1.25rem;
   }
 
-  @media (min-width: 860px) {
-    .ridge-visit {
-      grid-template-columns: 1fr 1.2fr;
-      gap: 2.5rem;
+  @media (min-width: 800px) {
+    .rw-visit {
+      grid-template-columns: 0.9fr 1.1fr;
       align-items: stretch;
     }
   }
 
-  .ridge-visit p {
-    margin: 0.65rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.6;
+  .rw-visit h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    text-transform: uppercase;
   }
 
-  .ridge-visit a {
-    color: var(--color-text);
+  .rw-visit p {
+    margin: 0.85rem 0 0;
+    line-height: 1.55;
   }
 
-  .ridge-note {
-    color: var(--color-accent) !important;
-    font-weight: 600;
-  }
-
-  .ridge-hours {
+  .rw-visit ul {
     list-style: none;
     margin: 1.25rem 0 0;
     padding: 0;
-    max-width: 22rem;
   }
 
-  .ridge-hours li {
+  .rw-visit li {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
     padding: 0.45rem 0;
-    border-bottom: 1px solid var(--ridge-rule);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     font-size: 0.92rem;
   }
 
-  .ridge-map {
+  .rw-visit iframe {
     width: 100%;
     min-height: 280px;
     border: 0;
-    filter: grayscale(0.35) contrast(1.05);
+    border-radius: 0 2rem 0 2rem;
   }
 </style>

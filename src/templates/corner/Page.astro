@@ -4,7 +4,6 @@ import type { Lang } from '../../i18n/ui';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
 import Footer from '../../components/shared/Footer.astro';
-import DailySpecial from '../../components/corner/DailySpecial.astro';
 import { useTranslations } from '../../i18n/utils';
 import { formatOpeningHours } from '../../utils/hours';
 
@@ -16,87 +15,50 @@ interface Props {
 const { config, lang } = Astro.props;
 const content = config.content[lang];
 const t = useTranslations(lang);
-const feed = config.instagramFeed ?? config.gallery;
-const bandImages = [config.heroImage, config.aboutImage, ...config.gallery].filter(Boolean) as string[];
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const orderHref = config.deliveryLinks?.[0]?.url ?? telHref;
+const menuItems = content.menu.flatMap((cat) =>
+  cat.items.map((item) => ({ ...item, category: cat.name }))
+);
+const ig = config.instagramFeed ?? config.gallery;
 ---
 
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
-  <div class="corner" data-archetype="zigzag-cafe">
-    <header class="corner-top">
-      <a href={`/${lang}/${config.slug}`} class="corner-brand">{config.name}</a>
-      <nav aria-label="Primary">
-        <a href="#dayboard">{content.menuSectionLabel ?? t('nav.menu')}</a>
-        <a href="#story">{t('nav.about')}</a>
-        <a href="#visit">{t('nav.contact')}</a>
-      </nav>
+  <div class="cr" data-archetype="asymmetric-bento">
+    <header class="cr-top">
+      <a href={`/${lang}/${config.slug}`}>{config.name}</a>
       <LanguageSwitcher lang={lang} slug={config.slug} />
     </header>
 
-    <!-- 1. Daily special full-width band near top -->
-    <DailySpecial content={content} />
+    <div class="cr-bento">
+      <article class="cr-cell cr-hero">
+        <img src={config.heroImage} alt="" />
+        <div>
+          <h1>{config.name}</h1>
+          <p>{content.tagline}</p>
+        </div>
+      </article>
 
-    <!-- 2. Zig-zag band: image / intro -->
-    <section class="corner-band corner-band-a" id="story">
-      <figure class="corner-media">
-        <img src={bandImages[0]} alt="" loading="eager" />
-      </figure>
-      <div class="corner-copy">
-        <p class="corner-kicker">{content.tagline}</p>
-        <h1>{content.about.heading}</h1>
-        <p>{content.description}</p>
+      {content.dailySpecial && (
+        <article class="cr-cell cr-special">
+          <p>Today</p>
+          <h2>{content.dailySpecial}</h2>
+        </article>
+      )}
+
+      <article class="cr-cell cr-story">
+        <h2>{content.about.heading}</h2>
         <p>{content.about.content}</p>
-      </div>
-    </section>
+        <p class="cr-desc">{content.description}</p>
+      </article>
 
-    <!-- 3. Zig-zag band: dayboard / image -->
-    <section class="corner-band corner-band-b" id="dayboard" aria-labelledby="corner-menu-heading">
-      <div class="corner-copy">
-        <h2 id="corner-menu-heading">{content.menuSectionLabel ?? t('menu.title')}</h2>
-        {content.menu.map((cat) => (
-          <div class="corner-cat">
-            <h3>{cat.name}</h3>
-            <ul>
-              {cat.items.map((item) => (
-                <li>
-                  <div>
-                    <strong>{item.name}</strong>
-                    <p>{item.description}</p>
-                  </div>
-                  <span>{item.price}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <figure class="corner-media">
-        <img src={bandImages[1] ?? bandImages[0]} alt="" loading="lazy" />
-      </figure>
-    </section>
+      <article class="cr-cell cr-tall">
+        <img src={config.aboutImage ?? config.gallery[0]} alt="" />
+      </article>
 
-    <!-- 4. Instagram-style strip -->
-    <section class="corner-ig" aria-label={t('instagram.title')}>
-      <div class="corner-ig-head">
-        <h2>{t('instagram.title')}</h2>
-        {config.socials.instagram && (
-          <a href={config.socials.instagram} target="_blank" rel="noopener noreferrer">{t('instagram.follow')}</a>
-        )}
-      </div>
-      <div class="corner-ig-strip">
-        {feed.map((src) => (
-          <img src={src} alt="" loading="lazy" />
-        ))}
-      </div>
-    </section>
-
-    <!-- 5. Zig-zag: delivery / hours image -->
-    <section class="corner-band corner-band-a" id="visit">
-      <figure class="corner-media">
-        <img src={bandImages[2] ?? bandImages[0]} alt="" loading="lazy" />
-      </figure>
-      <div class="corner-copy">
+      <article class="cr-cell cr-hours">
         <h2>{t('hours.title')}</h2>
-        <ul class="corner-hours">
+        <ul>
           {content.openingHours.map((hour) => {
             const row = formatOpeningHours(t, hour);
             return (
@@ -107,72 +69,82 @@ const bandImages = [config.heroImage, config.aboutImage, ...config.gallery].filt
             );
           })}
         </ul>
+      </article>
 
-        {config.deliveryLinks && config.deliveryLinks.length > 0 && (
-          <div class="corner-delivery">
-            <h3>{t('delivery.title')}</h3>
-            <div class="corner-delivery-links">
-              {config.deliveryLinks.map((link) => (
-                <a href={link.url} target="_blank" rel="noopener noreferrer">{link.name}</a>
-              ))}
+      <article class="cr-cell cr-cta">
+        <h2>{content.ctaLabel ?? t('cta.callNow')}</h2>
+        <a class="cr-btn" href={telHref}>{config.phone}</a>
+        <a class="cr-btn cr-btn-ghost" href={orderHref}>{content.secondaryCtaLabel ?? t('cta.orderNow')}</a>
+      </article>
+
+      <article class="cr-cell cr-wide" id="menu">
+        <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+        <div class="cr-menu">
+          {menuItems.slice(0, 6).map((item) => (
+            <div>
+              <strong>{item.name}</strong>
+              <span>{item.price}</span>
+              <p>{item.description}</p>
             </div>
+          ))}
+        </div>
+      </article>
+
+      <article class="cr-cell cr-cinema">
+        <img src={config.gallery[0]} alt="" loading="lazy" />
+      </article>
+
+      <article class="cr-cell cr-ig" aria-label={t('instagram.title')}>
+        <h2>{t('instagram.title')}</h2>
+        <div class="cr-ig-grid">
+          {ig.slice(0, 6).map((src) => (
+            <img src={src} alt="" loading="lazy" />
+          ))}
+        </div>
+      </article>
+
+      <article class="cr-cell cr-visit" id="contact">
+        <h2>{t('contact.visitUs')}</h2>
+        <p>
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </p>
+        {config.deliveryLinks && config.deliveryLinks.length > 0 && (
+          <div class="cr-delivery">
+            {config.deliveryLinks.map((link) => (
+              <a href={link.url} target="_blank" rel="noopener noreferrer">{link.name}</a>
+            ))}
           </div>
         )}
-
-        <p class="corner-addr">
-          {config.address.street}<br />
-          {config.address.postalCode} {config.address.city}<br />
-          <a href={`tel:${config.phone.replace(/\s/g, '')}`}>{config.phone}</a>
-        </p>
-      </div>
-    </section>
-
-    <!-- 6. Soft rounded contact / map -->
-    <section class="corner-soft">
-      <div class="corner-soft-card">
-        <h2>{t('contact.visitUs')}</h2>
-        {content.ctaLabel && <p>{content.ctaLabel}</p>}
         <iframe
           title={`${config.name} map`}
           src={config.googleMapsEmbed}
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
         />
-      </div>
-    </section>
-
-    {content.testimonials && content.testimonials.length > 0 && (
-      <section class="corner-voices" aria-label={t('testimonials.title')}>
-        {content.testimonials.map((item) => (
-          <blockquote>
-            <p>“{item.quote}”</p>
-            <footer>{item.author}</footer>
-          </blockquote>
-        ))}
-      </section>
-    )}
+      </article>
+    </div>
 
     <Footer config={config} lang={lang} />
   </div>
 </BaseLayout>
 
 <style>
-  .corner {
+  .cr {
     background:
-      radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 35%),
-      radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 30%),
+      radial-gradient(900px 420px at 90% -10%, color-mix(in srgb, var(--color-accent) 35%, transparent), transparent 55%),
+      radial-gradient(700px 380px at 0% 20%, color-mix(in srgb, var(--color-secondary) 12%, transparent), transparent 50%),
       var(--color-background);
   }
 
-  .corner-top {
+  .cr-top {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
+    align-items: center;
+    padding: 1rem 1.15rem;
   }
 
-  .corner-brand {
+  .cr-top > a {
     font-family: var(--font-heading);
     font-size: 1.2rem;
     font-weight: 700;
@@ -180,259 +152,266 @@ const bandImages = [config.heroImage, config.aboutImage, ...config.gallery].filt
     text-decoration: none;
   }
 
-  .corner-top nav {
-    display: none;
-    gap: 1.1rem;
+  .cr-bento {
+    display: grid;
+    gap: 0.85rem;
+    padding: 0 1.15rem 3rem;
+    max-width: 78rem;
+    margin: 0 auto;
+    grid-template-columns: 1fr;
   }
 
-  @media (min-width: 800px) {
-    .corner-top nav { display: flex; }
+  @media (min-width: 760px) {
+    .cr-bento {
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(7.5rem, auto);
+    }
+
+    .cr-hero { grid-column: 1 / span 8; grid-row: span 3; }
+    .cr-special { grid-column: 9 / span 4; grid-row: span 2; }
+    .cr-story { grid-column: 9 / span 4; grid-row: span 2; }
+    .cr-tall { grid-column: 1 / span 4; grid-row: span 4; }
+    .cr-hours { grid-column: 5 / span 4; grid-row: span 2; }
+    .cr-cta { grid-column: 9 / span 4; grid-row: span 2; }
+    .cr-wide { grid-column: 5 / span 8; grid-row: span 3; }
+    .cr-cinema { grid-column: 1 / span 7; grid-row: span 2; }
+    .cr-ig { grid-column: 8 / span 5; grid-row: span 2; }
+    .cr-visit { grid-column: 1 / span 12; grid-row: span 2; }
   }
 
-  .corner-top nav a {
+  .cr-cell {
+    background: color-mix(in srgb, var(--color-surface) 92%, white);
+    border-radius: 1.5rem;
+    padding: 1.15rem;
+    overflow: hidden;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--color-secondary) 8%, transparent);
+  }
+
+  .cr-hero {
+    position: relative;
+    padding: 0;
+    min-height: 280px;
+  }
+
+  .cr-hero img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cr-hero > div {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.35rem;
+    background: linear-gradient(180deg, transparent 30%, rgba(20, 18, 30, 0.72));
+    color: #fff9f0;
+  }
+
+  .cr-hero h1 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1;
+  }
+
+  .cr-hero p {
+    margin: 0.55rem 0 0;
+    opacity: 0.9;
+  }
+
+  .cr-special {
+    background: var(--color-primary);
+    color: var(--color-on-primary-text);
+  }
+
+  .cr-special p {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  .cr-special h2 {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+    line-height: 1.25;
+  }
+
+  .cr-story h2,
+  .cr-hours h2,
+  .cr-cta h2,
+  .cr-wide h2,
+  .cr-ig h2,
+  .cr-visit h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+  }
+
+  .cr-story p {
+    margin: 0.75rem 0 0;
     color: var(--color-muted);
-    text-decoration: none;
-    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .cr-desc {
+    color: var(--color-text) !important;
     font-weight: 600;
   }
 
-  .corner-band {
-    display: grid;
-    gap: 1.5rem;
-    padding: 2rem 1.25rem;
-    align-items: center;
+  .cr-tall {
+    padding: 0;
+    min-height: 280px;
   }
 
-  @media (min-width: 900px) {
-    .corner-band {
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-      padding: 3rem 1.75rem;
-    }
-
-    .corner-band-b .corner-copy { order: 1; }
-    .corner-band-b .corner-media { order: 2; }
-  }
-
-  .corner-media {
-    margin: 0;
-  }
-
-  .corner-media img {
+  .cr-tall img {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
     display: block;
-    width: 100%;
-    aspect-ratio: 5 / 4;
-    object-fit: cover;
-    border-radius: 1.75rem;
   }
 
-  .corner-copy {
-    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-    border-radius: 1.75rem;
-    padding: 1.5rem;
-  }
-
-  .corner-kicker {
-    margin: 0;
-    color: var(--color-primary);
-    font-weight: 700;
-    font-size: 0.85rem;
-  }
-
-  .corner-copy h1,
-  .corner-copy h2 {
-    margin: 0.65rem 0 0;
-    font-family: var(--font-heading);
-    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-    line-height: 1.1;
-  }
-
-  .corner-copy > p {
-    margin: 0.9rem 0 0;
-    color: var(--color-muted);
-    line-height: 1.65;
-  }
-
-  .corner-cat {
-    margin-top: 1.5rem;
-  }
-
-  .corner-cat h3 {
-    margin: 0 0 0.75rem;
-    color: var(--color-primary);
-    font-family: var(--font-heading);
-  }
-
-  .corner-cat ul {
+  .cr-hours ul {
     list-style: none;
-    margin: 0;
+    margin: 0.85rem 0 0;
     padding: 0;
   }
 
-  .corner-cat li {
+  .cr-hours li {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
-  }
-
-  .corner-cat p {
-    margin: 0.3rem 0 0;
-    color: var(--color-muted);
-    font-size: 0.9rem;
-  }
-
-  .corner-cat span {
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  .corner-ig {
-    padding: 1rem 0 2rem;
-  }
-
-  .corner-ig-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 0 1.25rem 0.85rem;
-  }
-
-  .corner-ig-head h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-  }
-
-  .corner-ig-head a {
-    color: var(--color-primary);
-    font-weight: 700;
-    text-decoration: none;
-  }
-
-  .corner-ig-strip {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(140px, 22vw);
-    overflow-x: auto;
-    gap: 0.55rem;
-    padding: 0 1.25rem;
-  }
-
-  .corner-ig-strip img {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 1.1rem;
-  }
-
-  .corner-hours {
-    list-style: none;
-    margin: 1rem 0 0;
-    padding: 0;
-  }
-
-  .corner-hours li {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.45rem 0;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
     border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
+    font-size: 0.88rem;
+  }
+
+  .cr-cta {
+    background: var(--color-secondary);
+    color: #fff9f0;
+  }
+
+  .cr-cta h2 {
+    color: #fff9f0;
+  }
+
+  .cr-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.85rem;
+    margin-top: 0.85rem;
+    border-radius: 999px;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-weight: 700;
     font-size: 0.92rem;
   }
 
-  .corner-delivery {
-    margin-top: 1.5rem;
+  .cr-btn-ghost {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, #fff9f0 45%, transparent);
+    color: #fff9f0;
   }
 
-  .corner-delivery h3 {
-    margin: 0;
-    font-family: var(--font-heading);
+  .cr-menu {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
   }
 
-  .corner-delivery-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+  @media (min-width: 640px) {
+    .cr-menu {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
-  .corner-delivery-links a {
-    padding: 0.55rem 0.9rem;
-    border-radius: 999px;
-    background: var(--color-primary);
-    color: var(--color-on-primary-text);
-    text-decoration: none;
-    font-size: 0.85rem;
+  .cr-menu strong {
+    display: block;
+    font-size: 1rem;
+  }
+
+  .cr-menu span {
+    float: right;
+    margin-top: -1.15rem;
+    color: var(--color-primary);
     font-weight: 700;
   }
 
-  .corner-addr {
-    margin-top: 1.25rem !important;
-  }
-
-  .corner-addr a {
-    color: var(--color-text);
-  }
-
-  .corner-soft {
-    padding: 1rem 1.25rem 3rem;
-  }
-
-  .corner-soft-card {
-    max-width: 56rem;
-    margin: 0 auto;
-    padding: 1.5rem;
-    border-radius: 1.75rem;
-    background: var(--color-surface);
-    box-shadow: 0 18px 50px color-mix(in srgb, var(--color-secondary) 12%, transparent);
-  }
-
-  .corner-soft-card h2 {
-    margin: 0;
-    font-family: var(--font-heading);
-  }
-
-  .corner-soft-card > p {
-    margin: 0.5rem 0 0;
+  .cr-menu p {
+    margin: 0.25rem 0 0;
     color: var(--color-muted);
+    font-size: 0.88rem;
+    clear: both;
   }
 
-  .corner-soft-card iframe {
+  .cr-cinema {
+    padding: 0;
+    min-height: 200px;
+  }
+
+  .cr-cinema img {
     width: 100%;
-    height: 260px;
-    margin-top: 1rem;
-    border: 0;
-    border-radius: 1.25rem;
+    height: 100%;
+    min-height: 200px;
+    object-fit: cover;
+    display: block;
   }
 
-  .corner-voices {
+  .cr-ig-grid {
     display: grid;
-    gap: 1rem;
-    padding: 0 1.25rem 3rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin-top: 0.85rem;
   }
 
-  @media (min-width: 800px) {
-    .corner-voices { grid-template-columns: 1fr 1fr; }
+  .cr-ig-grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 0.75rem;
   }
 
-  .corner-voices blockquote {
-    margin: 0;
-    padding: 1.25rem;
-    border-radius: 1.25rem;
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
-  }
-
-  .corner-voices p {
-    margin: 0;
-    font-family: var(--font-heading);
-    font-size: 1.15rem;
-  }
-
-  .corner-voices footer {
-    margin-top: 0.75rem;
+  .cr-visit p {
+    margin: 0.75rem 0 0;
     color: var(--color-muted);
+    line-height: 1.5;
+  }
+
+  .cr-delivery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+  }
+
+  .cr-delivery a {
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-secondary) 10%, white);
+    color: var(--color-secondary);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .cr-visit iframe {
+    width: 100%;
+    min-height: 200px;
+    border: 0;
+    border-radius: 1rem;
+    margin-top: 1rem;
   }
 </style>

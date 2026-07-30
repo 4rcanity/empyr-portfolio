@@ -16,7 +16,7 @@ export const noirConfig: SiteConfig = {
     onPrimaryMuted: '#9c9284',
     onAccentText: '#1a1612',
     fontHeading: '"Cormorant Garamond", Georgia, serif',
-    fontBody: '"Inter", system-ui, sans-serif',
+    fontBody: '"Source Sans 3", system-ui, sans-serif',
     variant: 'noir',
   },
   heroImage:
