@@ -20,7 +20,7 @@ const isBarberhouse = config.theme.variant === 'barberhouse';
 <section class="relative flex min-h-[88vh] items-end overflow-hidden sm:min-h-[92vh]">
   <img
     src={config.heroImage}
-    alt={`${config.name} interior`}
+    alt={config.businessType === 'garage' ? `${config.name} workshop` : `${config.name} interior`}
     class="absolute inset-0 h-full w-full object-cover"
     loading="eager"
   />

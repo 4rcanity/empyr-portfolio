@@ -37,7 +37,7 @@ const variant = config.theme.variant;
   <Nav config={config} content={content} lang={lang as 'nl' | 'en'} />
   <Hero config={config} content={content} lang={lang as 'nl' | 'en'} overlay={true} />
 
-  {(variant === 'ocakbasi' || variant === 'barberhouse') && (
+  {(variant === 'ocakbasi' || variant === 'barberhouse' || variant === 'garage') && (
     <div class="border-b py-6" style="background: var(--color-surface); border-color: color-mix(in srgb, var(--color-muted) 15%, transparent);">
       <div class="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
         <RatingBadge config={config} content={content} lang={lang as 'nl' | 'en'} />

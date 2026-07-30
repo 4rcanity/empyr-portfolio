@@ -2,10 +2,16 @@ import type { Lang } from '../i18n/ui';
 
 export type DietaryTag = 'vegetarian' | 'vegan' | 'gluten-free' | 'spicy' | 'halal';
 
-export type TemplateVariant = 'trattoria' | 'noir' | 'corner' | 'ocakbasi' | 'barberhouse';
+export type TemplateVariant =
+  | 'trattoria'
+  | 'noir'
+  | 'corner'
+  | 'ocakbasi'
+  | 'barberhouse'
+  | 'garage';
 
 /** Drives schema.org type + light copy differences; the visual design is controlled by `TemplateVariant`/theme */
-export type BusinessType = 'restaurant' | 'cafe' | 'barbershop';
+export type BusinessType = 'restaurant' | 'cafe' | 'barbershop' | 'garage';
 
 export interface MenuItem {
   name: string;
