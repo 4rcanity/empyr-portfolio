@@ -4,8 +4,22 @@ import { noirConfig } from './noir-config';
 import { cornerConfig } from './corner-config';
 import { ocakbasiConfig } from './ocakbasi-config';
 import { barberhouseConfig } from './barberhouse-config';
+import { ridgewayConfig } from './ridgeway-config';
+import { apexConfig } from './apex-config';
+import { oakAxleConfig } from './oak-axle-config';
+import { metroConfig } from './metro-config';
 
-export const configs: SiteConfig[] = [trattoriaConfig, noirConfig, cornerConfig, ocakbasiConfig, barberhouseConfig];
+export const configs: SiteConfig[] = [
+  trattoriaConfig,
+  noirConfig,
+  cornerConfig,
+  ocakbasiConfig,
+  barberhouseConfig,
+  ridgewayConfig,
+  apexConfig,
+  oakAxleConfig,
+  metroConfig,
+];
 
 export function getConfigBySlug(slug: string): SiteConfig | undefined {
   return configs.find((c) => c.slug === slug);

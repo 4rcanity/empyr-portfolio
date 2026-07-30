@@ -11,7 +11,12 @@ interface Props {
 
 const { config, content } = Astro.props;
 
-const schemaType = config.businessType === 'barbershop' ? 'HairSalon' : 'Restaurant';
+const schemaType =
+  config.businessType === 'barbershop'
+    ? 'HairSalon'
+    : config.businessType === 'garage'
+      ? 'AutoRepair'
+      : 'Restaurant';
 
 const cuisine =
   config.theme.variant === 'trattoria'
