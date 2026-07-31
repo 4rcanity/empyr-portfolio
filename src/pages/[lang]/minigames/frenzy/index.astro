@@ -1,0 +1,100 @@
+---
+import '../../../../styles/global.css';
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+import { randomRoomId } from '../../../../../party/frenzy/src/protocol';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const sampleRoom = randomRoomId();
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'Higher or Lower: Frenzy!',
+        description: 'Multiplayer Higher or Lower met wildcards, aces en private kamers.',
+        eyebrow: 'Empyr Minigames',
+        heading: 'Higher or Lower: Frenzy!',
+        body: 'Maak een private kamer, deel de link, en speel Higher/Lower met kaarten, eliminaties en shuffle-stemmen.',
+        create: 'Maak private kamer',
+        join: 'Join met kamer-ID',
+        placeholder: 'kamer-id',
+        back: 'Terug naar minigames',
+        need: 'Minimaal 3 spelers. Realtime via Cloudflare Workers.',
+      }
+    : {
+        title: 'Higher or Lower: Frenzy!',
+        description: 'Multiplayer Higher or Lower with wildcards, aces and private rooms.',
+        eyebrow: 'Empyr Minigames',
+        heading: 'Higher or Lower: Frenzy!',
+        body: 'Create a private room, share the link, and play Higher/Lower with cards, eliminations and shuffle votes.',
+        create: 'Create private room',
+        join: 'Join with room ID',
+        placeholder: 'room id',
+        back: 'Back to minigames',
+        need: 'Minimum 3 players. Realtime via Cloudflare Workers.',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/frenzy" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <LocaleRedirect lang={lang} />
+  </head>
+  <body class="min-h-screen bg-[#07080d] text-white antialiased" style="font-family: Inter, system-ui, sans-serif;">
+    <main class="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-8 px-4 py-16">
+      <div>
+        <a href={`/${lang}/minigames`} class="text-sm text-zinc-400 hover:text-white">{copy.back}</a>
+        <p class="mt-6 text-xs font-bold uppercase tracking-[0.28em] text-cyan-300">{copy.eyebrow}</p>
+        <h1 class="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{copy.heading}</h1>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-zinc-400">{copy.body}</p>
+        <p class="mt-2 text-sm text-zinc-500">{copy.need}</p>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        <a
+          href={`/${lang}/minigames/frenzy/play?room=${sampleRoom}`}
+          class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 px-6 py-3.5 text-sm font-bold text-zinc-950"
+        >
+          {copy.create}
+        </a>
+        <form class="flex gap-2" id="join-form">
+          <input
+            id="room-input"
+            required
+            maxlength="16"
+            placeholder={copy.placeholder}
+            class="min-w-0 flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm outline-none focus:border-cyan-400/50"
+          />
+          <button type="submit" class="rounded-full border border-white/15 px-5 text-sm font-bold">
+            {copy.join}
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <script>
+      const form = document.getElementById('join-form');
+      const input = document.getElementById('room-input') as HTMLInputElement | null;
+      form?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const id = (input?.value || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        if (!id) return;
+        const lang = location.pathname.split('/').filter(Boolean)[0] || 'nl';
+        location.href = `/${lang}/minigames/frenzy/play?room=${id}`;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,332 @@
+.frenzy-shell {
+  min-height: 100vh;
+  padding: 1.25rem 1rem 3rem;
+  background:
+    radial-gradient(900px 420px at 10% -10%, rgb(34 211 238 / 0.12), transparent 55%),
+    radial-gradient(800px 480px at 90% 0%, rgb(168 85 247 / 0.12), transparent 50%),
+    #07080d;
+  color: #e4e4e7;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.frenzy-shell.fx-eliminate .frenzy-table,
+.frenzy-shell.fx-narrow .frenzy-window,
+.frenzy-shell.fx-blindfold .frenzy-table {
+  animation: frenzy-shake 0.45s ease;
+}
+
+.frenzy-shell.fx-reverse .frenzy-ring {
+  animation: frenzy-spin 0.7s ease;
+}
+
+.frenzy-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  max-width: 72rem;
+  margin: 0 auto 1rem;
+}
+
+.frenzy-kicker {
+  margin: 0;
+  color: #22d3ee;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.frenzy-title {
+  margin: 0.4rem 0 0;
+  font-size: 1.8rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: white;
+}
+
+.frenzy-muted {
+  color: #a1a1aa;
+}
+
+.frenzy-banner {
+  max-width: 72rem;
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(34 211 238 / 0.25);
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(12px);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.frenzy-panel {
+  border-radius: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(16px);
+  padding: 1.25rem;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.35);
+}
+
+.frenzy-grid {
+  display: grid;
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 900px) {
+  .frenzy-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.frenzy-h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: white;
+}
+
+.frenzy-label {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.frenzy-input,
+.frenzy-label select {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(0 0 0 / 0.35);
+  color: white;
+  padding: 0.7rem 0.85rem;
+  outline: none;
+}
+
+.frenzy-input:focus {
+  border-color: rgb(34 211 238 / 0.55);
+}
+
+.frenzy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  background: rgb(255 255 255 / 0.06);
+  color: white;
+  font-weight: 650;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.frenzy-btn:hover {
+  transform: translateY(-1px);
+  background: rgb(255 255 255 / 0.1);
+}
+
+.frenzy-btn-primary {
+  background: linear-gradient(135deg, #22d3ee, #a855f7);
+  border: 0;
+  color: #07080d;
+}
+
+.frenzy-link {
+  background: none;
+  border: 0;
+  color: #22d3ee;
+  cursor: pointer;
+  font-weight: 650;
+  padding: 0;
+}
+
+.frenzy-error {
+  color: #fda4af;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.frenzy-player,
+.frenzy-seat {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.9rem;
+  background: rgb(0 0 0 / 0.25);
+  border: 1px solid rgb(255 255 255 / 0.06);
+}
+
+.frenzy-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  color: #d4d4d8;
+}
+
+.frenzy-play {
+  max-width: 72rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+.frenzy-table {
+  position: relative;
+  border-radius: 1.75rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(18px);
+  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.frenzy-table.is-blind::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      -12deg,
+      rgb(0 0 0 / 0.35),
+      rgb(0 0 0 / 0.35) 8px,
+      rgb(192 38 211 / 0.12) 8px,
+      rgb(192 38 211 / 0.12) 16px
+    );
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+.frenzy-ring {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: 2px solid rgb(34 211 238 / 0.55);
+  display: grid;
+  place-items: center;
+  color: #22d3ee;
+  font-size: 1.4rem;
+  box-shadow: 0 0 24px rgb(34 211 238 / 0.25);
+}
+
+.frenzy-window {
+  text-align: center;
+  padding: 1.5rem 1rem 1rem;
+}
+
+.frenzy-seats {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+@media (min-width: 720px) {
+  .frenzy-seats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.frenzy-seat.is-active {
+  border-color: rgb(34 211 238 / 0.55);
+  box-shadow: 0 0 0 1px rgb(34 211 238 / 0.35), 0 0 30px rgb(34 211 238 / 0.15);
+}
+
+.frenzy-seat.is-out {
+  opacity: 0.4;
+  filter: grayscale(0.8);
+}
+
+.frenzy-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.frenzy-card {
+  min-width: 5.5rem;
+  min-height: 4.5rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.04));
+  color: white;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  animation: card-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.frenzy-card.ace {
+  border-color: rgb(250 204 21 / 0.45);
+  box-shadow: 0 0 24px rgb(250 204 21 / 0.15);
+  color: #fde68a;
+}
+
+.frenzy-card.wild {
+  border-color: rgb(167 139 250 / 0.4);
+}
+
+.frenzy-foot {
+  max-width: 72rem;
+  margin: 2rem auto 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.frenzy-foot a {
+  color: #a1a1aa;
+  text-decoration: none;
+}
+
+.frenzy-foot a:hover {
+  color: white;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes frenzy-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+@keyframes frenzy-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
