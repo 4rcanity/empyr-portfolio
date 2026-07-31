@@ -1,0 +1,95 @@
+---
+/**
+ * Approximate locale via IP country (no browser geolocation permission).
+ * NL → Dutch, otherwise English. Manual language clicks set empyr-lang-pref.
+ */
+interface Props {
+  /** Current page language; omit on the root entry redirect page */
+  lang?: 'nl' | 'en';
+}
+
+const { lang } = Astro.props;
+---
+
+<script is:inline define:vars={{ currentLang: lang ?? null }}>
+  (function () {
+    var PREF_KEY = 'empyr-lang-pref';
+    var DETECTED_KEY = 'empyr-lang-detected';
+    var langs = { nl: true, en: true };
+
+    function pathForLang(next) {
+      var parts = location.pathname.split('/').filter(Boolean);
+      if (parts.length && langs[parts[0]]) {
+        parts[0] = next;
+      } else {
+        parts.unshift(next);
+      }
+      return '/' + parts.join('/') + location.search + location.hash;
+    }
+
+    function go(next) {
+      if (currentLang && next === currentLang) return;
+      var target = pathForLang(next);
+      if (target !== location.pathname + location.search + location.hash) {
+        location.replace(target);
+      }
+    }
+
+    async function detectCountryLang() {
+      try {
+        var cached = sessionStorage.getItem(DETECTED_KEY);
+        if (cached === 'nl' || cached === 'en') return cached;
+      } catch (_) {}
+
+      try {
+        var ctrl = new AbortController();
+        var timer = setTimeout(function () {
+          ctrl.abort();
+        }, 2500);
+        var res = await fetch('https://api.country.is/', { signal: ctrl.signal });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error('geo failed');
+        var data = await res.json();
+        var next = data && data.country === 'NL' ? 'nl' : 'en';
+        try {
+          sessionStorage.setItem(DETECTED_KEY, next);
+        } catch (_) {}
+        return next;
+      } catch (_) {
+        var nav = (navigator.language || navigator.userLanguage || '').toLowerCase();
+        return nav.indexOf('nl') === 0 ? 'nl' : 'en';
+      }
+    }
+
+    document.addEventListener(
+      'click',
+      function (event) {
+        var el = event.target;
+        if (!(el instanceof Element)) return;
+        var link = el.closest('a[href]');
+        if (!link) return;
+        try {
+          var url = new URL(link.getAttribute('href') || '', location.origin);
+          if (url.origin !== location.origin) return;
+          var seg = url.pathname.split('/').filter(Boolean)[0];
+          if (seg === 'nl' || seg === 'en') {
+            localStorage.setItem(PREF_KEY, seg);
+          }
+        } catch (_) {}
+      },
+      true
+    );
+
+    var pref = null;
+    try {
+      pref = localStorage.getItem(PREF_KEY);
+    } catch (_) {}
+
+    if (pref === 'nl' || pref === 'en') {
+      go(pref);
+      return;
+    }
+
+    detectCountryLang().then(go);
+  })();
+</script>

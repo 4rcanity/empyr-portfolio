@@ -6,6 +6,7 @@ import { useTranslations } from '../../i18n/utils';
 import PricingComparison from '../../components/shared/PricingComparison.astro';
 import PortfolioSEO from '../../components/shared/PortfolioSEO.astro';
 import PortfolioChooser from '../../components/shared/PortfolioChooser.astro';
+import LocaleRedirect from '../../components/shared/LocaleRedirect.astro';
 import ProjectIcon from '../../components/portfolio/ProjectIcon.astro';
 
 export function getStaticPaths() {
@@ -271,6 +272,7 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <LocaleRedirect lang={lang} />
   </head>
   <body class="min-h-screen bg-[#0c0a09] text-stone-100 antialiased" style="font-family: Inter, system-ui, sans-serif;">
     <PortfolioChooser lang={lang} />

@@ -1,4 +1,45 @@
 ---
-import { defaultLang } from '../i18n/ui';
-return Astro.redirect(`/${defaultLang}`, 302);
+import LocaleRedirect from '../components/shared/LocaleRedirect.astro';
 ---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Empyr Portfolio</title>
+    <meta name="description" content="Empyr Portfolio — websites, games and minigames." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <LocaleRedirect />
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #090909;
+        color: #a8a29e;
+        font-family: system-ui, sans-serif;
+      }
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        text-align: center;
+      }
+      a {
+        color: #fb923c;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <p>Loading…</p>
+      <p>
+        <a href="/nl">Nederlands</a>
+        ·
+        <a href="/en">English</a>
+      </p>
+    </div>
+  </body>
+</html>
