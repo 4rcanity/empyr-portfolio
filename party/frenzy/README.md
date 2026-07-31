@@ -44,7 +44,7 @@ Copy the printed `*.workers.dev` URL (no `https://` needed for PartySocket host,
 Set in portfolio root `.env` (and CI secrets if any):
 
 ```
-PUBLIC_FRENZY_HOST=empyr-frenzy.<your-subdomain>.workers.dev
+PUBLIC_FRENZY_HOST=empyr-frenzy.arcanearthenden.workers.dev
 ```
 
 Rebuild and push the Astro site:

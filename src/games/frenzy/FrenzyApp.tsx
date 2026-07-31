@@ -47,7 +47,11 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
   const [blindTarget, setBlindTarget] = useState('');
   const socketRef = useRef<PartySocket | null>(null);
 
-  const frenzyHost = host || import.meta.env.PUBLIC_FRENZY_HOST || 'localhost:8787';
+  const frenzyHost =
+    host ||
+    import.meta.env.PUBLIC_FRENZY_HOST ||
+    (import.meta.env.DEV ? 'localhost:8787' : 'empyr-frenzy.arcanearthenden.workers.dev');
+
 
   useEffect(() => {
     const socket = new PartySocket({
