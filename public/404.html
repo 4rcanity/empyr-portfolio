@@ -6,17 +6,16 @@
     <title>Empyr — Redirect</title>
     <script>
       (function () {
-        var path = location.pathname;
-        var match = path.match(/^\/(nl|en)\/minigames\/frenzy\/room\/([^/]+)\/?$/);
+        var match = location.pathname.match(/^\/(nl|en)\/minigames\/frenzy\/(?:room|table)\/([^/]+)\/?$/);
         if (match) {
-          location.replace('/' + match[1] + '/minigames/frenzy/play?room=' + encodeURIComponent(match[2]));
+          location.replace('/' + match[1] + '/minigames/frenzy/play?code=' + encodeURIComponent(match[2]));
           return;
         }
         location.replace('/nl/');
       })();
     </script>
   </head>
-  <body style="background:#07080d;color:#a1a1aa;font-family:system-ui;padding:2rem;text-align:center;">
+  <body style="background:#07070b;color:#8a899b;font-family:ui-monospace,monospace;padding:2rem;text-align:center;">
     <p>Redirecting…</p>
   </body>
 </html>

@@ -1,45 +1,34 @@
 ---
 import '../../../../styles/global.css';
-import '../../../../games/frenzy/frenzy.css';
 import { languages, type Lang } from '../../../../i18n/ui';
-import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
-import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
-import FrenzyPlay from '../../../../games/frenzy/FrenzyPlay';
+import HiloGame from '../../../../games/hilo/HiloGame';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params as { lang: Lang };
-const host = import.meta.env.PUBLIC_FRENZY_HOST ?? '';
-const initialRoom = Astro.url.searchParams.get('room') ?? 'lobby';
-const copy =
-  lang === 'nl'
-    ? {
-        title: 'Frenzy — Speeltafel',
-        description: 'Higher or Lower: Frenzy private kamer',
-      }
-    : {
-        title: 'Frenzy — Table',
-        description: 'Higher or Lower: Frenzy private room',
-      };
+
+const title = lang === 'nl' ? 'HI/LO Frenzy — tafel' : 'HI/LO Frenzy — table';
 ---
 
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{copy.title}</title>
-    <meta name="description" content={copy.description} />
-    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/frenzy/play" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <LocaleRedirect lang={lang} />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #07070b;
+      }
+    </style>
   </head>
   <body>
-    <FrenzyPlay client:only="react" lang={lang} host={host} initialRoom={initialRoom} />
+    <HiloGame client:only="react" lang={lang} />
   </body>
 </html>

@@ -1,18 +1,15 @@
 {
-  "name": "empyr-frenzy",
+  "name": "empyr-hilo",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run",
     "types": "wrangler types"
   },
-  "dependencies": {
-    "partyserver": "^0.0.73"
-  },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250726.0",
     "typescript": "^5.8.3",
     "wrangler": "^4.26.0"
   }
