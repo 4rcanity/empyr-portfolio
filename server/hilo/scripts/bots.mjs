@@ -2,8 +2,9 @@
  * Fill a table with practice bots so you can test a room solo.
  *   node scripts/bots.mjs <roomCode> [count] [host]
  *
- * Bots ready up, lock secrets when chosen, and play the odds (they never see the
- * target). They never start the round — that stays with the human host.
+ * Bots ready up, lock a random secret of their own, and play the odds against
+ * whoever they're hunting (they never see anyone else's secret — no cheating).
+ * If no human grabs the host seat, a bot will deal once everyone is ready.
  */
 
 const code = process.argv[2];
@@ -69,7 +70,7 @@ class Bot {
       return;
     }
 
-    if (room.phase === 'secrets' && me.chooser && !me.locked) {
+    if (room.phase === 'secrets' && !me.locked) {
       const value = room.rules.min + Math.floor(Math.random() * (room.rules.max - room.rules.min));
       setTimeout(() => this.send({ t: 'secret', value }), 700 + Math.random() * 1200);
       return;
@@ -109,12 +110,14 @@ class Bot {
       }
     }
 
-    // No knowledge of the target: bet on whichever side of the window is bigger.
-    const room_ = room;
-    const call = room_.probe - room_.low > room_.high - room_.probe ? 'lower' : 'higher';
-    const low = call === 'higher' ? Math.min(room_.high, room_.probe + 1) : room_.low;
-    const high = call === 'lower' ? Math.max(room_.low, room_.probe - 1) : room_.high;
-    this.send({ t: 'call', call, value: Math.floor((low + high) / 2) });
+    // No knowledge of the target's secret: bet on whichever side of the window is bigger.
+    if (room.calling === null) {
+      const call = room.probe - room.low > room.high - room.probe ? 'lower' : 'higher';
+      setTimeout(() => this.send({ t: 'call', call }), 500);
+      return;
+    }
+
+    setTimeout(() => this.send({ t: 'probe', value: Math.floor((room.low + room.high) / 2) }), 500);
   }
 }
 

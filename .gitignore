@@ -23,6 +23,9 @@ pnpm-debug.log*
 # vercel
 .vercel/
 
+# cloudflare
+.wrangler/
+
 # typescript
 *.tsbuildinfo
 

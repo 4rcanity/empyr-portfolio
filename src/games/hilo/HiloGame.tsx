@@ -61,7 +61,6 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
   const [value, setValue] = useState('');
   const [secret, setSecret] = useState('');
   const [pending, setPending] = useState<'blindfold' | 'bluff' | null>(null);
-  const [staged, setStaged] = useState<Call | null>(null);
   const [copiedAt, setCopiedAt] = useState(0);
   const [quiet, setQuiet] = useState(false);
   const [tick, setTick] = useState(0);
@@ -133,6 +132,10 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (room?.phase === 'secrets') setSecret('');
+  }, [room?.phase]);
+
   const send = linkRef.current?.send.bind(linkRef.current) ?? (() => {});
 
   const me = room?.seats.find((seat) => seat.id === youId) ?? null;
@@ -141,6 +144,7 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
   const myTurn = Boolean(room && room.phase === 'turn' && room.activeId === youId && me?.alive);
   const opening = room?.probe === null;
   const active = room?.seats.find((seat) => seat.id === room.activeId) ?? null;
+  const hunted = room?.seats.find((seat) => seat.id === room.targetId) ?? null;
 
   const remaining = useMemo(() => {
     if (!room?.turnEndsAt) return null;
@@ -157,26 +161,16 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
     }
   }, [myTurn, remaining]);
 
-  /* The server narrows the window the moment a call lands, so the client stages
-     the call first and only then asks for a number inside the resulting window. */
-  const window_ = useMemo(() => {
-    if (!room) return { low: 0, high: 0 };
-    if (!staged || room.probe === null) return { low: room.low, high: room.high };
-    return staged === 'higher'
-      ? { low: Math.min(room.high, room.probe + 1), high: room.high }
-      : { low: room.low, high: Math.max(room.low, room.probe - 1) };
-  }, [room, staged]);
+  /* The server commits the call and narrows the window to the *true* bounds before
+     the client ever picks a number, so there is nothing to predict client-side. */
+  const window_ = useMemo(() => (room ? { low: room.low, high: room.high } : { low: 0, high: 0 }), [room]);
 
-  const turnKey = `${room?.activeId ?? ''}:${room?.probe ?? ''}:${room?.low ?? ''}`;
-  useEffect(() => {
-    setStaged(null);
-  }, [turnKey]);
-
+  const turnKey = `${room?.activeId ?? ''}:${room?.probe ?? ''}:${room?.low ?? ''}:${room?.high ?? ''}`;
   useEffect(() => {
     if (!myTurn) return;
     setValue(String(Math.floor((window_.low + window_.high) / 2)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [turnKey, myTurn, staged]);
+  }, [turnKey, myTurn]);
 
   const checkIn = (event: FormEvent) => {
     event.preventDefault();
@@ -200,13 +194,6 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
     }
     play('tap');
     send({ t: 'card', card });
-  };
-
-  const submitCall = () => {
-    if (!staged) return;
-    play('tap');
-    send({ t: 'call', call: staged, value: Number(value) });
-    setStaged(null);
   };
 
   const invite = () => {
@@ -306,9 +293,11 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
           <SeatRail
             seats={room.seats}
             activeId={room.activeId}
+            targetId={room.targetId}
             youId={youId}
             copy={copy}
             lobby={room.phase === 'lobby'}
+            secrets={room.phase === 'secrets'}
           />
         )}
 
@@ -331,7 +320,53 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
           />
         )}
 
-        {room && room.phase !== 'lobby' && (
+        {room?.phase === 'secrets' && (
+          <div className="hl-main">
+            <section className="hl-panel">
+              <div className="hl-eyebrow">{copy.room} {room.code.toUpperCase()}</div>
+              <h1 className="hl-title" style={{ marginTop: '0.45rem' }}>{copy.secretsTitle}</h1>
+              <p className="hl-sub">{copy.secretsSub}</p>
+
+              {me?.alive && !me?.locked ? (
+                <>
+                  <label className="hl-eyebrow" htmlFor="hl-secret" style={{ display: 'block', marginTop: '1rem' }}>
+                    {copy.secretsInput}
+                  </label>
+                  <input
+                    id="hl-secret"
+                    className="hl-input"
+                    style={{ marginTop: '0.4rem' }}
+                    inputMode="numeric"
+                    value={secret}
+                    placeholder={`${room.rules.min.toLocaleString()} – ${room.rules.max.toLocaleString()}`}
+                    onChange={(event) => setSecret(event.target.value.replace(/[^0-9]/g, ''))}
+                  />
+                  <button
+                    type="button"
+                    className="hl-btn"
+                    style={{ marginTop: '0.8rem', width: '100%' }}
+                    disabled={!secret}
+                    onClick={() => {
+                      play('tap');
+                      send({ t: 'secret', value: Number(secret) });
+                    }}
+                  >
+                    {copy.secretsLock}
+                  </button>
+                </>
+              ) : (
+                <p className="hl-hint" style={{ marginTop: '1rem' }}>
+                  {me?.locked ? copy.secretsLocked : copy.spectating}
+                </p>
+              )}
+              {error && <div className="hl-error" style={{ marginTop: '0.8rem' }}>{error}</div>}
+            </section>
+
+            <Feed log={room.log} copy={copy} />
+          </div>
+        )}
+
+        {room && room.phase !== 'lobby' && room.phase !== 'secrets' && (
           <div className="hl-main">
             <section className="hl-board">
               {remaining !== null && room.phase === 'turn' && (
@@ -372,7 +407,11 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
                         {copy.waitingFor} <b>{active?.name ?? '—'}</b>
                       </>
                     ))}
-                  {room.phase === 'secrets' && copy.secretsWait}
+                  {room.phase === 'turn' && hunted && (
+                    <div style={{ marginTop: '0.3rem' }}>
+                      {copy.hunting} <b>{hunted.name}</b>
+                    </div>
+                  )}
                   {remaining !== null && room.phase === 'turn' && (
                     <div style={{ marginTop: '0.3rem' }}>
                       {copy.clock} <b>{Math.ceil(remaining / 1000)}s</b>
@@ -393,44 +432,13 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
               {blind && <p className="hl-hint" style={{ marginTop: '0.8rem' }}>{copy.blinded}</p>}
               {error && <div className="hl-error" style={{ marginTop: '0.8rem' }}>{error}</div>}
 
-              {room.phase === 'secrets' && (
-                <div className="hl-actions">
-                  {me?.chooser && !me.locked ? (
-                    <>
-                      <p className="hl-hint">{copy.secretsSub}</p>
-                      <input
-                        className="hl-input"
-                        inputMode="numeric"
-                        value={secret}
-                        placeholder={`${room.rules.min} – ${room.rules.max}`}
-                        onChange={(event) => setSecret(event.target.value.replace(/[^0-9]/g, ''))}
-                      />
-                      <button
-                        type="button"
-                        className="hl-btn"
-                        disabled={!secret}
-                        onClick={() => {
-                          play('tap');
-                          send({ t: 'secret', value: Number(secret) });
-                          setSecret('');
-                        }}
-                      >
-                        {copy.lock}
-                      </button>
-                    </>
-                  ) : (
-                    <p className="hl-hint">{copy.secretsWait}…</p>
-                  )}
-                </div>
-              )}
-
               {room.phase === 'turn' && (
                 <div className="hl-actions">
                   {!me?.alive && <p className="hl-hint">{copy.spectating}</p>}
 
                   {myTurn && (
                     <>
-                      {!opening && !staged ? (
+                      {!opening && !room.calling ? (
                         <>
                           <p className="hl-hint">{copy.callPrompt}</p>
                           <div className="hl-calls">
@@ -440,7 +448,7 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
                               data-c="lower"
                               onClick={() => {
                                 play('tap');
-                                setStaged('lower');
+                                send({ t: 'call', call: 'lower' });
                               }}
                             >
                               ▼ {copy.lower}
@@ -451,7 +459,7 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
                               data-c="higher"
                               onClick={() => {
                                 play('tap');
-                                setStaged('higher');
+                                send({ t: 'call', call: 'higher' });
                               }}
                             >
                               ▲ {copy.higher}
@@ -501,23 +509,14 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
                             className="hl-btn"
                             disabled={!value}
                             onClick={() => {
-                              if (opening) {
-                                play('tap');
-                                send({ t: 'probe', value: Number(value) });
-                              } else {
-                                submitCall();
-                              }
+                              play('tap');
+                              send({ t: 'probe', value: Number(value) });
                             }}
                           >
                             {opening
                               ? copy.openAction
-                              : `${staged === 'higher' ? `▲ ${copy.higher}` : `▼ ${copy.lower}`} · ${copy.confirm}`}
+                              : `${room.calling === 'higher' ? `▲ ${copy.higher}` : `▼ ${copy.lower}`} · ${copy.confirm}`}
                           </button>
-                          {!opening && (
-                            <button type="button" className="hl-btn" data-ghost="true" onClick={() => setStaged(null)}>
-                              {copy.changeCall}
-                            </button>
-                          )}
                         </>
                       )}
 
@@ -548,7 +547,7 @@ export default function HiloGame({ lang, code: given }: { lang: Lang; code?: str
         )}
       </div>
 
-      {room && room.phase !== 'lobby' && (
+      {room && room.phase !== 'lobby' && room.phase !== 'secrets' && (
         <HandTray hand={hand} disabled={!myTurn} onPlay={playCard} copy={copy} />
       )}
 
@@ -733,21 +732,6 @@ function Lobby({
               onChange={(event) => commit({ capacity: Number(event.target.value) })}
             >
               {[3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="hl-dial" data-locked={!isHost}>
-            <label htmlFor="hl-choosers">{copy.dialChoosers}</label>
-            <select
-              id="hl-choosers"
-              disabled={!isHost}
-              value={draft.choosers}
-              onChange={(event) => commit({ choosers: Number(event.target.value) })}
-            >
-              {[1, 2, 3, 4].map((n) => (
                 <option key={n} value={n}>
                   {n}
                 </option>

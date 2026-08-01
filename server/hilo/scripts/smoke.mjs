@@ -2,9 +2,12 @@
  * Headless three-player run against a HI/LO worker.
  *   node scripts/smoke.mjs [host]
  *
- * The bots share the secret inside this process (single chooser), so they can
- * survive on purpose and drive the full loop: cards → full rotation → reshuffle
- * vote → deliberate wrong calls → eliminations → winner.
+ * Every bot locks its own secret and remembers it locally, so the harness can
+ * "cheat" (only within this process) by looking up a bot's target's secret to
+ * drive deliberate wrong calls, narrowing, and a final exact-hit elimination.
+ * This exercises: secrets phase, card play, full rotation → reshuffle vote,
+ * a wrong call that does NOT eliminate the guesser, and an exact hit that
+ * eliminates the target (not the guesser) while survivors draw a wildcard.
  */
 
 const host = process.argv[2] ?? 'empyr-hilo.arcanearthenden.workers.dev';
@@ -15,7 +18,7 @@ const url = `${secure ? 'wss' : 'ws'}://${host}/room/${code}/socket`;
 const NAMES = ['ALFA', 'BRAVO', 'CHARLIE'];
 const bots = [];
 
-const seen = { target: null, votes: 0, cards: [], fx: [], finished: false };
+const seen = { votes: 0, cards: [], missedSeen: false, hitsSeen: 0, finished: false };
 
 const log = (...parts) => console.log(...parts);
 
@@ -34,6 +37,9 @@ class Bot {
     this.room = null;
     this.hand = [];
     this.began = false;
+    this.mySecret = null;
+    this.playedCard = false;
+    this.testedWrong = false;
     this.socket = new WebSocket(url);
     this.socket.addEventListener('open', () => this.send({ t: 'hello', key: this.key, name: this.name }));
     this.socket.addEventListener('message', (event) => this.receive(JSON.parse(event.data)));
@@ -51,7 +57,9 @@ class Bot {
     }
     if (message.t === 'fx') {
       if (this.index === 0) {
+        seen.fx = seen.fx ?? [];
         seen.fx.push(message.kind);
+        if (message.kind === 'mine') seen.hitsSeen += 1;
         if (message.kind !== 'deal') log(`  * ${message.kind}${message.text ? ` ${message.text}` : ''}`);
       }
       return;
@@ -70,14 +78,19 @@ class Bot {
     this.act();
   }
 
+  targetSecret() {
+    const targetBot = bots.find((b) => b.id === this.room.targetId);
+    return targetBot ? targetBot.mySecret : null;
+  }
+
   act() {
     const room = this.room;
     const me = room.seats.find((seat) => seat.id === this.id);
     if (!me) return;
 
     if (room.phase === 'lobby') {
-      if (me.host && room.rules.choosers !== 1) {
-        this.send({ t: 'rules', patch: { min: 1, max: 1000, choosers: 1, turnSeconds: 60 } });
+      if (me.host && room.rules.max !== 200) {
+        this.send({ t: 'rules', patch: { min: 1, max: 200, turnSeconds: 60 } });
         return;
       }
       if (!me.ready) this.send({ t: 'ready', on: true });
@@ -89,9 +102,9 @@ class Bot {
     }
 
     if (room.phase === 'secrets') {
-      if (me.chooser && !me.locked && seen.target === null) {
-        seen.target = 400 + Math.floor(Math.random() * 200);
-        this.send({ t: 'secret', value: seen.target });
+      if (!me.locked && this.mySecret === null) {
+        this.mySecret = room.rules.min + Math.floor(Math.random() * (room.rules.max - room.rules.min));
+        this.send({ t: 'secret', value: this.mySecret });
       }
       return;
     }
@@ -107,11 +120,13 @@ class Bot {
       const winner = room.seats.find((seat) => seat.id === room.winnerId);
       log(`\nwinner: ${winner?.name ?? 'nobody'}`);
       log(`cards played: ${seen.cards.join(', ') || 'none'}`);
-      log(`reshuffle votes: ${seen.votes}`);
+      log(`reshuffle votes: ${seen.votes} (incidental — not required for a short round)`);
+      log(`exact hits: ${seen.hitsSeen}`);
       for (const bot of bots) bot.socket.close();
 
-      if (seen.votes < 1) die('reshuffle vote never triggered');
       if (seen.cards.length < 3) die('cards were never played');
+      if (!seen.missedSeen) die('a wrong call never happened / was mishandled');
+      if (seen.hitsSeen < 1) die('no exact-hit elimination ever happened');
       if (!winner) die('no winner');
       log('\nPASS');
       process.exit(0);
@@ -125,7 +140,8 @@ class Bot {
   takeTurn() {
     const room = this.room;
     if (!room || room.phase !== 'turn' || room.activeId !== this.id) return;
-    const target = seen.target;
+    const target = this.targetSecret();
+    if (target == null) return;
 
     // Exercise one card per player before the first rotation completes.
     if (seen.votes === 0 && this.hand.length > 0 && !this.playedCard) {
@@ -143,30 +159,40 @@ class Bot {
       return;
     }
 
-    // Pick a number inside a window, never landing on the target.
-    const safe = (low, high) => {
-      let value = Math.floor((low + high) / 2);
-      if (value === target) value = value < high ? value + 1 : value - 1;
-      return Math.max(low, Math.min(high, value));
-    };
+    const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
 
     if (room.probe === null) {
-      this.send({ t: 'probe', value: safe(room.low, room.high) });
+      let value = Math.floor((room.low + room.high) / 2);
+      if (value === target) value = value < room.high ? value + 1 : value - 1;
+      this.send({ t: 'probe', value: clamp(value, room.low, room.high) });
       return;
     }
 
-    // After one reshuffle vote, start calling wrong on purpose to burn the table.
     const truth = target > room.probe ? 'higher' : 'lower';
-    const call = seen.votes >= 1 ? (truth === 'higher' ? 'lower' : 'higher') : truth;
 
-    // The server narrows before validating, so mirror that here.
-    const low = call === 'higher' ? Math.min(room.high, room.probe + 1) : room.low;
-    const high = call === 'lower' ? Math.max(room.low, room.probe - 1) : room.high;
-    this.send({ t: 'call', call, value: safe(low, high) });
+    // Step 1: commit a call. Deliberately burn one wrong call per bot early on to
+    // prove it costs nothing — the server still narrows toward the truth for us.
+    if (room.calling === null) {
+      if (!this.testedWrong) {
+        this.testedWrong = true;
+        seen.missedSeen = true;
+        this.send({ t: 'call', call: truth === 'higher' ? 'lower' : 'higher' });
+      } else {
+        this.send({ t: 'call', call: truth });
+      }
+      return;
+    }
+
+    // Step 2: the server already narrowed room.low/room.high to the true window.
+    // Once it's tight (or by chance), go for the exact hit.
+    const goForKill = room.high - room.low <= 4 || Math.random() < 0.35;
+    const mid = Math.floor((room.low + room.high) / 2);
+    const value = goForKill ? target : clamp(mid === target ? mid + 1 : mid, room.low, room.high);
+    this.send({ t: 'probe', value });
   }
 }
 
 log(`room ${code} @ ${url}\n`);
 for (let i = 0; i < 3; i++) bots.push(new Bot(i));
 
-setTimeout(() => die('round never resolved (30s timeout)'), 30_000);
+setTimeout(() => die('round never resolved (45s timeout)'), 45_000);

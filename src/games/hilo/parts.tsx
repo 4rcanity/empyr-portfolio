@@ -15,15 +15,19 @@ export function fmt(value: number | null, hidden: boolean): string {
 export function SeatRail({
   seats,
   activeId,
+  targetId,
   youId,
   copy,
   lobby,
+  secrets,
 }: {
   seats: SeatView[];
   activeId: string | null;
+  targetId?: string | null;
   youId: string;
   copy: Copy;
   lobby: boolean;
+  secrets?: boolean;
 }) {
   return (
     <div className="hl-rail" role="list">
@@ -34,6 +38,7 @@ export function SeatRail({
           className="hl-seat"
           style={{ '--hue': String(seat.hue) } as CSSProperties}
           data-active={seat.id === activeId}
+          data-target={seat.id === targetId}
           data-dead={!seat.alive}
           data-self={seat.id === youId}
         >
@@ -42,6 +47,8 @@ export function SeatRail({
           <div className="hl-seat-meta">
             {lobby ? (
               <span className="hl-pip-more">{seat.online ? '● online' : '○ away'}</span>
+            ) : secrets ? (
+              <span className="hl-pip-more">{seat.locked ? '● locked' : '○ waiting'}</span>
             ) : (
               <>
                 {Array.from({ length: Math.min(seat.cards, 6) }).map((_, i) => (
@@ -64,9 +71,9 @@ export function SeatRail({
                 {seat.ready ? copy.ready : '…'}
               </span>
             )}
-            {!lobby && seat.chooser && (
-              <span className="hl-tag" data-k="chooser">
-                {seat.locked ? copy.lockedIn : '?'}
+            {secrets && (
+              <span className="hl-tag" data-k={seat.locked ? 'ready' : 'wait'}>
+                {seat.locked ? '✓' : '…'}
               </span>
             )}
             {seat.blind > 0 && (

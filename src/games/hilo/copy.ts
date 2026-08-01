@@ -23,9 +23,15 @@ export interface Copy {
   status: Record<'idle' | 'dialing' | 'live' | 'lost', string>;
   lobbyTitle: string;
   lobbySub: string;
+  secretsTitle: string;
+  secretsSub: string;
+  secretsInput: string;
+  secretsLock: string;
+  secretsLocked: string;
+  secretsWaiting: string;
+  hunting: string;
   dialRange: string;
   dialSeats: string;
-  dialChoosers: string;
   dialClock: string;
   dialVotes: string;
   on: string;
@@ -36,11 +42,6 @@ export interface Copy {
   needThree: string;
   hostOnly: string;
   seatsHeading: string;
-  secretsTitle: string;
-  secretsSub: string;
-  secretsWait: string;
-  lock: string;
-  lockedIn: string;
   windowLabel: string;
   lastCall: string;
   noCall: string;
@@ -51,7 +52,6 @@ export interface Copy {
   callPrompt: string;
   numberPrompt: string;
   confirm: string;
-  changeCall: string;
   nowRange: string;
   lower: string;
   higher: string;
@@ -88,10 +88,10 @@ const LOG_EN: Record<string, string> = {
   rejoined: '{a} reconnected',
   dropped: '{a} dropped out',
   swept: 'Cleared empty seats',
-  dealt: 'Hands dealt — choosers are hiding numbers',
-  locked: '{a} locked a secret',
-  live: 'Target is live — open the round',
+  dealt: 'Hands dealt — lock in your secret numbers',
   lobby: 'Back to the lobby',
+  locked: '{a} locked in a number',
+  turnsBegin: 'All secrets locked — the hunt begins',
   reversed: '{a} reversed the direction',
   skipped: '{a} skipped {b}',
   shielded: '{a} raised a Shield',
@@ -100,10 +100,10 @@ const LOG_EN: Record<string, string> = {
   blindfolded: '{a} blindfolded {b}',
   opened: '{a} opened at {n}',
   called: '{a} called {d} → {n}',
+  missed: '{a} called {d} → {n} — wrong, but no harm, next up',
   passed: '{a} passed safely',
-  burned: '{a} called {d} and burned',
-  exact: '{a} landed exactly on the number',
-  exactOpen: '{a} opened straight onto the number',
+  targetOut: '{a} nailed {b}\u2019s exact number — {b} is out',
+  targetOutOpen: '{a} opened straight onto {b}\u2019s number — {b} is out',
   timeout: '{a} ran out of time',
   shieldClock: '{a} ran out the clock behind a Shield',
   rotation: 'Full rotation — vote to reshuffle',
@@ -118,10 +118,10 @@ const LOG_NL: Record<string, string> = {
   rejoined: '{a} is terug',
   dropped: '{a} viel weg',
   swept: 'Lege stoelen opgeruimd',
-  dealt: 'Kaarten gedeeld — kiezers verstoppen getallen',
-  locked: '{a} zette een geheim vast',
-  live: 'Doel staat live — open de ronde',
+  dealt: 'Kaarten gedeeld — leg je geheime getal vast',
   lobby: 'Terug naar de lobby',
+  locked: '{a} legde een getal vast',
+  turnsBegin: 'Alle geheimen vastgelegd — de jacht begint',
   reversed: '{a} draaide de richting om',
   skipped: '{a} sloeg {b} over',
   shielded: '{a} zette een schild op',
@@ -130,10 +130,10 @@ const LOG_NL: Record<string, string> = {
   blindfolded: '{a} blinddoekte {b}',
   opened: '{a} opende op {n}',
   called: '{a} riep {d} → {n}',
+  missed: '{a} riep {d} → {n} — fout, maar geen probleem, volgende',
   passed: '{a} paste veilig',
-  burned: '{a} riep {d} en ging eraan',
-  exact: '{a} landde precies op het getal',
-  exactOpen: '{a} opende recht op het getal',
+  targetOut: '{a} raakte het exacte getal van {b} — {b} ligt eruit',
+  targetOutOpen: '{a} opende recht op het getal van {b} — {b} ligt eruit',
   timeout: '{a} liet de klok verlopen',
   shieldClock: '{a} liet de klok verlopen achter een schild',
   rotation: 'Ronde compleet — stem over shuffelen',
@@ -159,10 +159,16 @@ const en: Copy = {
   status: { idle: 'Offline', dialing: 'Dialing', live: 'Live', lost: 'Reconnecting' },
   lobbyTitle: 'Table lobby',
   lobbySub:
-    'Choosers hide a number inside the range. Everyone else calls higher or lower and hands the next number to the player after them. Call it wrong — or land exactly on it — and you are out.',
+    'Everyone locks a secret number. Your job is to crack the number of whoever is next in the ring — call higher or lower each turn. A wrong call costs nothing, you just pass to the next player. Land exactly on someone\u2019s number and they are out — everyone left draws a wildcard.',
+  secretsTitle: 'Lock your number',
+  secretsSub: 'Pick a secret number in range. Once everyone has locked one in, the hunt begins.',
+  secretsInput: 'Your secret number',
+  secretsLock: 'Lock it in',
+  secretsLocked: 'Locked in — waiting on the table',
+  secretsWaiting: 'Waiting for everyone to lock in',
+  hunting: 'Hunting',
   dialRange: 'Range',
   dialSeats: 'Max seats',
-  dialChoosers: 'Choosers',
   dialClock: 'Turn clock',
   dialVotes: 'Shuffle votes',
   on: 'On',
@@ -173,11 +179,6 @@ const en: Copy = {
   needThree: 'Needs 3 players',
   hostOnly: 'Host controls the rules',
   seatsHeading: 'Seats',
-  secretsTitle: 'Secrets',
-  secretsSub: 'You are a chooser. Lock a number inside the range — one of the picks becomes the live target.',
-  secretsWait: 'Choosers are locking their numbers',
-  lock: 'Lock it',
-  lockedIn: 'Locked',
   windowLabel: 'Live window',
   lastCall: 'Number on the table',
   noCall: 'Not opened',
@@ -188,7 +189,6 @@ const en: Copy = {
   callPrompt: 'Is the target higher or lower than the number on the table?',
   numberPrompt: 'Now hand the next number to the player after you.',
   confirm: 'Lock it in',
-  changeCall: 'Change call',
   nowRange: 'Your window',
   lower: 'Lower',
   higher: 'Higher',
@@ -254,10 +254,16 @@ const nl: Copy = {
   status: { idle: 'Offline', dialing: 'Verbinden', live: 'Live', lost: 'Herverbinden' },
   lobbyTitle: 'Lobby',
   lobbySub:
-    'Kiezers verstoppen een getal in het bereik. De rest roept hoger of lager en geeft het volgende getal door. Fout geroepen — of precies erop landen — en je ligt eruit.',
+    'Iedereen legt een geheim getal vast. Jouw taak is het getal van de volgende speler in de ring te kraken — roep elke beurt hoger of lager. Fout geroepen kost niks, je geeft gewoon door. Land je precies op iemands getal, dan ligt diegene eruit — de rest trekt een wildcard.',
+  secretsTitle: 'Leg je getal vast',
+  secretsSub: 'Kies een geheim getal binnen het bereik. Zodra iedereen vastgelegd heeft, begint de jacht.',
+  secretsInput: 'Jouw geheime getal',
+  secretsLock: 'Vastleggen',
+  secretsLocked: 'Vastgelegd — wachten op de tafel',
+  secretsWaiting: 'Wachten tot iedereen vastgelegd heeft',
+  hunting: 'Jaagt op',
   dialRange: 'Bereik',
   dialSeats: 'Max spelers',
-  dialChoosers: 'Kiezers',
   dialClock: 'Beurtklok',
   dialVotes: 'Shuffle-stemmen',
   on: 'Aan',
@@ -268,11 +274,6 @@ const nl: Copy = {
   needThree: 'Minimaal 3 spelers',
   hostOnly: 'De host bepaalt de regels',
   seatsHeading: 'Stoelen',
-  secretsTitle: 'Geheimen',
-  secretsSub: 'Jij bent kiezer. Zet een getal vast binnen het bereik — één keuze wordt het echte doel.',
-  secretsWait: 'Kiezers zetten hun getallen vast',
-  lock: 'Vastzetten',
-  lockedIn: 'Vast',
   windowLabel: 'Actief venster',
   lastCall: 'Getal op tafel',
   noCall: 'Nog niet geopend',
@@ -283,7 +284,6 @@ const nl: Copy = {
   callPrompt: 'Is het doel hoger of lager dan het getal op tafel?',
   numberPrompt: 'Geef nu het volgende getal door aan de speler na jou.',
   confirm: 'Vastleggen',
-  changeCall: 'Andere keuze',
   nowRange: 'Jouw venster',
   lower: 'Lager',
   higher: 'Hoger',

@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { bonusCard, hueFor, openingHand, pick, randomInt, shuffled } from './engine';
+import { bonusCard, hueFor, openingHand, shuffled } from './engine';
 import {
   DEFAULT_RULES,
   clampRules,
@@ -25,7 +25,22 @@ interface Seat {
   online: boolean;
   hand: Card[];
   blind: number;
+  /** The player's own hidden number for this round. */
   secret: number | null;
+}
+
+/** Every player's job is to crack the number of whoever is next-in-line for them.
+ *  Hunts persist across a player's non-consecutive turns, but reset whenever their
+ *  ring-neighbor changes (elimination, reverse) since the underlying secret differs. */
+interface Hunt {
+  targetId: string;
+  low: number;
+  high: number;
+  probe: number | null;
+  bluff: Call | null;
+  /** A committed call awaiting its number — bounds are already narrowed to the true window. */
+  pendingCall: Call | null;
+  pendingCorrect: boolean;
 }
 
 export interface Env {
@@ -41,14 +56,9 @@ export class HiloRoom extends DurableObject<Env> {
   private seats = new Map<string, Seat>();
   private sockets = new Map<WebSocket, string | null>();
   private order: string[] = [];
-  private choosers: string[] = [];
   private activeId: string | null = null;
   private direction: 1 | -1 = 1;
-  private low = DEFAULT_RULES.min;
-  private high = DEFAULT_RULES.max;
-  private probe: number | null = null;
-  private bluff: Call | null = null;
-  private target: number | null = null;
+  private hunts = new Map<string, Hunt>();
   private winnerId: string | null = null;
   private turnEndsAt: number | null = null;
   private playedCard: Card | null = null;
@@ -169,10 +179,10 @@ export class HiloRoom extends DurableObject<Env> {
         this.playCard(seat, msg.card, msg.target, msg.bluff);
         break;
       case 'probe':
-        this.openingProbe(seat, msg.value);
+        this.submitProbe(seat, msg.value);
         break;
       case 'call':
-        this.makeCall(seat, msg.call, msg.value);
+        this.commitCall(seat, msg.call);
         break;
       case 'pass':
         this.shieldPass(seat);
@@ -253,8 +263,6 @@ export class HiloRoom extends DurableObject<Env> {
     this.requireHost(seat);
     if (this.phase !== 'lobby') throw new Error('Rules are locked mid-round');
     this.rules = clampRules(patch, this.rules);
-    this.low = this.rules.min;
-    this.high = this.rules.max;
     this.broadcast();
   }
 
@@ -280,18 +288,13 @@ export class HiloRoom extends DurableObject<Env> {
       player.alive = true;
       player.ready = false;
       player.blind = 0;
-      player.secret = null;
       player.hand = openingHand();
+      player.secret = null;
     }
 
     this.order = shuffled(roster.map((p) => p.id));
-    this.choosers = this.order.slice(0, Math.min(this.rules.choosers, this.order.length - 1));
     this.direction = 1;
-    this.low = this.rules.min;
-    this.high = this.rules.max;
-    this.probe = null;
-    this.bluff = null;
-    this.target = null;
+    this.hunts.clear();
     this.winnerId = null;
     this.playedCard = null;
     this.rotation = 0;
@@ -310,19 +313,14 @@ export class HiloRoom extends DurableObject<Env> {
     this.requireHost(seat);
     this.phase = 'lobby';
     this.order = [];
-    this.choosers = [];
     this.activeId = null;
-    this.probe = null;
-    this.bluff = null;
-    this.target = null;
+    this.hunts.clear();
     this.winnerId = null;
     this.playedCard = null;
     this.turnEndsAt = null;
     this.rotation = 0;
     this.voteYes.clear();
     this.voteCast.clear();
-    this.low = this.rules.min;
-    this.high = this.rules.max;
     for (const player of this.seats.values()) {
       player.ready = false;
       player.alive = true;
@@ -335,29 +333,32 @@ export class HiloRoom extends DurableObject<Env> {
     this.broadcast();
   }
 
-  // ----------------------------------------------------------------- secrets
+  // ---------------------------------------------------------------- secrets
 
   private lockSecret(seat: Seat, value: number) {
-    if (this.phase !== 'secrets') throw new Error('Not picking secrets');
-    if (!this.choosers.includes(seat.id)) throw new Error('You are not a chooser this round');
+    if (this.phase !== 'secrets') throw new Error('Not the secrets phase');
+    if (!seat.alive) throw new Error('You are out of this round');
     const n = Math.floor(Number(value));
     if (!Number.isFinite(n) || n < this.rules.min || n > this.rules.max) {
-      throw new Error(`Pick between ${this.rules.min} and ${this.rules.max}`);
+      throw new Error(`Pick a number between ${this.rules.min.toLocaleString()} and ${this.rules.max.toLocaleString()}`);
     }
     seat.secret = n;
-    this.note('locked', 'wild', { a: seat.name });
+    this.note('locked', 'info', { a: seat.name });
 
-    const locked = this.choosers
-      .map((id) => this.seats.get(id)?.secret)
-      .filter((v): v is number => typeof v === 'number');
-
-    if (locked.length >= this.choosers.length) {
-      this.target = pick(locked);
-      this.phase = 'turn';
-      this.activeId = this.order[0] ?? null;
-      this.note('live', 'good');
-      this.armTimer();
+    const alive = this.aliveIds();
+    if (alive.length > 0 && alive.every((id) => this.seats.get(id)?.secret != null)) {
+      this.startTurns();
+      return;
     }
+    this.broadcast();
+  }
+
+  private startTurns() {
+    this.hunts.clear();
+    this.activeId = this.order[0] ?? null;
+    this.phase = 'turn';
+    this.note('turnsBegin', 'wild');
+    this.armTimer();
     this.broadcast();
   }
 
@@ -395,23 +396,26 @@ export class HiloRoom extends DurableObject<Env> {
       }
       case 'bluff': {
         if (bluff !== 'higher' && bluff !== 'lower') throw new Error('Choose a bluff direction');
-        this.bluff = bluff;
+        const hunt = this.loadHunt(seat.id);
+        hunt.bluff = bluff;
         this.note('bluffed', 'wild', { a: seat.name, d: bluff });
         this.fx('bluff', seat.id, bluff.toUpperCase());
         break;
       }
       case 'narrow': {
-        const span = this.high - this.low;
-        const mid = Math.floor((this.low + this.high) / 2);
+        const hunt = this.loadHunt(seat.id);
+        const target = this.seats.get(hunt.targetId);
+        const span = hunt.high - hunt.low;
+        const mid = Math.floor((hunt.low + hunt.high) / 2);
         const quarter = Math.max(1, Math.floor(span / 4));
         let nextLow = mid - quarter;
         let nextHigh = mid + quarter;
-        if (this.target != null) {
-          nextLow = Math.min(nextLow, this.target);
-          nextHigh = Math.max(nextHigh, this.target);
+        if (target?.secret != null) {
+          nextLow = Math.min(nextLow, target.secret);
+          nextHigh = Math.max(nextHigh, target.secret);
         }
-        this.low = Math.max(this.low, nextLow);
-        this.high = Math.min(this.high, nextHigh);
+        hunt.low = Math.max(hunt.low, nextLow);
+        hunt.high = Math.min(hunt.high, nextHigh);
         this.note('narrowed', 'wild', { a: seat.name });
         this.fx('narrow', seat.id);
         break;
@@ -429,52 +433,66 @@ export class HiloRoom extends DurableObject<Env> {
     this.broadcast();
   }
 
-  private openingProbe(seat: Seat, value: number) {
+  /** Commits to higher/lower. Narrows the hunt window toward the truth immediately
+   *  so the number step that follows always targets a window the player can trust —
+   *  regardless of whether the call itself turns out to be right or wrong. */
+  private commitCall(seat: Seat, call: Call) {
     this.requireTurn(seat);
-    if (this.probe !== null) throw new Error('The round is already open');
-    const n = this.validProbe(value);
-    if (this.target != null && n === this.target) {
-      this.probe = n;
-      this.eliminate(seat, 'exactOpen', { a: seat.name }, 'mine');
-      this.broadcast();
-      return;
-    }
-    this.probe = n;
-    this.bluff = null;
-    this.playedCard = null;
-    this.note('opened', 'info', { a: seat.name, n });
-    this.advance(seat.id);
+    const hunt = this.loadHunt(seat.id);
+    const target = this.seats.get(hunt.targetId);
+    if (hunt.probe === null || !target) throw new Error('Open the hunt first');
+    if (hunt.pendingCall) throw new Error('Already called — submit your number');
+    if (call !== 'higher' && call !== 'lower') throw new Error('Call higher or lower');
+
+    hunt.pendingCorrect = call === 'higher' ? target.secret! > hunt.probe : target.secret! < hunt.probe;
+    if (target.secret! > hunt.probe) hunt.low = Math.min(hunt.high, hunt.probe + 1);
+    else if (target.secret! < hunt.probe) hunt.high = Math.max(hunt.low, hunt.probe - 1);
+    hunt.pendingCall = call;
     this.broadcast();
   }
 
-  private makeCall(seat: Seat, call: Call, value: number) {
+  private submitProbe(seat: Seat, value: number) {
     this.requireTurn(seat);
-    if (this.probe === null || this.target === null) throw new Error('Open the round first');
-    if (call !== 'higher' && call !== 'lower') throw new Error('Call higher or lower');
+    const hunt = this.loadHunt(seat.id);
+    const target = this.seats.get(hunt.targetId);
+    if (!target) throw new Error('No target to hunt');
 
-    const correct = call === 'higher' ? this.target > this.probe : this.target < this.probe;
-    if (!correct) {
-      this.eliminate(seat, 'burned', { a: seat.name, d: call });
+    if (hunt.probe === null) {
+      const n = this.validProbe(value, hunt.low, hunt.high);
+      if (n === target.secret) {
+        hunt.probe = n;
+        this.eliminate(target, 'targetOutOpen', { a: seat.name, b: target.name }, 'mine', seat.id);
+        this.broadcast();
+        return;
+      }
+      hunt.probe = n;
+      hunt.bluff = null;
+      this.playedCard = null;
+      this.note('opened', 'info', { a: seat.name, n });
+      this.advance(seat.id);
       this.broadcast();
       return;
     }
 
-    if (call === 'higher') this.low = Math.min(this.high, this.probe + 1);
-    else this.high = Math.max(this.low, this.probe - 1);
+    if (!hunt.pendingCall) throw new Error('Call higher or lower first');
+    const call = hunt.pendingCall;
+    const correct = hunt.pendingCorrect;
 
-    const n = this.validProbe(value);
-    if (n === this.target) {
-      this.probe = n;
-      this.eliminate(seat, 'exact', { a: seat.name }, 'mine');
+    const n = this.validProbe(value, hunt.low, hunt.high);
+    if (n === target.secret) {
+      hunt.probe = n;
+      hunt.pendingCall = null;
+      this.eliminate(target, 'targetOut', { a: seat.name, b: target.name }, 'mine', seat.id);
       this.broadcast();
       return;
     }
 
-    this.probe = n;
-    this.bluff = null;
+    hunt.probe = n;
+    hunt.pendingCall = null;
+    hunt.bluff = null;
     this.playedCard = null;
     this.rotation += 1;
-    this.note('called', 'good', { a: seat.name, d: call, n });
+    this.note(correct ? 'called' : 'missed', correct ? 'good' : 'info', { a: seat.name, d: call, n });
     this.afterTurn(seat.id);
     this.broadcast();
   }
@@ -522,6 +540,7 @@ export class HiloRoom extends DurableObject<Env> {
       if (this.voteYes.size === alive.length) {
         this.order = shuffled(alive);
         this.activeId = this.order[0];
+        this.hunts.clear();
         this.note('shuffled', 'wild');
         this.fx('shuffle');
       } else {
@@ -542,9 +561,13 @@ export class HiloRoom extends DurableObject<Env> {
     code: string,
     args: Record<string, string | number>,
     kind: FxKind = 'out',
+    pivotId: string = seat.id,
   ) {
     seat.alive = false;
     seat.hand = [];
+    seat.secret = null;
+    this.hunts.delete(seat.id);
+    if (pivotId !== seat.id) this.hunts.delete(pivotId);
     this.playedCard = null;
     this.note(code, 'bad', args);
     this.fx(kind, seat.id, seat.name);
@@ -568,7 +591,7 @@ export class HiloRoom extends DurableObject<Env> {
     }
 
     this.rotation = 0;
-    this.advance(seat.id);
+    this.advance(pivotId);
   }
 
   private advance(fromId: string) {
@@ -587,11 +610,29 @@ export class HiloRoom extends DurableObject<Env> {
 
   // ------------------------------------------------------------------ helpers
 
-  private validProbe(value: number): number {
+  /** Loads (or freshly starts) the hunt for `playerId` against their current ring-neighbor. */
+  private loadHunt(playerId: string): Hunt {
+    const targetId = this.nextAlive(playerId);
+    const existing = this.hunts.get(playerId);
+    if (existing && existing.targetId === targetId) return existing;
+    const fresh: Hunt = {
+      targetId,
+      low: this.rules.min,
+      high: this.rules.max,
+      probe: null,
+      bluff: null,
+      pendingCall: null,
+      pendingCorrect: false,
+    };
+    this.hunts.set(playerId, fresh);
+    return fresh;
+  }
+
+  private validProbe(value: number, low: number, high: number): number {
     const n = Math.floor(Number(value));
     if (!Number.isFinite(n)) throw new Error('Enter a number');
-    if (n < this.low || n > this.high) {
-      throw new Error(`Stay inside ${this.low.toLocaleString()} – ${this.high.toLocaleString()}`);
+    if (n < low || n > high) {
+      throw new Error(`Stay inside ${low.toLocaleString()} – ${high.toLocaleString()}`);
     }
     return n;
   }
@@ -647,6 +688,8 @@ export class HiloRoom extends DurableObject<Env> {
           .map((seat) => this.seatView(seat))
       : [...this.seats.values()].map((seat) => this.seatView(seat));
 
+    const hunt = this.activeId && this.phase === 'turn' ? this.loadHunt(this.activeId) : null;
+
     return {
       code: this.code,
       phase: this.phase,
@@ -654,11 +697,13 @@ export class HiloRoom extends DurableObject<Env> {
       seats,
       order: this.order,
       activeId: this.activeId,
+      targetId: hunt?.targetId ?? null,
       direction: this.direction,
-      low: this.low,
-      high: this.high,
-      probe: this.probe,
-      bluff: this.bluff,
+      low: hunt?.low ?? this.rules.min,
+      high: hunt?.high ?? this.rules.max,
+      probe: hunt?.probe ?? null,
+      bluff: hunt?.bluff ?? null,
+      calling: hunt?.pendingCall ?? null,
       shielded: this.playedCard === 'shield',
       winnerId: this.winnerId,
       turnEndsAt: this.turnEndsAt,
@@ -682,8 +727,7 @@ export class HiloRoom extends DurableObject<Env> {
       online: seat.online,
       cards: seat.hand.length,
       blind: seat.blind,
-      chooser: this.choosers.includes(seat.id),
-      locked: seat.secret !== null,
+      locked: seat.secret != null,
     };
   }
 

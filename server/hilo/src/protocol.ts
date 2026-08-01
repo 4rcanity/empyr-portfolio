@@ -13,7 +13,6 @@ export interface Rules {
   min: number;
   max: number;
   capacity: number;
-  choosers: number;
   shuffleVotes: boolean;
   turnSeconds: number;
 }
@@ -22,7 +21,6 @@ export const DEFAULT_RULES: Rules = {
   min: 1,
   max: 100_000,
   capacity: 6,
-  choosers: 2,
   shuffleVotes: true,
   turnSeconds: 40,
 };
@@ -36,7 +34,6 @@ export function clampRules(patch: Partial<Rules>, base: Rules): Rules {
     min,
     max,
     capacity,
-    choosers: Math.min(capacity - 1, Math.max(1, Math.floor(Number(next.choosers) || 1))),
     shuffleVotes: Boolean(next.shuffleVotes),
     turnSeconds: Math.min(120, Math.max(15, Math.floor(Number(next.turnSeconds) || 40))),
   };
@@ -52,7 +49,7 @@ export interface SeatView {
   online: boolean;
   cards: number;
   blind: number;
-  chooser: boolean;
+  /** Locked their own secret number for this round (secrets phase only). */
   locked: boolean;
 }
 
@@ -71,11 +68,15 @@ export interface RoomView {
   seats: SeatView[];
   order: string[];
   activeId: string | null;
+  /** Who the active player is currently hunting \u2014 everyone's job is to crack their ring-neighbor's number. */
+  targetId: string | null;
   direction: 1 | -1;
   low: number;
   high: number;
   probe: number | null;
   bluff: Call | null;
+  /** Set once the active player has committed to higher/lower and just needs to submit a number in the (now-true) window. */
+  calling: Call | null;
   shielded: boolean;
   winnerId: string | null;
   turnEndsAt: number | null;
@@ -95,7 +96,7 @@ export type Inbound =
   | { t: 'secret'; value: number }
   | { t: 'card'; card: Card; target?: string; bluff?: Call }
   | { t: 'probe'; value: number }
-  | { t: 'call'; call: Call; value: number }
+  | { t: 'call'; call: Call }
   | { t: 'pass' }
   | { t: 'vote'; yes: boolean }
   | { t: 'again' };

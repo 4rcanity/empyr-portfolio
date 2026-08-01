@@ -10,7 +10,6 @@ export interface Rules {
   min: number;
   max: number;
   capacity: number;
-  choosers: number;
   shuffleVotes: boolean;
   turnSeconds: number;
 }
@@ -25,7 +24,6 @@ export interface SeatView {
   online: boolean;
   cards: number;
   blind: number;
-  chooser: boolean;
   locked: boolean;
 }
 
@@ -43,11 +41,13 @@ export interface RoomView {
   seats: SeatView[];
   order: string[];
   activeId: string | null;
+  targetId: string | null;
   direction: 1 | -1;
   low: number;
   high: number;
   probe: number | null;
   bluff: Call | null;
+  calling: Call | null;
   shielded: boolean;
   winnerId: string | null;
   turnEndsAt: number | null;
@@ -67,7 +67,7 @@ export type Inbound =
   | { t: 'secret'; value: number }
   | { t: 'card'; card: Card; target?: string; bluff?: Call }
   | { t: 'probe'; value: number }
-  | { t: 'call'; call: Call; value: number }
+  | { t: 'call'; call: Call }
   | { t: 'pass' }
   | { t: 'vote'; yes: boolean }
   | { t: 'again' };
