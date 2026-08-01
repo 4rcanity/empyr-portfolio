@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { PartySocket } from 'partysocket';
 import {
   DEFAULT_SETTINGS,
@@ -130,6 +130,45 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
   const isHost = me?.isHost ?? false;
   const isMyTurn = state?.currentTurnId === myId;
   const blindfolded = (me?.blindfoldRounds ?? 0) > 0;
+
+  /** Seat everyone on an oval with "you" fixed at the bottom, like UNO. */
+  const tableSeats = useMemo(() => {
+    if (!state) return [];
+    const order =
+      state.turnOrder.length > 0
+        ? state.turnOrder
+            .map((id) => state.players.find((p) => p.id === id))
+            .filter(Boolean)
+        : state.players;
+    const list = order as NonNullable<(typeof state.players)[number]>[];
+    if (list.length === 0) return [];
+
+    const myIndex = Math.max(
+      0,
+      list.findIndex((p) => p.id === myId),
+    );
+    const rotated = [...list.slice(myIndex), ...list.slice(0, myIndex)];
+    const n = rotated.length;
+
+    return rotated.map((player, i) => {
+      // Put local player at bottom (90° in canvas coords → angle from top).
+      const angle = (Math.PI / 2) + (i / n) * Math.PI * 2;
+      const x = 50 + Math.cos(angle) * 42;
+      const y = 52 + Math.sin(angle) * 38;
+      const depth = (Math.sin(angle) + 1) / 2; // 0 far, 1 near
+      return {
+        player,
+        x,
+        y,
+        depth,
+        isSelf: player.id === myId,
+        isActive: player.id === state.currentTurnId,
+      };
+    });
+  }, [state, myId]);
+
+  const activeName =
+    state?.players.find((p) => p.id === state.currentTurnId)?.name ?? null;
 
   const onJoin = useCallback(() => {
     playTone('click');
@@ -356,45 +395,103 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
 
       {(state.phase === 'playing' || state.phase === 'vote_shuffle' || state.phase === 'ended') && (
         <section className="frenzy-play">
-          <div className={`frenzy-table ${blindfolded ? 'is-blind' : ''}`}>
-            <div className="frenzy-ring" data-dir={state.direction === 1 ? 'cw' : 'ccw'}>
-              <span>{state.direction === 1 ? '↻' : '↺'}</span>
+          <div className={`frenzy-arena ${blindfolded ? 'is-blind' : ''}`}>
+            <div className="frenzy-turn-callout">
+              {isMyTurn
+                ? isNl
+                  ? 'JOUW BEURT'
+                  : 'YOUR TURN'
+                : activeName
+                  ? `${activeName}${isNl ? ' is aan de beurt' : "'s turn"}`
+                  : '—'}
             </div>
-            <div className="frenzy-window">
-              <p className="frenzy-muted text-xs uppercase tracking-widest">
-                {isNl ? 'Venster' : 'Window'}
-              </p>
-              {blindfolded ? (
-                <p className="text-3xl font-bold text-fuchsia-300">?? — ??</p>
-              ) : (
-                <p className="text-3xl font-bold text-white">
-                  {state.low.toLocaleString()} — {state.high.toLocaleString()}
+
+            <div className="frenzy-stage" style={{ '--dir-spin': state.direction === 1 ? '1' : '-1' } as CSSProperties}>
+              <div className="frenzy-table-3d" aria-hidden="true">
+                <div className="frenzy-table-felt">
+                  <div className="frenzy-table-rim" />
+                  <div className="frenzy-table-shine" />
+                </div>
+              </div>
+
+              <div className="frenzy-center-pile">
+                <div className="frenzy-ring" data-dir={state.direction === 1 ? 'cw' : 'ccw'}>
+                  <span>{state.direction === 1 ? '↻' : '↺'}</span>
+                </div>
+                <p className="frenzy-muted text-[10px] uppercase tracking-[0.2em]">
+                  {isNl ? 'Venster' : 'Window'}
                 </p>
-              )}
-              <p className="mt-3 text-cyan-300">
-                {isNl ? 'Laatste gok' : 'Last guess'}:{' '}
-                {blindfolded ? '??' : (state.lastGuess?.toLocaleString() ?? '—')}
-              </p>
-              {state.lastBluff && (
-                <p className="text-amber-300 text-sm mt-1">
-                  Bluff: {state.lastBluff.toUpperCase()}
+                {blindfolded ? (
+                  <p className="frenzy-center-range">?? — ??</p>
+                ) : (
+                  <p className="frenzy-center-range">
+                    {state.low.toLocaleString()} — {state.high.toLocaleString()}
+                  </p>
+                )}
+                <p className="frenzy-center-guess">
+                  {isNl ? 'Laatste' : 'Last'}:{' '}
+                  {blindfolded ? '??' : (state.lastGuess?.toLocaleString() ?? '—')}
                 </p>
-              )}
+                {state.lastBluff && (
+                  <p className="text-amber-300 text-xs mt-1">Bluff {state.lastBluff.toUpperCase()}</p>
+                )}
+              </div>
+
+              {tableSeats.map((seat) => {
+                const initial = seat.player.name.trim().charAt(0).toUpperCase() || '?';
+                const cardBacks = Math.min(seat.player.cardCount, 7);
+                return (
+                  <div
+                    key={seat.player.id}
+                    className={[
+                      'frenzy-seat-3d',
+                      seat.isSelf ? 'is-self' : '',
+                      seat.isActive ? 'is-active' : '',
+                      seat.player.eliminated ? 'is-out' : '',
+                      !seat.player.connected ? 'is-offline' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    style={
+                      {
+                        left: `${seat.x}%`,
+                        top: `${seat.y}%`,
+                        '--depth': String(seat.depth),
+                        zIndex: Math.round(10 + seat.depth * 20) + (seat.isActive ? 30 : 0),
+                      } as CSSProperties
+                    }
+                  >
+                    {!seat.isSelf && (
+                      <div className="frenzy-mini-hand" aria-hidden="true">
+                        {Array.from({ length: Math.max(cardBacks, 1) }).map((_, ci) => (
+                          <span
+                            key={ci}
+                            className="frenzy-mini-card"
+                            style={{ '--i': String(ci - (cardBacks - 1) / 2) } as CSSProperties}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div className="frenzy-avatar">{initial}</div>
+                    <div className="frenzy-seat-meta">
+                      <strong>
+                        {seat.isSelf ? (isNl ? 'Jij' : 'You') : seat.player.name}
+                        {seat.player.isHost ? ' ★' : ''}
+                      </strong>
+                      <span>
+                        {seat.player.cardCount} {isNl ? 'kaarten' : 'cards'}
+                        {seat.player.blindfoldRounds > 0 ? ' · 👁' : ''}
+                      </span>
+                    </div>
+                    {seat.isActive && (
+                      <span className="frenzy-turn-badge">
+                        {seat.isSelf ? (isNl ? 'Beurt' : 'Turn') : isNl ? 'Speelt' : 'Playing'}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <ul className="frenzy-seats">
-              {state.players.map((p) => (
-                <li
-                  key={p.id}
-                  className={`frenzy-seat ${p.id === state.currentTurnId ? 'is-active' : ''} ${p.eliminated ? 'is-out' : ''}`}
-                >
-                  <strong>{p.name}</strong>
-                  <span>
-                    {p.cardCount} {isNl ? 'kaarten' : 'cards'}
-                    {p.blindfoldRounds > 0 ? ' 👁' : ''}
-                  </span>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {state.phase === 'vote_shuffle' && (
