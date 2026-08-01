@@ -3,14 +3,11 @@ import '../../../../styles/global.css';
 import { languages, type Lang } from '../../../../i18n/ui';
 import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
 import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
-import { randomRoomId } from '../../../../../party/frenzy/src/protocol';
-
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params as { lang: Lang };
-const sampleRoom = randomRoomId();
 const copy =
   lang === 'nl'
     ? {
@@ -64,12 +61,13 @@ const copy =
       </div>
 
       <div class="grid gap-3 sm:grid-cols-2">
-        <a
-          href={`/${lang}/minigames/frenzy/play?room=${sampleRoom}`}
+        <button
+          type="button"
+          id="create-room"
           class="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 to-violet-500 px-6 py-3.5 text-sm font-bold text-zinc-950"
         >
           {copy.create}
-        </a>
+        </button>
         <form class="flex gap-2" id="join-form">
           <input
             id="room-input"
@@ -86,13 +84,24 @@ const copy =
     </main>
 
     <script>
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      const randomRoomId = () => {
+        let out = '';
+        for (let i = 0; i < 8; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+        return out;
+      };
+      const lang = location.pathname.split('/').filter(Boolean)[0] || 'nl';
+
+      document.getElementById('create-room')?.addEventListener('click', () => {
+        location.href = `/${lang}/minigames/frenzy/play?room=${randomRoomId()}`;
+      });
+
       const form = document.getElementById('join-form');
       const input = document.getElementById('room-input') as HTMLInputElement | null;
       form?.addEventListener('submit', (event) => {
         event.preventDefault();
         const id = (input?.value || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
         if (!id) return;
-        const lang = location.pathname.split('/').filter(Boolean)[0] || 'nl';
         location.href = `/${lang}/minigames/frenzy/play?room=${id}`;
       });
     </script>

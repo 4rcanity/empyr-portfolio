@@ -30,6 +30,22 @@ function send(socket: PartySocket | null, msg: ClientMessage) {
   socket?.send(JSON.stringify(msg));
 }
 
+function getPlayerKey(roomId: string): string {
+  const storageKey = `empyr-frenzy-player:${roomId}`;
+  try {
+    const existing = sessionStorage.getItem(storageKey);
+    if (existing) return existing;
+    const created =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `p_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+    sessionStorage.setItem(storageKey, created);
+    return created;
+  } catch {
+    return `p_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+  }
+}
+
 export default function FrenzyApp({ lang, roomId, host }: Props) {
   const isNl = lang === 'nl';
   const [name, setName] = useState('');
@@ -38,7 +54,8 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
   const [hand, setHand] = useState<CardId[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fx, setFx] = useState<string | null>(null);
-  const [myId, setMyId] = useState<string | null>(null);
+  const playerKeyRef = useRef(getPlayerKey(roomId));
+  const [myId] = useState(() => playerKeyRef.current);
   const [secret, setSecret] = useState('');
   const [opening, setOpening] = useState('');
   const [nextGuess, setNextGuess] = useState('');
@@ -46,14 +63,20 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
   const [bluff, setBluff] = useState<'higher' | 'lower'>('higher');
   const [blindTarget, setBlindTarget] = useState('');
   const socketRef = useRef<PartySocket | null>(null);
+  const joinedRef = useRef(false);
+  const nameRef = useRef(name);
 
   const frenzyHost =
     host ||
     import.meta.env.PUBLIC_FRENZY_HOST ||
     (import.meta.env.DEV ? 'localhost:8787' : 'empyr-frenzy.arcanearthenden.workers.dev');
 
+  useEffect(() => {
+    nameRef.current = name;
+  }, [name]);
 
   useEffect(() => {
+    playerKeyRef.current = getPlayerKey(roomId);
     const socket = new PartySocket({
       host: frenzyHost,
       party: 'frenzy-room',
@@ -61,9 +84,16 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
     });
     socketRef.current = socket;
 
-    socket.addEventListener('open', () => {
-      setMyId(socket.id);
-    });
+    const rejoinIfNeeded = () => {
+      if (!joinedRef.current) return;
+      send(socket, {
+        type: 'join',
+        name: nameRef.current.trim() || (isNl ? 'Speler' : 'Player'),
+        playerKey: playerKeyRef.current,
+      });
+    };
+
+    socket.addEventListener('open', rejoinIfNeeded);
 
     socket.addEventListener('message', (event) => {
       try {
@@ -91,7 +121,7 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
       socket.close();
       socketRef.current = null;
     };
-  }, [frenzyHost, roomId]);
+  }, [frenzyHost, roomId, isNl]);
 
   const me = useMemo(
     () => state?.players.find((p) => p.id === myId) ?? null,
@@ -103,7 +133,13 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
 
   const onJoin = useCallback(() => {
     playTone('click');
-    send(socketRef.current, { type: 'join', name: name.trim() || (isNl ? 'Speler' : 'Player') });
+    const playerKey = playerKeyRef.current;
+    joinedRef.current = true;
+    send(socketRef.current, {
+      type: 'join',
+      name: name.trim() || (isNl ? 'Speler' : 'Player'),
+      playerKey,
+    });
     setJoined(true);
   }, [name, isNl]);
 
@@ -194,11 +230,12 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
             <h2 className="frenzy-h2">{isNl ? 'Spelers' : 'Players'}</h2>
             <ul className="space-y-2 mt-4">
               {state.players.map((p) => (
-                <li key={p.id} className="frenzy-player">
+                <li key={p.id} className={`frenzy-player ${p.connected ? '' : 'opacity-50'}`}>
                   <span>
                     {p.name}
                     {p.isHost ? ' ★' : ''}
                     {p.id === myId ? (isNl ? ' (jij)' : ' (you)') : ''}
+                    {!p.connected ? (isNl ? ' · offline' : ' · offline') : ''}
                   </span>
                   <span className={p.ready ? 'text-emerald-300' : 'text-zinc-500'}>
                     {p.ready ? (isNl ? 'Klaar' : 'Ready') : isNl ? 'Wacht' : 'Waiting'}
@@ -206,6 +243,10 @@ export default function FrenzyApp({ lang, roomId, host }: Props) {
                 </li>
               ))}
             </ul>
+            <p className="frenzy-muted text-xs mt-3">
+              {isNl ? 'Kamer' : 'Room'}: <code>{state.roomId}</code> · {state.players.filter((p) => p.connected).length}/
+              {state.settings.maxPlayers}
+            </p>
             <button
               type="button"
               className="frenzy-btn mt-4"

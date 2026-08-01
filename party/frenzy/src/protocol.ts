@@ -21,10 +21,12 @@ export const DEFAULT_SETTINGS: LobbySettings = {
 };
 
 export interface PublicPlayer {
+  /** Stable player key (not the WebSocket connection id) */
   id: string;
   name: string;
   ready: boolean;
   eliminated: boolean;
+  connected: boolean;
   isHost: boolean;
   cardCount: number;
   blindfoldRounds: number;
@@ -55,7 +57,7 @@ export interface PublicState {
 }
 
 export type ClientMessage =
-  | { type: 'join'; name: string }
+  | { type: 'join'; name: string; playerKey: string }
   | { type: 'update_settings'; settings: Partial<LobbySettings> }
   | { type: 'set_ready'; ready: boolean }
   | { type: 'start_game' }

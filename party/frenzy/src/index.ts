@@ -12,7 +12,9 @@ import {
 } from './protocol';
 
 interface Player {
-  id: string;
+  /** Stable identity across reconnects */
+  key: string;
+  connectionId: string | null;
   name: string;
   ready: boolean;
   eliminated: boolean;
@@ -55,13 +57,19 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function sanitizePlayerKey(raw: string): string {
+  return raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+}
+
 export class FrenzyRoom extends Server<Env> {
-  static options = { hibernate: true };
+  // Keep lobby state in memory — hibernation was wiping players between joins.
+  static options = { hibernate: false };
 
   players = new Map<string, Player>();
+  connectionToKey = new Map<string, string>();
   settings: LobbySettings = { ...DEFAULT_SETTINGS };
   phase: PublicState['phase'] = 'lobby';
-  hostId: string | null = null;
+  hostKey: string | null = null;
   direction: Direction = 1;
   turnOrder: string[] = [];
   currentTurnId: string | null = null;
@@ -82,22 +90,51 @@ export class FrenzyRoom extends Server<Env> {
   onConnect(connection: Connection) {
     this.send(connection, {
       type: 'state',
-      state: this.publicState(connection.id),
-      hand: this.players.get(connection.id)?.hand ?? [],
+      state: this.publicState(),
+      hand: [],
     });
   }
 
   onClose(connection: Connection) {
-    const player = this.players.get(connection.id);
+    const key = this.connectionToKey.get(connection.id);
+    if (!key) return;
+    const player = this.players.get(key);
+    this.connectionToKey.delete(connection.id);
     if (!player) return;
-    player.connected = false;
-    if (this.phase === 'lobby') {
-      this.players.delete(connection.id);
-      if (this.hostId === connection.id) {
-        this.hostId = [...this.players.keys()][0] ?? null;
+
+    if (player.connectionId === connection.id) {
+      player.connectionId = null;
+      player.connected = false;
+    }
+
+    // Do NOT delete the player or reassign host immediately — invite joins / tab
+    // refreshes briefly drop sockets and were stealing host + emptying the list.
+    this.event = `${player.name} disconnected`;
+    this.broadcastState();
+    void this.ctx.storage.setAlarm(Date.now() + 45_000);
+  }
+
+  async onAlarm() {
+    if (this.phase !== 'lobby') return;
+    let changed = false;
+    for (const [key, player] of [...this.players.entries()]) {
+      if (player.connected) continue;
+      this.players.delete(key);
+      this.secrets.delete(key);
+      this.voteYes.delete(key);
+      this.voted.delete(key);
+      changed = true;
+      if (this.hostKey === key) {
+        this.hostKey =
+          [...this.players.values()].find((p) => p.connected)?.key ??
+          [...this.players.keys()][0] ??
+          null;
       }
     }
-    this.broadcastState();
+    if (changed) {
+      this.event = 'Cleaned inactive seats';
+      this.broadcastState();
+    }
   }
 
   onMessage(connection: Connection, message: string | ArrayBuffer) {
@@ -123,7 +160,7 @@ export class FrenzyRoom extends Server<Env> {
   private handle(connection: Connection, data: ClientMessage) {
     switch (data.type) {
       case 'join':
-        this.join(connection, data.name);
+        this.join(connection, data.name, data.playerKey);
         break;
       case 'update_settings':
         this.updateSettings(connection, data.settings);
@@ -158,26 +195,65 @@ export class FrenzyRoom extends Server<Env> {
     }
   }
 
-  private join(connection: Connection, name: string) {
-    if (this.phase !== 'lobby') throw new Error('Game already started');
-    if (this.players.size >= this.settings.maxPlayers) throw new Error('Room is full');
-    const clean = name.trim().slice(0, 18) || `Player ${this.players.size + 1}`;
-    if (!this.players.has(connection.id)) {
-      this.players.set(connection.id, {
-        id: connection.id,
-        name: clean,
-        ready: false,
-        eliminated: false,
-        hand: [],
-        blindfoldRounds: 0,
-        connected: true,
-      });
-      if (!this.hostId) this.hostId = connection.id;
-    } else {
-      const p = this.players.get(connection.id)!;
-      p.name = clean;
-      p.connected = true;
+  private bindConnection(connection: Connection, key: string) {
+    const previous = this.connectionToKey.get(connection.id);
+    if (previous && previous !== key) {
+      const old = this.players.get(previous);
+      if (old && old.connectionId === connection.id) {
+        old.connectionId = null;
+        old.connected = false;
+      }
     }
+
+    const player = this.players.get(key);
+    if (player?.connectionId && player.connectionId !== connection.id) {
+      this.connectionToKey.delete(player.connectionId);
+    }
+
+    this.connectionToKey.set(connection.id, key);
+    if (player) {
+      player.connectionId = connection.id;
+      player.connected = true;
+    }
+  }
+
+  private join(connection: Connection, name: string, playerKeyRaw: string) {
+    const key = sanitizePlayerKey(playerKeyRaw);
+    if (!key) throw new Error('Missing player key');
+
+    const clean = name.trim().slice(0, 18) || `Player ${this.players.size + 1}`;
+    const existing = this.players.get(key);
+
+    if (existing) {
+      this.bindConnection(connection, key);
+      existing.name = clean;
+      existing.connected = true;
+      this.event = `${clean} reconnected`;
+      this.broadcastState();
+      return;
+    }
+
+    if (this.phase !== 'lobby') throw new Error('Game already started');
+
+    const seated = [...this.players.values()].filter((p) => p.connected).length;
+    if (seated >= this.settings.maxPlayers) throw new Error('Room is full');
+
+    this.players.set(key, {
+      key,
+      connectionId: connection.id,
+      name: clean,
+      ready: false,
+      eliminated: false,
+      hand: [],
+      blindfoldRounds: 0,
+      connected: true,
+    });
+    this.bindConnection(connection, key);
+
+    if (!this.hostKey || !this.players.has(this.hostKey)) {
+      this.hostKey = key;
+    }
+
     this.event = `${clean} joined`;
     this.broadcastState();
   }
@@ -202,8 +278,13 @@ export class FrenzyRoom extends Server<Env> {
     if (this.phase !== 'lobby') throw new Error('Already started');
     const connected = [...this.players.values()].filter((p) => p.connected);
     if (connected.length < 3) throw new Error('Need at least 3 players');
-    if (!connected.every((p) => p.ready || p.id === this.hostId)) {
+    if (!connected.every((p) => p.ready || p.key === this.hostKey)) {
       throw new Error('All players must be ready');
+    }
+
+    // Drop seats that never came back
+    for (const [key, p] of [...this.players.entries()]) {
+      if (!p.connected) this.players.delete(key);
     }
 
     for (const p of connected) {
@@ -213,7 +294,7 @@ export class FrenzyRoom extends Server<Env> {
       p.ready = false;
     }
 
-    this.turnOrder = shuffle(connected.map((p) => p.id));
+    this.turnOrder = shuffle(connected.map((p) => p.key));
     this.chooserIds = this.turnOrder.slice(0, this.settings.chooserCount);
     this.secrets.clear();
     this.target = null;
@@ -236,11 +317,11 @@ export class FrenzyRoom extends Server<Env> {
   private submitSecret(connection: Connection, value: number) {
     const p = this.requirePlayer(connection);
     if (this.phase !== 'choose_secret') throw new Error('Not choosing secrets');
-    if (!this.chooserIds.includes(p.id)) throw new Error('You are not a chooser');
+    if (!this.chooserIds.includes(p.key)) throw new Error('You are not a chooser');
     if (value < this.settings.min || value > this.settings.max) {
       throw new Error('Number out of range');
     }
-    this.secrets.set(p.id, Math.floor(value));
+    this.secrets.set(p.key, Math.floor(value));
     this.event = `${p.name} locked a secret`;
     if (this.secrets.size >= this.chooserIds.length) {
       const values = [...this.secrets.values()];
@@ -275,11 +356,10 @@ export class FrenzyRoom extends Server<Env> {
         this.broadcastFx('reverse');
         break;
       case 'skip': {
-        const skipped = this.nextAlive(p.id);
+        const skipped = this.nextAlive(p.key);
         this.event = `${p.name} skipped ${this.players.get(skipped)?.name ?? 'someone'}`;
         this.currentTurnId = this.nextAlive(skipped);
         this.pendingCard = null;
-        this.tickBlindfoldsOnPass();
         break;
       }
       case 'shield':
@@ -307,7 +387,7 @@ export class FrenzyRoom extends Server<Env> {
       case 'blindfold': {
         if (!targetId || !this.players.has(targetId)) throw new Error('Pick a target');
         const target = this.players.get(targetId)!;
-        if (target.eliminated || target.id === p.id) throw new Error('Invalid target');
+        if (target.eliminated || target.key === p.key) throw new Error('Invalid target');
         target.blindfoldRounds = Math.max(target.blindfoldRounds, 2);
         this.event = `${p.name} blindfolded ${target.name}`;
         this.broadcastFx('blindfold');
@@ -329,7 +409,7 @@ export class FrenzyRoom extends Server<Env> {
     this.lastBluff = null;
     this.pendingCard = null;
     this.event = `${p.name} opened at ${n}`;
-    this.advanceTurn(p.id);
+    this.advanceTurn(p.key);
     this.broadcastState();
   }
 
@@ -376,7 +456,7 @@ export class FrenzyRoom extends Server<Env> {
       }
     }
 
-    this.advanceTurn(p.id);
+    this.advanceTurn(p.key);
     this.broadcastState();
   }
 
@@ -386,7 +466,7 @@ export class FrenzyRoom extends Server<Env> {
     if (this.pendingCard !== 'shield') throw new Error('Shield not active');
     this.pendingCard = null;
     this.event = `${p.name} passed with Shield`;
-    this.advanceTurn(p.id);
+    this.advanceTurn(p.key);
     this.broadcastState();
   }
 
@@ -394,9 +474,9 @@ export class FrenzyRoom extends Server<Env> {
     const p = this.requirePlayer(connection);
     if (this.phase !== 'vote_shuffle') throw new Error('No vote active');
     if (p.eliminated) throw new Error('Eliminated');
-    if (this.voted.has(p.id)) throw new Error('Already voted');
-    this.voted.add(p.id);
-    if (yes) this.voteYes.add(p.id);
+    if (this.voted.has(p.key)) throw new Error('Already voted');
+    this.voted.add(p.key);
+    if (yes) this.voteYes.add(p.key);
 
     const alive = this.aliveIds();
     if (this.voted.size >= alive.length) {
@@ -443,7 +523,7 @@ export class FrenzyRoom extends Server<Env> {
     this.pendingCard = null;
     this.event = message;
     this.broadcastFx('eliminate');
-    this.broadcast({ type: 'eliminated', playerId: player.id, name: player.name });
+    this.broadcast({ type: 'eliminated', playerId: player.key, name: player.name });
 
     const alive = this.aliveIds();
     for (const id of alive) {
@@ -462,16 +542,12 @@ export class FrenzyRoom extends Server<Env> {
       return;
     }
 
-    this.currentTurnId = this.nextAlive(player.id);
+    this.currentTurnId = this.nextAlive(player.key);
     this.broadcastState();
   }
 
   private advanceTurn(fromId: string) {
     this.currentTurnId = this.nextAlive(fromId);
-  }
-
-  private tickBlindfoldsOnPass() {
-    // no-op placeholder; blindfold ticks on full rotation
   }
 
   private nextAlive(fromId: string): string {
@@ -486,41 +562,50 @@ export class FrenzyRoom extends Server<Env> {
   }
 
   private aliveIds(): string[] {
-    return [...this.players.values()].filter((p) => !p.eliminated && p.connected).map((p) => p.id);
+    return [...this.players.values()]
+      .filter((p) => !p.eliminated && p.connected)
+      .map((p) => p.key);
+  }
+
+  private playerKeyFor(connection: Connection): string | null {
+    return this.connectionToKey.get(connection.id) ?? null;
   }
 
   private assertHost(connection: Connection) {
-    if (connection.id !== this.hostId) throw new Error('Host only');
+    const key = this.playerKeyFor(connection);
+    if (!key || key !== this.hostKey) throw new Error('Host only');
   }
 
   private assertTurn(p: Player) {
     if (p.eliminated) throw new Error('You are eliminated');
-    if (this.currentTurnId !== p.id) throw new Error('Not your turn');
+    if (this.currentTurnId !== p.key) throw new Error('Not your turn');
   }
 
   private requirePlayer(connection: Connection): Player {
-    const p = this.players.get(connection.id);
+    const key = this.playerKeyFor(connection);
+    const p = key ? this.players.get(key) : undefined;
     if (!p) throw new Error('Join the lobby first');
     return p;
   }
 
-  private publicState(viewerId?: string): PublicState {
+  private publicState(viewerKey?: string | null): PublicState {
     const alive = this.aliveIds();
     return {
       roomId: this.name,
       phase: this.phase,
       settings: this.settings,
       players: [...this.players.values()].map((p) => ({
-        id: p.id,
+        id: p.key,
         name: p.name,
         ready: p.ready,
         eliminated: p.eliminated,
-        isHost: p.id === this.hostId,
+        connected: p.connected,
+        isHost: p.key === this.hostKey,
         cardCount: p.hand.length,
         blindfoldRounds: p.blindfoldRounds,
-        isChooser: this.chooserIds.includes(p.id),
+        isChooser: this.chooserIds.includes(p.key),
       })),
-      hostId: this.hostId,
+      hostId: this.hostKey,
       direction: this.direction,
       turnOrder: this.turnOrder,
       currentTurnId: this.currentTurnId,
@@ -533,7 +618,7 @@ export class FrenzyRoom extends Server<Env> {
       secretsSubmitted: [...this.secrets.keys()],
       voteYesCount: this.voteYes.size,
       voteTotal: this.voted.size,
-      youVoted: viewerId ? this.voted.has(viewerId) : false,
+      youVoted: viewerKey ? this.voted.has(viewerKey) : false,
       event: this.event,
       survivorsNeeded: Math.max(0, 3 - alive.length),
     };
@@ -545,10 +630,11 @@ export class FrenzyRoom extends Server<Env> {
 
   private broadcastState() {
     for (const connection of this.getConnections()) {
-      const hand = this.players.get(connection.id)?.hand ?? [];
+      const key = this.connectionToKey.get(connection.id);
+      const hand = key ? (this.players.get(key)?.hand ?? []) : [];
       this.send(connection, {
         type: 'state',
-        state: this.publicState(connection.id),
+        state: this.publicState(key),
         hand,
       });
     }
@@ -573,7 +659,6 @@ export default {
       return Response.json({ ok: true, game: 'Higher or Lower: Frenzy!' });
     }
 
-    // CORS for Pages origin
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
