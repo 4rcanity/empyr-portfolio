@@ -50,6 +50,32 @@ export const DEFAULT_CROSSHAIR: Crosshair = {
   outline: true,
 };
 
+export type TargetShape = 'circle' | 'square' | 'diamond' | 'hexagon';
+
+export interface TargetStyle {
+  shape: TargetShape;
+  fill: string;
+  outline: boolean;
+  outlineColour: string;
+  /** Fill/outline used for an inactive (unlit) target, e.g. in target-switch. */
+  dimFill: string;
+  dimOutline: string;
+}
+
+export const DEFAULT_TARGET_STYLE: TargetStyle = {
+  shape: 'circle',
+  fill: 'rgba(255,70,85,0.9)',
+  outline: true,
+  outlineColour: 'rgba(255,190,195,0.95)',
+  dimFill: 'rgba(120,140,160,0.16)',
+  dimOutline: 'rgba(150,170,190,0.35)',
+};
+
+/** Fired at the exact instant of a shot outcome. The engine stays audio-free
+    and fully headless-testable; callers (the React layer) hang sound effects
+    off this instead. */
+export type EngineEvent = 'shot' | 'hit' | 'miss' | 'kill';
+
 export interface EngineSens {
   /** Degrees of yaw per mouse count at sensitivity 1 (engine constant). */
   yaw: number;
@@ -110,7 +136,14 @@ export interface TimelinePoint {
 }
 
 export interface RunResult {
-  scenario: ScenarioId;
+  scenario: ScenarioId | 'custom';
+  /** Stable identity for PB/history lookups: the ScenarioId for builtins, or
+      the caller-supplied custom drill id. Older stored runs predate this
+      field, so readers should fall back to `scenario`. */
+  drillKey?: string;
+  /** Name snapshot for a custom drill, taken at run time so history still
+      reads correctly even if the drill is later renamed or deleted. */
+  customLabel?: string;
   mode: ScoreMode;
   config: RunConfig;
   sens: EngineSens;
@@ -172,11 +205,16 @@ export class AimEngine {
   private dpr = 1;
 
   private pool: Target[] = [];
-  private scenario: ScenarioId = 'gridshot';
+  private scenario: ScenarioId | 'custom' = 'gridshot';
   private mode: ScoreMode = 'click';
-  private config: RunConfig = { duration: 60, size: 1.5, targets: 6, area: 22 };
+  private config: RunConfig = { duration: 60, size: 1.5, targets: 6, area: 22, speed: 0, turnEvery: 0 };
   private sens: EngineSens = { yaw: 0.07, sens: 0.4, dpi: 800, fov: 103, invertY: false };
   private crosshair: Crosshair = DEFAULT_CROSSHAIR;
+  private targetStyle: TargetStyle = DEFAULT_TARGET_STYLE;
+
+  /** Optional hook the React layer wires up for sound effects. No-op by
+      default so headless tests never touch the Audio API. */
+  onEvent: ((type: EngineEvent) => void) | null = null;
 
   private rng = mulberry32(1);
   private camYaw = 0;
@@ -264,6 +302,10 @@ export class AimEngine {
     this.crosshair = crosshair;
   }
 
+  setTargetStyle(style: TargetStyle) {
+    this.targetStyle = style;
+  }
+
   setSens(sens: EngineSens) {
     this.sens = sens;
   }
@@ -272,10 +314,14 @@ export class AimEngine {
     return this.width / 2 / Math.tan((this.sens.fov * DEG) / 2);
   }
 
-  start(scenario: ScenarioId, config: RunConfig, sens: EngineSens, seed = Date.now() & 0xffff) {
-    const def = SCENARIOS[scenario];
+  /** `customMode` is required (and only meaningful) when `scenario` is
+      `'custom'` — it has no static entry in SCENARIOS to read a mode from.
+      Speed and direction-change cadence always come from `config`, not the
+      scenario table, so both builtin overrides and fully custom drills flow
+      through the same code path. */
+  start(scenario: ScenarioId | 'custom', config: RunConfig, sens: EngineSens, seed = Date.now() & 0xffff, customMode?: ScoreMode) {
     this.scenario = scenario;
-    this.mode = def.mode;
+    this.mode = scenario === 'custom' ? (customMode ?? 'click') : SCENARIOS[scenario].mode;
     this.config = config;
     this.sens = sens;
     this.rng = mulberry32(seed || 1);
@@ -321,7 +367,6 @@ export class AimEngine {
 
   private spawn(index: number) {
     const target = this.pool[index]!;
-    const def = SCENARIOS[this.scenario];
     const areaX = this.config.area;
     const areaY = this.config.area * 0.55;
     target.live = true;
@@ -334,11 +379,11 @@ export class AimEngine {
     target.originYaw = target.yaw - this.camYaw;
     target.originPitch = target.pitch - this.camPitch;
     target.active = this.scenario !== 'switch';
-    target.turnIn = def.turnEvery;
-    if (def.speed > 0) {
+    target.turnIn = this.config.turnEvery;
+    if (this.config.speed > 0) {
       const angle = this.rng() * Math.PI * 2;
-      target.vYaw = Math.cos(angle) * def.speed * DEG;
-      target.vPitch = Math.sin(angle) * def.speed * 0.45 * DEG;
+      target.vYaw = Math.cos(angle) * this.config.speed * DEG;
+      target.vPitch = Math.sin(angle) * this.config.speed * 0.45 * DEG;
     } else {
       target.vYaw = 0;
       target.vPitch = 0;
@@ -471,6 +516,7 @@ export class AimEngine {
     }
 
     this.shots++;
+    this.onEvent?.('shot');
     const cx = this.width / 2;
     const cy = this.height / 2;
     let struck: Target | null = null;
@@ -503,11 +549,14 @@ export class AimEngine {
     if (!struck || (this.scenario === 'switch' && !struck.active)) {
       this.misses++;
       this.score = Math.max(0, this.score - 25);
+      this.onEvent?.('miss');
       return;
     }
 
     this.hits++;
     this.kills++;
+    this.onEvent?.('hit');
+    this.onEvent?.('kill');
     const life = this.elapsed - (this.scenario === 'switch' ? struck.activeAt : struck.bornAt);
     if (this.ttkCount < MAX_KILLS) this.ttk[this.ttkCount++] = life;
     if ((this.scenario === 'flick' || this.scenario === 'switch') && this.reactionCount < MAX_KILLS) {
@@ -539,6 +588,7 @@ export class AimEngine {
   private fireSpray() {
     if (this.sprayIndex >= SPRAY_MAG) return;
     this.shots++;
+    this.onEvent?.('shot');
     const cx = this.width / 2;
     const cy = this.height / 2;
     const target = this.pool.find((t) => t.live) ?? null;
@@ -554,8 +604,13 @@ export class AimEngine {
     } else {
       this.recordShot(this.elapsed, 0, 0, false);
     }
-    if (hit) this.hits++;
-    else this.misses++;
+    if (hit) {
+      this.hits++;
+      this.onEvent?.('hit');
+    } else {
+      this.misses++;
+      this.onEvent?.('miss');
+    }
 
     const shot = this.sprayIndex;
     this.recoilPitch += (SPRAY_V[shot] ?? 0.2) * DEG;
@@ -579,7 +634,6 @@ export class AimEngine {
 
   private step(dt: number) {
     this.elapsed += dt * 1000;
-    const def = SCENARIOS[this.scenario];
     const areaX = this.config.area * DEG;
     const areaY = this.config.area * 0.55 * DEG;
 
@@ -596,13 +650,13 @@ export class AimEngine {
           target.pitch = Math.max(-areaY, Math.min(areaY, target.pitch));
           target.vPitch = -target.vPitch;
         }
-        if (def.turnEvery > 0) {
+        if (this.config.turnEvery > 0) {
           target.turnIn -= dt;
           if (target.turnIn <= 0) {
-            target.turnIn = def.turnEvery * (0.55 + this.rng() * 0.9);
+            target.turnIn = this.config.turnEvery * (0.55 + this.rng() * 0.9);
             const angle = this.rng() * Math.PI * 2;
-            target.vYaw = Math.cos(angle) * def.speed * DEG;
-            target.vPitch = Math.sin(angle) * def.speed * 0.45 * DEG;
+            target.vYaw = Math.cos(angle) * this.config.speed * DEG;
+            target.vPitch = Math.sin(angle) * this.config.speed * 0.45 * DEG;
           }
         }
       }
@@ -699,6 +753,7 @@ export class AimEngine {
     const score = Math.round(this.scenario === 'micro' ? this.score * accuracy : this.score);
     return {
       scenario: this.scenario,
+      drillKey: this.scenario === 'custom' ? undefined : this.scenario,
       mode: this.mode,
       config: this.config,
       sens: this.sens,
@@ -781,16 +836,16 @@ export class AimEngine {
       if (!target.live || !target.onScreen) continue;
       if (target.sr < 0.4) continue;
       const dim = this.scenario === 'switch' && !target.active;
-      ctx.beginPath();
-      ctx.arc(target.sx, target.sy, target.sr, 0, Math.PI * 2);
-      ctx.fillStyle = dim ? 'rgba(120,140,160,0.16)' : 'rgba(255,70,85,0.9)';
+      this.tracePath(ctx, target.sx, target.sy, target.sr);
+      ctx.fillStyle = dim ? this.targetStyle.dimFill : this.targetStyle.fill;
       ctx.fill();
-      ctx.lineWidth = Math.max(1, target.sr * 0.08);
-      ctx.strokeStyle = dim ? 'rgba(150,170,190,0.35)' : 'rgba(255,190,195,0.95)';
-      ctx.stroke();
+      if (this.targetStyle.outline) {
+        ctx.lineWidth = Math.max(1, target.sr * 0.08);
+        ctx.strokeStyle = dim ? this.targetStyle.dimOutline : this.targetStyle.outlineColour;
+        ctx.stroke();
+      }
       if (!dim && target.sr > 6) {
-        ctx.beginPath();
-        ctx.arc(target.sx, target.sy, target.sr * 0.22, 0, Math.PI * 2);
+        this.tracePath(ctx, target.sx, target.sy, target.sr * 0.22);
         ctx.fillStyle = 'rgba(13,17,22,0.85)';
         ctx.fill();
       }
@@ -808,6 +863,40 @@ export class AimEngine {
     }
 
     this.drawCrosshair(ctx, w / 2, h / 2);
+  }
+
+  /** Traces one of the four target shapes into the current path, centred at
+      (cx, cy) with `r` as the enclosing radius. Caller fills/strokes it. */
+  private tracePath(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+    ctx.beginPath();
+    switch (this.targetStyle.shape) {
+      case 'square': {
+        const s = r * 1.15;
+        ctx.rect(cx - s / 2, cy - s / 2, s, s);
+        break;
+      }
+      case 'diamond':
+        ctx.moveTo(cx, cy - r * 1.2);
+        ctx.lineTo(cx + r * 1.2, cy);
+        ctx.lineTo(cx, cy + r * 1.2);
+        ctx.lineTo(cx - r * 1.2, cy);
+        ctx.closePath();
+        break;
+      case 'hexagon':
+        for (let i = 0; i < 6; i++) {
+          const angle = (Math.PI / 3) * i - Math.PI / 2;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        break;
+      case 'circle':
+      default:
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        break;
+    }
   }
 
   private drawRange(ctx: CanvasRenderingContext2D, w: number, h: number) {

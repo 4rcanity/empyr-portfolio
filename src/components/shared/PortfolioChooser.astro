@@ -24,6 +24,7 @@ const copy =
         available: 'Beschikbaar',
         wip: 'In ontwikkeling',
         playable: 'Speelbaar',
+        close: 'Sluiten',
       }
     : {
         eyebrow: 'Welcome to Empyr',
@@ -41,6 +42,7 @@ const copy =
         available: 'Available',
         wip: 'In development',
         playable: 'Playable',
+        close: 'Close',
       };
 ---
 
@@ -56,6 +58,17 @@ const copy =
   <div class="gate-orb gate-orb-three"></div>
 
   <div class="relative w-full max-w-6xl">
+    <button
+      type="button"
+      class="absolute right-0 top-0 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-stone-400 transition hover:border-white/25 hover:text-white"
+      data-portfolio-close
+      aria-label={copy.close}
+    >
+      <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="m6 6 12 12M18 6 6 18" stroke-linecap="round"></path>
+      </svg>
+    </button>
+
     <div class="mb-8 text-center">
       <img
         src="/images/empyr-logo.png"
@@ -157,30 +170,109 @@ const copy =
   </div>
 </div>
 
-<script>
-  const gate = document.querySelector<HTMLElement>('[data-portfolio-gate]');
-  const savedChoice = sessionStorage.getItem('empyr-portfolio-choice');
+<script is:inline>
+  (function () {
+    var gate = document.querySelector('[data-portfolio-gate]');
+    if (!gate) return;
 
-  if (gate && savedChoice) {
-    gate.remove();
-  } else if (gate) {
-    document.documentElement.style.overflow = 'hidden';
-    gate.querySelector<HTMLElement>('[data-portfolio-choice]')?.focus();
+    var KEY = 'empyr-portfolio-choice';
+    var lastTrigger = null;
+    var closeTimer = 0;
 
-    gate.querySelectorAll<HTMLElement>('[data-portfolio-choice]').forEach((choice) => {
-      choice.addEventListener('click', () => {
-        sessionStorage.setItem('empyr-portfolio-choice', choice.dataset.portfolioChoice ?? 'web');
-        document.documentElement.style.overflow = '';
-        if (choice.dataset.portfolioChoice === 'web') {
-          gate.classList.add('is-leaving');
-          window.setTimeout(() => gate.remove(), 360);
-        }
+    function read() {
+      try {
+        return sessionStorage.getItem(KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function write(choice) {
+      try {
+        sessionStorage.setItem(KEY, choice || 'web');
+      } catch (e) {}
+    }
+
+    function open() {
+      window.clearTimeout(closeTimer);
+      gate.hidden = false;
+      gate.classList.remove('is-leaving');
+      // Restart the intro animation when the gate is summoned again.
+      gate.classList.remove('portfolio-gate');
+      void gate.offsetWidth;
+      gate.classList.add('portfolio-gate');
+      document.documentElement.style.overflow = 'hidden';
+      var first = gate.querySelector('[data-portfolio-choice]');
+      if (first) first.focus();
+    }
+
+    function close(choice) {
+      write(choice || read() || 'web');
+      document.documentElement.style.overflow = '';
+      gate.classList.add('is-leaving');
+      closeTimer = window.setTimeout(function () {
+        gate.hidden = true;
+        gate.classList.remove('is-leaving');
+      }, 340);
+      if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
+      lastTrigger = null;
+    }
+
+    var params = new URLSearchParams(location.search);
+    var forced = params.get('chooser') === '1' || location.hash === '#explore';
+
+    if (forced) {
+      // Drop the trigger from the URL so a refresh does not re-open the gate.
+      params.delete('chooser');
+      var query = params.toString();
+      var hash = location.hash === '#explore' ? '' : location.hash;
+      history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + hash);
+      open();
+    } else if (read()) {
+      gate.hidden = true;
+    } else {
+      open();
+    }
+
+    gate.querySelectorAll('[data-portfolio-choice]').forEach(function (choice) {
+      choice.addEventListener('click', function () {
+        var value = choice.dataset.portfolioChoice || 'web';
+        // Web stays on this page, so dismiss the gate; the others navigate away.
+        if (value === 'web') close(value);
+        else write(value);
       });
     });
-  }
+
+    var closeBtn = gate.querySelector('[data-portfolio-close]');
+    if (closeBtn) closeBtn.addEventListener('click', function () { close(); });
+
+    gate.addEventListener('mousedown', function (event) {
+      if (event.target === gate) close();
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !gate.hidden) close();
+    });
+
+    // Delegated: this script runs before the header further down the page exists.
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!(target instanceof Element)) return;
+      var trigger = target.closest('[data-portfolio-open]');
+      if (!trigger) return;
+      event.preventDefault();
+      lastTrigger = trigger;
+      open();
+    });
+  })();
 </script>
 
 <style>
+  /* Tailwind's display utilities outrank the UA [hidden] rule. */
+  [data-portfolio-gate][hidden] {
+    display: none !important;
+  }
+
   .portfolio-gate {
     animation: gate-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }

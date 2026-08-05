@@ -1,0 +1,20 @@
+{
+  "name": "empyr-draughts",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8794",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run",
+    "types": "wrangler types",
+    "perft": "node scripts/perft.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "bots": "node scripts/bots.mjs",
+    "afk": "node scripts/afk.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "wrangler": "^4.26.0"
+  }
+}

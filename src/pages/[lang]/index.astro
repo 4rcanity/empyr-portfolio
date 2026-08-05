@@ -226,7 +226,11 @@ const copy =
         workTitle: 'Gebouwd om op te vallen.',
         workBody:
           'Zes concepten in drie categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel.',
+        workJump: 'Spring naar',
+        projectsLabel: 'projecten',
+        projectLabel: 'project',
         games: 'Game development',
+        explore: 'Alles ontdekken',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
         whatsAppMessage:
@@ -244,7 +248,11 @@ const copy =
         workTitle: 'Built to stand out.',
         workBody:
           'Six concepts across three categories — each with its own brand feel, audience and conversion goal.',
+        workJump: 'Jump to',
+        projectsLabel: 'projects',
+        projectLabel: 'project',
         games: 'Game development',
+        explore: 'Explore all',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
         whatsAppMessage:
@@ -290,6 +298,19 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
           Empyr
         </a>
         <div class="flex items-center gap-3 sm:gap-4">
+          <button
+            type="button"
+            data-portfolio-open
+            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-stone-300 transition hover:border-white/25 hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1.6"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.6"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.6"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.6"></rect>
+            </svg>
+            <span class="hidden sm:inline">{copy.explore}</span>
+          </button>
           <a href={`/${lang}/games`} class="hidden text-sm font-medium text-stone-400 transition hover:text-white md:block">
             {copy.games}
           </a>
@@ -371,27 +392,46 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
 
     <section id="work" class="bg-stone-50 py-24 text-stone-950 sm:py-32">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="max-w-3xl">
-          <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-600">{copy.workEyebrow}</p>
-          <h2 class="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{copy.workTitle}</h2>
-          <p class="mt-5 max-w-2xl text-base leading-7 text-stone-600">{copy.workBody}</p>
+        <div class="grid gap-10 border-b border-stone-200 pb-12 lg:grid-cols-[minmax(0,36rem)_1fr] lg:items-end lg:gap-16">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-600">{copy.workEyebrow}</p>
+            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{copy.workTitle}</h2>
+            <p class="mt-5 text-base leading-7 text-stone-600">{copy.workBody}</p>
+          </div>
+          <nav class="flex flex-wrap items-center gap-2 lg:justify-end" aria-label={copy.workJump}>
+            <span class="mr-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">{copy.workJump}</span>
+            {workCategories.map((category) => (
+              <a
+                href={`#work-${category.id}`}
+                class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
+              >
+                {category.title}
+                <span class="text-xs font-bold text-stone-400">{category.slugs.length}</span>
+              </a>
+            ))}
+          </nav>
         </div>
 
-      <div class="mt-16 space-y-20">
-        {workCategories.map((category) => {
+      <div class="divide-y divide-stone-200">
+        {workCategories.map((category, index) => {
           const items = category.slugs.map((slug) => templatesBySlug[slug]).filter(Boolean);
           return (
-            <div id={`work-${category.id}`}>
-              <div class="max-w-2xl border-t border-stone-200 pt-10">
-                <h3 class="text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">{category.title}</h3>
-                <p class="mt-3 text-sm leading-6 text-stone-500 sm:text-base">{category.body}</p>
+            <div
+              id={`work-${category.id}`}
+              class="grid scroll-mt-24 gap-8 py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14 sm:py-16"
+            >
+              <div class="lg:sticky lg:top-24 lg:self-start">
+                <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                  {String(index + 1).padStart(2, '0')} / {String(workCategories.length).padStart(2, '0')}
+                </p>
+                <h3 class="mt-4 text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">{category.title}</h3>
+                <p class="mt-3 text-sm leading-6 text-stone-500">{category.body}</p>
+                <p class="mt-5 inline-flex rounded-full bg-stone-200/70 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-stone-600">
+                  {items.length} {items.length === 1 ? copy.projectLabel : copy.projectsLabel}
+                </p>
               </div>
 
-              <div class:list={[
-                'mt-8 grid gap-6 sm:grid-cols-2',
-                items.length === 1 && 'max-w-xl sm:grid-cols-1',
-                items.length === 4 && 'lg:grid-cols-2',
-              ]}>
+              <div class="grid gap-6 sm:grid-cols-2">
                 {items.map((tpl) => (
                   <article class="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
                     <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
@@ -418,16 +458,16 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
                       </div>
                     </div>
                     <div class="flex flex-1 flex-col p-7">
-                      <p class="text-lg font-semibold tracking-tight text-stone-900">{tpl.tagline}</p>
-                      <p class="mt-3 flex-1 text-sm leading-6 text-stone-500">{tpl.description}</p>
-                      <ul class="mt-4 flex flex-wrap gap-2">
+                      <p class="text-lg font-semibold leading-snug tracking-tight text-stone-900">{tpl.tagline}</p>
+                      <p class="mt-3 line-clamp-3 text-sm leading-6 text-stone-500">{tpl.description}</p>
+                      <ul class="mt-5 flex flex-wrap gap-2">
                         {tpl.bestFor.map((tag) => (
                           <li class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">{tag}</li>
                         ))}
                       </ul>
                       <a
                         href={`/${lang}/${tpl.slug}`}
-                        class="mt-7 inline-flex items-center gap-2 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
+                        class="mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
                       >
                         {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
                       </a>

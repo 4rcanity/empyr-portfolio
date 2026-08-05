@@ -7,97 +7,127 @@ interface Props {
 
 const { lang } = Astro.props;
 const nl = lang === 'nl';
+const locale = nl ? 'nl-NL' : 'en-US';
 
-const BASE = 1200;
-const MONTHLY_NL = 150;
-const MONTHLY_COM = 170;
+// ── Pricing config (edit numbers here) ──────────────────────────────────────
+const BUILDS = [
+  { id: 'static', price: 1200 },
+  { id: 'animated', price: 2200 },
+  { id: 'platform', price: 3200 },
+];
+
+const FEATURES = [
+  { id: 'language', price: 350 },
+  { id: 'booking', price: 500 },
+  { id: 'ordering', price: 600 },
+  { id: 'payments', price: 550 },
+  { id: 'cms', price: 450 },
+  { id: 'blog', price: 300 },
+  { id: 'seo', price: 250 },
+  { id: 'brand', price: 400 },
+  { id: 'gallery', price: 200 },
+];
+
+const CARE_NL = 150;
+const CARE_COM = 170;
+const QUOTE_CAP = 5000;
+// ── End pricing config ──────────────────────────────────────────────────────
+
+function fmt(n: number) {
+  return `€${n.toLocaleString(locale)}`;
+}
+
+const buildCopy = nl
+  ? {
+      static: {
+        name: 'Statische site',
+        desc: 'Tot ~5 pagina\'s, handmatig opgebouwd, snel en licht. Geen zelf bewerken. Ideaal voor menu- of brochure-sites.',
+      },
+      animated: {
+        name: 'Geanimeerde site',
+        desc: 'Alles uit statisch, plus scroll-animaties, overgangen en custom interacties.',
+      },
+      platform: {
+        name: 'Online platform',
+        desc: 'Dynamische data, accounts/dashboards en koppelingen met externe systemen.',
+      },
+    }
+  : {
+      static: {
+        name: 'Static site',
+        desc: 'Up to ~5 pages, hand-built, fast and lightweight. No self-editing. Typical menu or brochure sites.',
+      },
+      animated: {
+        name: 'Animated site',
+        desc: 'Everything in static, plus scroll motion, transitions and custom interactions.',
+      },
+      platform: {
+        name: 'Online platform',
+        desc: 'Dynamic data, accounts/dashboards, and integrations with external systems.',
+      },
+    };
+
+const featureCopy = nl
+  ? {
+      language: { name: 'Extra taal', desc: 'Meertalige site (bijv. NL + EN)' },
+      booking: { name: 'Reserveringen', desc: 'Boekingen & afspraken online' },
+      ordering: { name: 'Online bestellen', desc: 'Bestel- of menu-flow voor gasten' },
+      payments: { name: 'Betalingen', desc: 'iDEAL, kaart en online afrekenen' },
+      cms: { name: 'Zelf bewerken (CMS)', desc: 'Content aanpassen zonder developer' },
+      blog: { name: 'Blog / nieuws', desc: 'Nieuwsberichten en updates' },
+      seo: { name: 'SEO & analytics', desc: 'Zichtbaarheid en meetsetup' },
+      brand: { name: 'Brand kit & illustratie', desc: 'Logo, kleuren en custom beeld' },
+      gallery: { name: 'Fotogalerij', desc: 'Galerij en shoot-integratie' },
+    }
+  : {
+      language: { name: 'Extra language', desc: 'Multilingual site (e.g. NL + EN)' },
+      booking: { name: 'Reservations', desc: 'Bookings & appointments online' },
+      ordering: { name: 'Online ordering', desc: 'Order or menu flow for guests' },
+      payments: { name: 'Payments', desc: 'iDEAL, card and online checkout' },
+      cms: { name: 'Self-editing CMS', desc: 'Update content without a developer' },
+      blog: { name: 'Blog / news', desc: 'News posts and updates' },
+      seo: { name: 'SEO & analytics', desc: 'Visibility and tracking setup' },
+      brand: { name: 'Brand kit & illustration', desc: 'Logo, colours and custom artwork' },
+      gallery: { name: 'Photo gallery', desc: 'Gallery and shoot integration' },
+    };
 
 const copy = nl
   ? {
-      title: 'Eenvoudige, transparante prijzen',
-      subtitle: 'Twee opties. Geen verborgen kosten, geen verrassingen achteraf.',
-      standard: {
-        name: 'Standard',
-        price: `€${BASE.toLocaleString('nl-NL')}`,
-        priceNote: 'eenmalig',
-        tagline: 'Zelf verder beheren',
-        features: [
-          'Volledig custom template op maat',
-          'Jouw content, foto\'s en menu erin verwerkt',
-          'Domein & hosting overdracht naar jou',
-          'Geen maandelijkse kosten, geen abonnement',
-        ],
-        footnote: 'Geen wijzigingen of onderhoud na livegang inbegrepen.',
-        cta: 'Kies Standard',
-      },
-      premium: {
-        name: 'Premium',
-        badge: 'Meest gekozen',
-        price: `€${BASE.toLocaleString('nl-NL')}`,
-        priceNote: 'eenmalig',
-        tagline: 'Wij regelen alles voor je',
-        features: [
-          'Alles uit Standard',
-          'Domeinregistratie inbegrepen',
-          'Hosting volledig verzorgd',
-          'Doorlopend sitebeheer: content, foto\'s, wijzigingen',
-        ],
-        footnote: 'Zeg op wanneer je wilt, geen langlopend contract.',
-        cta: 'Kies Premium',
-      },
+      title: 'Prijs op maat',
+      subtitle: 'Vanaf €1.200 voor een statische site — schaal op met wat jij nodig hebt.',
+      buildType: 'Type site',
+      from: 'vanaf',
+      addFeatures: 'Voeg toe wat je nodig hebt',
+      carePlan: 'Onderhoudsplan',
+      careDesc: 'Domein + hosting + doorlopende wijzigingen. Opzegbaar per maand.',
       domainToggle: 'Domein',
       perMonth: '/maand',
-      chartTitle: 'Totale kosten na verloop van tijd',
-      chartSubtitle: 'Standard blijft altijd hetzelfde. Premium houdt je site levend.',
-      months: ['Start', '6 mnd', '12 mnd', '24 mnd'],
-      legendStandard: 'Standard',
-      legendPremium: 'Premium',
+      summary: 'Jouw samenstelling',
+      oneTimeTotal: 'Eenmalig totaal',
+      careLine: 'Onderhoudsplan',
+      quoteCap: '€5.000+',
+      quoteNote: 'Grotere builds krijgen een scoped offerte op maat.',
+      cta: 'Vraag offerte aan',
+      disclaimer: 'Prijzen zijn indicatief. Definitieve offerte na een korte intake.',
     }
   : {
-      title: 'Simple, transparent pricing',
-      subtitle: 'Two options. No hidden costs, no surprises later.',
-      standard: {
-        name: 'Standard',
-        price: `€${BASE.toLocaleString('en-US')}`,
-        priceNote: 'one-time',
-        tagline: 'You manage it from here',
-        features: [
-          'Fully custom-built template',
-          'Your content, photos and menu included',
-          'Domain & hosting handed over to you',
-          'No monthly fees, no subscription',
-        ],
-        footnote: 'No changes or maintenance included after launch.',
-        cta: 'Choose Standard',
-      },
-      premium: {
-        name: 'Premium',
-        badge: 'Most popular',
-        price: `€${BASE.toLocaleString('en-US')}`,
-        priceNote: 'one-time',
-        tagline: "We handle everything for you",
-        features: [
-          'Everything in Standard',
-          'Domain registration included',
-          'Hosting fully managed',
-          'Ongoing site management: content, photos, changes',
-        ],
-        footnote: 'Cancel anytime, no long-term contract.',
-        cta: 'Choose Premium',
-      },
+      title: 'Pricing that scales',
+      subtitle: 'From €1,200 for a static site — add only what you need.',
+      buildType: 'Build type',
+      from: 'from',
+      addFeatures: 'Add what you need',
+      carePlan: 'Care plan',
+      careDesc: 'Domain + hosting + ongoing changes. Cancel anytime.',
       domainToggle: 'Domain',
       perMonth: '/mo',
-      chartTitle: 'Total cost over time',
-      chartSubtitle: 'Standard stays flat forever. Premium keeps your site alive.',
-      months: ['Start', '6 mo', '12 mo', '24 mo'],
-      legendStandard: 'Standard',
-      legendPremium: 'Premium',
+      summary: 'Your build',
+      oneTimeTotal: 'One-time total',
+      careLine: 'Care plan',
+      quoteCap: '€5,000+',
+      quoteNote: 'Larger builds get a scoped custom quote.',
+      cta: 'Request a quote',
+      disclaimer: 'Prices are indicative. Final quote after a short intake.',
     };
-
-const monthPoints = [0, 6, 12, 24];
-const standardValues = monthPoints.map(() => BASE);
-const premiumNlValues = monthPoints.map((m) => BASE + MONTHLY_NL * m);
-const premiumComValues = monthPoints.map((m) => BASE + MONTHLY_COM * m);
 ---
 
 <section id="pricing" class="border-t border-stone-200 bg-gradient-to-b from-white to-stone-50 py-24">
@@ -107,161 +137,256 @@ const premiumComValues = monthPoints.map((m) => BASE + MONTHLY_COM * m);
       <h2 class="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">{copy.subtitle}</h2>
     </div>
 
-    <div class="mt-14 grid gap-8 lg:grid-cols-2">
-      <!-- Standard -->
-      <div class="relative flex flex-col rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
-        <h3 class="text-lg font-bold text-stone-900">{copy.standard.name}</h3>
-        <p class="mt-1 text-sm font-medium text-stone-500">{copy.standard.tagline}</p>
-        <div class="mt-6 flex items-baseline gap-2">
-          <span class="text-5xl font-bold tracking-tight text-stone-900">{copy.standard.price}</span>
-          <span class="text-sm font-medium text-stone-500">{copy.standard.priceNote}</span>
-        </div>
-        <ul class="mt-8 flex-1 space-y-3">
-          {copy.standard.features.map((f) => (
-            <li class="flex items-start gap-3 text-sm text-stone-600">
-              <svg class="mt-0.5 h-5 w-5 shrink-0 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <p class="mt-6 text-xs text-stone-400">{copy.standard.footnote}</p>
-        <a href="#contact" class="mt-6 inline-flex items-center justify-center rounded-full border-2 border-stone-900 px-6 py-3 text-sm font-semibold text-stone-900 transition-colors hover:bg-stone-900 hover:text-white">
-          {copy.standard.cta}
-        </a>
-      </div>
-
-      <!-- Premium -->
-      <div class="relative flex flex-col overflow-hidden rounded-3xl border-2 border-orange-500 bg-white p-8 shadow-xl shadow-orange-100">
-        <span class="absolute right-6 top-6 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
-          {copy.premium.badge}
-        </span>
-        <h3 class="text-lg font-bold text-stone-900">{copy.premium.name}</h3>
-        <p class="mt-1 text-sm font-medium text-stone-500">{copy.premium.tagline}</p>
-
-        <div class="mt-6 flex items-baseline gap-2">
-          <span class="text-5xl font-bold tracking-tight text-stone-900">{copy.premium.price}</span>
-          <span class="text-sm font-medium text-stone-500">{copy.premium.priceNote}</span>
-        </div>
-
-        <div class="mt-4 flex items-center gap-3 rounded-2xl bg-stone-50 p-3">
-          <span class="text-xs font-semibold uppercase tracking-wide text-stone-500">{copy.domainToggle}</span>
-          <div class="flex rounded-full bg-white p-1 shadow-sm" role="group" data-domain-toggle>
-            <button
-              type="button"
-              data-domain="nl"
-              class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
-              aria-pressed="true"
-            >
-              .nl
-            </button>
-            <button
-              type="button"
-              data-domain="com"
-              class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
-              aria-pressed="false"
-            >
-              .com
-            </button>
-          </div>
-          <span class="ml-auto text-lg font-bold text-orange-600">
-            +€<span data-monthly-price>{MONTHLY_NL}</span><span class="text-sm font-medium text-stone-500">{copy.perMonth}</span>
-          </span>
-        </div>
-
-        <ul class="mt-8 flex-1 space-y-3">
-          {copy.premium.features.map((f) => (
-            <li class="flex items-start gap-3 text-sm text-stone-600">
-              <svg class="mt-0.5 h-5 w-5 shrink-0 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <p class="mt-6 text-xs text-stone-400">{copy.premium.footnote}</p>
-        <a href="#contact" class="mt-6 inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600">
-          {copy.premium.cta}
-        </a>
-      </div>
-    </div>
-
-    <!-- Cost comparison chart -->
-    <div class="mt-14 rounded-3xl border border-stone-200 bg-white p-6 sm:p-10">
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
+    <div
+      class="mt-14 grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start"
+      data-pricing-calculator
+      data-locale={locale}
+      data-quote-cap={QUOTE_CAP}
+      data-care-nl={CARE_NL}
+      data-care-com={CARE_COM}
+      data-quote-cap-display={copy.quoteCap}
+      data-per-month={copy.perMonth}
+    >
+      <!-- Left: configurator -->
+      <div class="space-y-8">
+        <!-- Build type -->
         <div>
-          <h3 class="text-xl font-bold text-stone-900">{copy.chartTitle}</h3>
-          <p class="mt-1 text-sm text-stone-500">{copy.chartSubtitle}</p>
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.buildType}</h3>
+          <div class="mt-4 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label={copy.buildType} data-build-group>
+            {BUILDS.map((build, i) => {
+              const bc = buildCopy[build.id as keyof typeof buildCopy];
+              const inputId = `build-${build.id}`;
+              return (
+                <div class="relative">
+                  <input
+                    type="radio"
+                    name="build-type"
+                    id={inputId}
+                    value={build.id}
+                    data-build-price={build.price}
+                    data-build-label={bc.name}
+                    class="peer sr-only"
+                    checked={i === 0}
+                  />
+                  <label
+                    for={inputId}
+                    class="flex h-full cursor-pointer flex-col rounded-2xl border-2 border-stone-200 bg-white p-4 transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-50/60 peer-focus-visible:ring-2 peer-focus-visible:ring-orange-500 peer-focus-visible:ring-offset-2"
+                  >
+                    <span class="flex items-start justify-between gap-2">
+                      <span class="text-sm font-bold text-stone-900">{bc.name}</span>
+                      <span
+                        class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-stone-300 bg-white text-transparent transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-500 peer-checked:text-white"
+                        aria-hidden="true"
+                      >
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    </span>
+                    <span class="mt-2 text-xs leading-relaxed text-stone-500">{bc.desc}</span>
+                    <span class="mt-3 text-sm font-semibold text-orange-600">
+                      {copy.from} {fmt(build.price)}
+                    </span>
+                  </label>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <div class="flex items-center gap-4 text-sm font-medium">
-          <span class="flex items-center gap-2 text-stone-600"><span class="h-2.5 w-2.5 rounded-full bg-stone-300"></span>{copy.legendStandard}</span>
-          <span class="flex items-center gap-2 text-stone-600"><span class="h-2.5 w-2.5 rounded-full bg-orange-500"></span>{copy.legendPremium}</span>
+
+        <!-- Features -->
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.addFeatures}</h3>
+          <div class="mt-4 grid gap-2 sm:grid-cols-2" data-feature-list>
+            {FEATURES.map((feat) => {
+              const fc = featureCopy[feat.id as keyof typeof featureCopy];
+              const inputId = `feat-${feat.id}`;
+              return (
+                <label
+                  for={inputId}
+                  class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 transition-colors has-[:checked]:border-orange-400 has-[:checked]:bg-orange-50/50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-orange-500 has-[:focus-visible]:ring-offset-2"
+                  data-feature-row={feat.id}
+                >
+                  <input
+                    type="checkbox"
+                    id={inputId}
+                    value={feat.id}
+                    data-feature-price={feat.price}
+                    data-feature-label={fc.name}
+                    class="peer sr-only"
+                  />
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-semibold text-stone-900">{fc.name}</span>
+                    <span class="block text-xs text-stone-500">{fc.desc}</span>
+                  </span>
+                  <span class="shrink-0 text-sm font-semibold text-stone-600 group-has-[:checked]:text-orange-600">
+                    +{fmt(feat.price)}
+                  </span>
+                  <span
+                    class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-stone-300 bg-stone-100 transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-500"
+                    role="presentation"
+                    aria-hidden="true"
+                  >
+                    <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- Care plan -->
+        <div class="rounded-2xl border border-stone-200 bg-white p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-sm font-bold text-stone-900">{copy.carePlan}</h3>
+              <p class="mt-1 text-xs text-stone-500">{copy.careDesc}</p>
+            </div>
+            <label class="relative inline-flex shrink-0 cursor-pointer items-center">
+              <input type="checkbox" id="care-toggle" class="peer sr-only" data-care-toggle />
+              <span
+                class="relative inline-flex h-7 w-12 rounded-full border-2 border-stone-300 bg-stone-100 transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-500 peer-focus-visible:ring-2 peer-focus-visible:ring-orange-500 peer-focus-visible:ring-offset-2"
+                role="switch"
+                aria-checked="false"
+                data-care-switch-visual
+              >
+                <span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+              </span>
+            </label>
+          </div>
+
+          <div class="mt-4 hidden rounded-xl bg-stone-50 p-3" data-care-details>
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="text-xs font-semibold uppercase tracking-wide text-stone-500">{copy.domainToggle}</span>
+              <div class="flex rounded-full bg-white p-1 shadow-sm" role="group" data-domain-toggle>
+                <button
+                  type="button"
+                  data-domain="nl"
+                  class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
+                  aria-pressed="true"
+                >
+                  .nl
+                </button>
+                <button
+                  type="button"
+                  data-domain="com"
+                  class="rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
+                  aria-pressed="false"
+                >
+                  .com
+                </button>
+              </div>
+              <span class="ml-auto text-base font-bold text-orange-600">
+                +<span data-care-monthly-display>{fmt(CARE_NL)}</span><span class="text-sm font-medium text-stone-500">{copy.perMonth}</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div
-        class="mt-10 grid grid-cols-4 items-end gap-4 sm:gap-8"
-        style="height: 220px;"
-        data-chart
-        data-standard={JSON.stringify(standardValues)}
-        data-premium-nl={JSON.stringify(premiumNlValues)}
-        data-premium-com={JSON.stringify(premiumComValues)}
-      >
-        {monthPoints.map((_, i) => (
-          <div class="flex h-full flex-col items-center justify-end gap-2">
-            <div class="flex h-full w-full items-end justify-center gap-1.5 sm:gap-2.5">
-              <div class="relative flex w-6 flex-col justify-end sm:w-9">
-                <span class="mb-1 text-center text-[11px] font-semibold text-stone-500" data-bar-label="standard">€{standardValues[i]}</span>
-                <div class="w-full rounded-t-md bg-stone-300 transition-[height] duration-700 ease-out" data-bar="standard" style="height: 0px;"></div>
-              </div>
-              <div class="relative flex w-6 flex-col justify-end sm:w-9">
-                <span class="mb-1 text-center text-[11px] font-semibold text-orange-600" data-bar-label="premium">€{premiumNlValues[i]}</span>
-                <div class="w-full rounded-t-md bg-orange-500 transition-[height] duration-700 ease-out" data-bar="premium" style="height: 0px;"></div>
-              </div>
-            </div>
-            <span class="text-xs font-medium text-stone-500">{copy.months[i]}</span>
+      <!-- Right: summary -->
+      <div class="lg:sticky lg:top-24">
+        <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+          <h3 class="text-lg font-bold text-stone-900">{copy.summary}</h3>
+
+          <ul class="mt-6 space-y-2 text-sm" data-summary-lines>
+            <li class="flex items-baseline justify-between gap-4" data-line="build">
+              <span class="text-stone-600" data-summary-build-label>{buildCopy.static.name}</span>
+              <span class="shrink-0 font-semibold text-stone-900" data-build-amount>{fmt(BUILDS[0].price)}</span>
+            </li>
+          </ul>
+
+          <div class="my-6 border-t border-stone-200"></div>
+
+          <div class="flex items-baseline justify-between gap-4">
+            <span class="text-sm font-semibold text-stone-500">{copy.oneTimeTotal}</span>
+            <span
+              class="text-4xl font-bold tracking-tight text-stone-900"
+              data-total-display
+              data-exact-total={BUILDS[0].price}
+            >
+              {fmt(BUILDS[0].price)}
+            </span>
           </div>
-        ))}
+
+          <p class="mt-2 hidden text-xs text-stone-500" data-quote-note>{copy.quoteNote}</p>
+
+          <p class="mt-3 hidden text-sm text-stone-600" data-care-summary>
+            <span class="font-medium">{copy.careLine}</span>
+            <span class="font-semibold text-orange-600" data-care-summary-amount></span>
+          </p>
+
+          <a
+            href="#contact"
+            class="mt-8 inline-flex w-full items-center justify-center rounded-full bg-orange-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
+          >
+            {copy.cta}
+          </a>
+
+          <p class="mt-4 text-center text-xs text-stone-400">{copy.disclaimer}</p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <script>
-  function initPricingComparison() {
-    const chartEl = document.querySelector<HTMLElement>('[data-chart]');
-    const toggleEl = document.querySelector<HTMLElement>('[data-domain-toggle]');
-    const monthlyPriceEl = document.querySelector('[data-monthly-price]');
-    if (!chartEl || !toggleEl) return;
-    const chart: HTMLElement = chartEl;
-    const toggle: HTMLElement = toggleEl;
+  function initPricingCalculator() {
+    const root = document.querySelector<HTMLElement>('[data-pricing-calculator]');
+    if (!root || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
 
-    const standard: number[] = JSON.parse(chart.dataset.standard ?? '[]');
-    const premiumNl: number[] = JSON.parse(chart.dataset.premiumNl ?? '[]');
-    const premiumCom: number[] = JSON.parse(chart.dataset.premiumCom ?? '[]');
+    const locale = root.dataset.locale ?? 'en-US';
+    const quoteCap = Number(root.dataset.quoteCap ?? '5000');
+    const careNl = Number(root.dataset.careNl ?? '150');
+    const careCom = Number(root.dataset.careCom ?? '170');
 
-    const standardBars = chart.querySelectorAll<HTMLElement>('[data-bar="standard"]');
-    const premiumBars = chart.querySelectorAll<HTMLElement>('[data-bar="premium"]');
-    const premiumLabels = chart.querySelectorAll<HTMLElement>('[data-bar-label="premium"]');
-    const maxHeight = 200;
+    const buildInputs = root.querySelectorAll<HTMLInputElement>('input[name="build-type"]');
+    const featureInputs = root.querySelectorAll<HTMLInputElement>('[data-feature-price]');
+    const careToggle = root.querySelector<HTMLInputElement>('[data-care-toggle]');
+    const careDetails = root.querySelector<HTMLElement>('[data-care-details]');
+    const careSwitchVisual = root.querySelector<HTMLElement>('[data-care-switch-visual]');
+    const domainToggle = root.querySelector<HTMLElement>('[data-domain-toggle]');
+    const summaryLines = root.querySelector<HTMLElement>('[data-summary-lines]');
+    const buildLabelEl = root.querySelector<HTMLElement>('[data-summary-build-label]');
+    const buildAmountEl = root.querySelector<HTMLElement>('[data-build-amount]');
+    const totalDisplay = root.querySelector<HTMLElement>('[data-total-display]');
+    const quoteNote = root.querySelector<HTMLElement>('[data-quote-note]');
+    const careSummary = root.querySelector<HTMLElement>('[data-care-summary]');
+    const careSummaryAmount = root.querySelector<HTMLElement>('[data-care-summary-amount]');
+    const careMonthlyDisplay = root.querySelector<HTMLElement>('[data-care-monthly-display]');
+    const quoteCapDisplay = root.dataset.quoteCapDisplay ?? '€5,000+';
+    const perMonthSuffix = root.dataset.perMonth ?? '/mo';
 
-    function render(domain: 'nl' | 'com') {
-      const premium = domain === 'nl' ? premiumNl : premiumCom;
-      const max = Math.max(...standard, ...premium);
-      standardBars.forEach((el, i) => {
-        el.style.height = `${Math.max(6, (standard[i] / max) * maxHeight)}px`;
+    let domain: 'nl' | 'com' = 'nl';
+    let animFrame = 0;
+    let displayedTotal = 0;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function formatMoney(n: number) {
+      return `€${Math.round(n).toLocaleString(locale)}`;
+    }
+
+    function getBuildInput() {
+      return Array.from(buildInputs).find((el) => el.checked) ?? buildInputs[0];
+    }
+
+    function computeTotal() {
+      const build = getBuildInput();
+      let total = Number(build?.dataset.buildPrice ?? 0);
+      featureInputs.forEach((el) => {
+        if (el.checked) total += Number(el.dataset.featurePrice ?? 0);
       });
-      premiumBars.forEach((el, i) => {
-        el.style.height = `${Math.max(6, (premium[i] / max) * maxHeight)}px`;
-      });
-      premiumLabels.forEach((el, i) => {
-        el.textContent = `€${premium[i].toLocaleString()}`;
-      });
-      if (monthlyPriceEl) {
-        monthlyPriceEl.textContent = domain === 'nl' ? '150' : '170';
-      }
-      toggle.querySelectorAll<HTMLButtonElement>('button').forEach((btn) => {
+      return total;
+    }
+
+    function getCareMonthly() {
+      return domain === 'nl' ? careNl : careCom;
+    }
+
+    function renderDomainButtons() {
+      if (!domainToggle) return;
+      domainToggle.querySelectorAll<HTMLButtonElement>('button').forEach((btn) => {
         const active = btn.dataset.domain === domain;
         btn.setAttribute('aria-pressed', String(active));
         btn.style.background = active ? '#f97316' : 'transparent';
@@ -269,16 +394,124 @@ const premiumComValues = monthPoints.map((m) => BASE + MONTHLY_COM * m);
       });
     }
 
-    toggle.addEventListener('click', (e) => {
+    function renderFeatureLines() {
+      if (!summaryLines) return;
+      summaryLines.querySelectorAll('[data-line="feature"]').forEach((el) => el.remove());
+      featureInputs.forEach((el) => {
+        if (!el.checked) return;
+        const li = document.createElement('li');
+        li.className = 'flex items-baseline justify-between gap-4';
+        li.dataset.line = 'feature';
+        li.innerHTML = `<span class="text-stone-600">${el.dataset.featureLabel ?? ''}</span><span class="shrink-0 font-semibold text-stone-900">${formatMoney(Number(el.dataset.featurePrice ?? 0))}</span>`;
+        summaryLines.appendChild(li);
+      });
+    }
+
+    function animateTotal(target: number) {
+      if (!totalDisplay) return;
+      cancelAnimationFrame(animFrame);
+
+      totalDisplay.dataset.exactTotal = String(target);
+      const capped = target > quoteCap;
+
+      if (reducedMotion) {
+        displayedTotal = target;
+        totalDisplay.textContent = capped ? quoteCapDisplay : formatMoney(target);
+        if (quoteNote) quoteNote.classList.toggle('hidden', !capped);
+        return;
+      }
+
+      const start = displayedTotal;
+      const duration = 350;
+      const startTime = performance.now();
+
+      function tick(now: number) {
+        if (!totalDisplay) return;
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        displayedTotal = start + (target - start) * eased;
+        const shown = capped ? target : displayedTotal;
+        totalDisplay.textContent = capped ? quoteCapDisplay : formatMoney(shown);
+        if (quoteNote) quoteNote.classList.toggle('hidden', !capped);
+        if (t < 1) animFrame = requestAnimationFrame(tick);
+        else displayedTotal = target;
+      }
+
+      animFrame = requestAnimationFrame(tick);
+    }
+
+    function update() {
+      const build = getBuildInput();
+      const buildPrice = Number(build?.dataset.buildPrice ?? 0);
+
+      if (buildLabelEl) buildLabelEl.textContent = build?.dataset.buildLabel ?? '';
+      if (buildAmountEl) buildAmountEl.textContent = formatMoney(buildPrice);
+
+      renderFeatureLines();
+
+      const total = computeTotal();
+      animateTotal(total);
+
+      const careOn = careToggle?.checked ?? false;
+      if (careDetails) careDetails.classList.toggle('hidden', !careOn);
+      if (careSwitchVisual) careSwitchVisual.setAttribute('aria-checked', String(careOn));
+
+      const monthly = getCareMonthly();
+      if (careMonthlyDisplay) careMonthlyDisplay.textContent = formatMoney(monthly);
+
+      if (careSummary && careSummaryAmount) {
+        careSummary.classList.toggle('hidden', !careOn);
+        careSummaryAmount.textContent = careOn ? ` + ${formatMoney(monthly)}${perMonthSuffix}` : '';
+      }
+    }
+
+    buildInputs.forEach((el) => el.addEventListener('change', update));
+    featureInputs.forEach((el) => el.addEventListener('change', update));
+    careToggle?.addEventListener('change', update);
+
+    domainToggle?.addEventListener('click', (e) => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-domain]');
       if (!btn) return;
-      render(btn.dataset.domain === 'com' ? 'com' : 'nl');
+      domain = btn.dataset.domain === 'com' ? 'com' : 'nl';
+      renderDomainButtons();
+      update();
     });
 
-    // Initial paint (next frame so the height transition animates in)
-    requestAnimationFrame(() => requestAnimationFrame(() => render('nl')));
+    renderDomainButtons();
+    displayedTotal = computeTotal();
+    update();
   }
 
-  initPricingComparison();
-  document.addEventListener('astro:page-load', initPricingComparison);
+  function resetPricingCalculator() {
+    document.querySelectorAll<HTMLElement>('[data-pricing-calculator]').forEach((el) => {
+      delete el.dataset.initialized;
+    });
+  }
+
+  initPricingCalculator();
+  document.addEventListener('astro:page-load', () => {
+    resetPricingCalculator();
+    initPricingCalculator();
+  });
 </script>
+
+<style>
+  [data-pricing-calculator] input[name='build-type']:checked + label span[aria-hidden='true'] {
+    border-color: #f97316;
+    background-color: #f97316;
+    color: #ffffff;
+  }
+
+  [data-pricing-calculator] [data-feature-row]:has(input:checked) span[role='presentation'] span {
+    transform: translateX(1.25rem);
+  }
+
+  [data-pricing-calculator] [data-feature-row]:has(input:checked) span[role='presentation'] {
+    border-color: #f97316;
+    background-color: #f97316;
+  }
+
+  [data-pricing-calculator] #care-toggle:checked + span span {
+    transform: translateX(1.25rem);
+  }
+</style>

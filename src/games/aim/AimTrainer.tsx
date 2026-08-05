@@ -4,9 +4,12 @@ import { AimEngine, type EngineSens, type LiveStats, type RunResult } from './en
 import { copyFor, type Lang } from './copy';
 import { SCENARIOS, SCENARIO_ORDER, clampConfig, defaultConfig, type RunConfig, type ScenarioId } from './scenarios';
 import { profileOf } from './sens';
+import * as sfx from './sfx';
+import { defaultConfigForMode } from './customDrills';
 import {
   configFor,
   emptyVault,
+  findCustomDrill,
   loadVault,
   personalBest,
   saveVault,
@@ -15,16 +18,19 @@ import {
 } from './storage';
 import {
   CrosshairPanel,
+  CustomDrillsSection,
   HistoryPanel,
   ResultScreen,
   SensPanel,
   SetupPanel,
+  TargetPanel,
+  drillKeyOf,
   num,
   pct,
 } from './parts';
 
 type Phase = 'menu' | 'arming' | 'live' | 'paused' | 'lockfail' | 'result';
-type Tab = 'drills' | 'sens' | 'crosshair' | 'history';
+type Tab = 'drills' | 'sens' | 'crosshair' | 'target' | 'history';
 
 const EMPTY_STATS: LiveStats = {
   elapsed: 0,
@@ -52,9 +58,10 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window === 'undefined') return 'drills';
     const wanted = new URLSearchParams(window.location.search).get('tab');
-    return wanted === 'sens' || wanted === 'crosshair' || wanted === 'history' ? wanted : 'drills';
+    return wanted === 'sens' || wanted === 'crosshair' || wanted === 'target' || wanted === 'history' ? wanted : 'drills';
   });
   const [scenario, setScenario] = useState<ScenarioId>('gridshot');
+  const [customDrillId, setCustomDrillId] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>('menu');
   const [cursorMode, setCursorMode] = useState(false);
   const [stats, setStats] = useState<LiveStats>(EMPTY_STATS);
@@ -68,12 +75,26 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   const phaseRef = useRef<Phase>('menu');
   const cursorRef = useRef(false);
   const finishRef = useRef<() => void>(() => {});
+  // Set the instant a run ends, synchronously — before exitPointerLock() is
+  // even called. The browser fires pointerlockchange asynchronously, and its
+  // timing relative to React's commit is not guaranteed, so the phase alone
+  // is not a reliable guard: a stale 'live' read in that handler would flip
+  // a finished run's 'result' phase back to 'paused'. This ref can't race.
+  const endedRef = useRef(false);
 
   phaseRef.current = phase;
   cursorRef.current = cursorMode;
 
-  if (engineRef.current === null) engineRef.current = new AimEngine();
+  if (engineRef.current === null) {
+    engineRef.current = new AimEngine();
+    engineRef.current.onEvent = (type) => sfx.play(type);
+  }
   const engine = engineRef.current;
+
+  const activeCustomDrill = useMemo(
+    () => (customDrillId ? findCustomDrill(vault, customDrillId) : null),
+    [vault, customDrillId],
+  );
 
   useEffect(() => {
     const stored = loadVault();
@@ -85,7 +106,15 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
     if (ready) saveVault(vault);
   }, [vault, ready]);
 
-  const config = useMemo(() => configFor(vault, scenario), [vault, scenario]);
+  useEffect(() => {
+    sfx.setEnabled(vault.audio.enabled);
+    sfx.setVolume(vault.audio.volume);
+  }, [vault.audio]);
+
+  const config = useMemo(() => {
+    if (activeCustomDrill) return clampConfig(activeCustomDrill.config);
+    return configFor(vault, scenario);
+  }, [vault, scenario, activeCustomDrill]);
 
   const engineSens: EngineSens = useMemo(() => {
     const profile = profileOf(vault.sens.source);
@@ -105,6 +134,13 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   useEffect(() => {
     engine.setCrosshair(vault.crosshair);
   }, [engine, vault.crosshair]);
+
+  useEffect(() => {
+    engine.setTargetStyle(vault.targetStyle);
+  }, [engine, vault.targetStyle]);
+
+  const activeCustomRef = useRef(activeCustomDrill);
+  activeCustomRef.current = activeCustomDrill;
 
   /* ---- canvas sizing --------------------------------------------------- */
 
@@ -142,27 +178,43 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   /* ---- run lifecycle --------------------------------------------------- */
 
   const finish = useCallback(() => {
+    endedRef.current = true;
     engine.stop();
-    const run = engine.result();
+    const raw = engine.result();
+    const custom = activeCustomRef.current;
+    const run: RunResult = custom
+      ? { ...raw, drillKey: custom.id, customLabel: custom.name }
+      : raw;
+    const key = drillKeyOf(run);
+    const prevBest = personalBest(vault, key);
+    const isNewPb = !prevBest || run.score > prevBest.score;
+    if (isNewPb) sfx.play('pb');
     setResult(run);
     setVault((current) => ({ ...current, history: [run, ...current.history] }));
     setPhase('result');
     if (typeof document !== 'undefined' && document.pointerLockElement) document.exitPointerLock();
-  }, [engine]);
+  }, [engine, vault]);
 
   finishRef.current = finish;
 
   const beginRun = useCallback(() => {
-    engine.start(scenario, config, engineSens);
+    const custom = activeCustomRef.current;
+    if (custom) {
+      engine.start('custom', custom.config, engineSens, undefined, custom.mode);
+    } else {
+      engine.start(scenario, config, engineSens);
+    }
     setStats(engine.stats());
   }, [config, engine, engineSens, scenario]);
 
   const arm = useCallback(() => {
+    endedRef.current = false;
     setResult(null);
     setPhase('arming');
   }, []);
 
   const requestLock = useCallback(() => {
+    sfx.initAudio();
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (cursorRef.current) {
@@ -206,6 +258,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   }, [engine, finish]);
 
   const backToMenu = useCallback(() => {
+    endedRef.current = false;
     engine.stop();
     setResult(null);
     setPhase('menu');
@@ -220,7 +273,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
       if (locked) {
         if (!engine.running) beginRun();
         setPhase('live');
-      } else if (phaseRef.current === 'live') {
+      } else if (phaseRef.current === 'live' && !endedRef.current) {
         setPhase('paused');
       }
     };
@@ -238,7 +291,9 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   // A tab-out drops the lock silently; make sure the drill parks itself.
   useEffect(() => {
     const onHide = () => {
-      if (document.visibilityState === 'hidden' && phaseRef.current === 'live') setPhase('paused');
+      if (document.visibilityState === 'hidden' && phaseRef.current === 'live' && !endedRef.current) {
+        setPhase('paused');
+      }
     };
     document.addEventListener('visibilitychange', onHide);
     window.addEventListener('blur', onHide);
@@ -342,6 +397,12 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
         finishRef.current();
         return engine.result();
       },
+      beginCustom: (mode: 'click' | 'track' | 'spray', overrides: Partial<RunConfig> = {}, seed = 1) => {
+        const merged = clampConfig({ ...defaultConfigForMode(mode), ...overrides });
+        engine.resize(1200, 700, 1);
+        engine.start('custom', merged, engineSens, seed, mode);
+        return engine.stats();
+      },
       sens: () => engineSens,
     };
     (window as unknown as Record<string, unknown>).__aim = hook;
@@ -352,9 +413,40 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
 
   /* ---- render ---------------------------------------------------------- */
 
-  const scenarioCopy = copy.scenarios[scenario];
-  const def = SCENARIOS[scenario];
-  const best = ready ? personalBest(vault, scenario) : null;
+  const scenarioCopy = activeCustomDrill
+    ? {
+        name: activeCustomDrill.name,
+        hint:
+          activeCustomDrill.mode === 'track'
+            ? copy.scenarios.tracking.hint
+            : activeCustomDrill.mode === 'spray'
+              ? copy.scenarios.spray.hint
+              : copy.scenarios.gridshot.hint,
+      }
+    : copy.scenarios[scenario];
+  const playMode = activeCustomDrill?.mode ?? SCENARIOS[scenario].mode;
+  const drillKey = activeCustomDrill?.id ?? scenario;
+  const best = ready ? personalBest(vault, drillKey) : null;
+
+  const updateConfig = useCallback(
+    (next: RunConfig) => {
+      const clamped = clampConfig(next);
+      if (activeCustomDrill) {
+        setVault((current) => ({
+          ...current,
+          customDrills: current.customDrills.map((d) =>
+            d.id === activeCustomDrill.id ? { ...d, config: clamped } : d,
+          ),
+        }));
+      } else {
+        setVault((current) => ({
+          ...current,
+          configs: { ...current.configs, [scenario]: clamped },
+        }));
+      }
+    },
+    [activeCustomDrill, scenario],
+  );
 
   if (phase === 'result' && result) {
     return (
@@ -384,8 +476,8 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
           <HudCell label={copy.hudScore} value={num(lang, stats.score, 0)} />
           <HudCell label={copy.hudAcc} value={pct(lang, stats.accuracy, 0)} />
           <HudCell label={copy.hudHits} value={`${stats.hits}/${stats.shots}`} />
-          {def.mode === 'track' ? <HudCell label={copy.hudOnTarget} value={pct(lang, stats.onTarget, 0)} /> : null}
-          {def.mode === 'spray' ? <HudCell label={copy.hudAmmo} value={`${stats.ammo}`} /> : null}
+          {playMode === 'track' ? <HudCell label={copy.hudOnTarget} value={pct(lang, stats.onTarget, 0)} /> : null}
+          {playMode === 'spray' ? <HudCell label={copy.hudAmmo} value={`${stats.ammo}`} /> : null}
           {cursorMode ? <span className="ar-hud-badge">{copy.fallbackBadge}</span> : null}
           <button type="button" className="ar-btn ar-btn-quiet" onClick={quit}>
             {copy.quit}
@@ -403,6 +495,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
               onPrimary={requestLock}
               secondary={copy.armFallback}
               onSecondary={() => {
+                sfx.initAudio();
                 setCursorMode(true);
                 cursorRef.current = true;
                 if (!engine.running) beginRun();
@@ -432,6 +525,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
               body={copy.lockFailSub}
               primary={copy.fallbackOn}
               onPrimary={() => {
+                sfx.initAudio();
                 setCursorMode(true);
                 cursorRef.current = true;
                 if (!engine.running) beginRun();
@@ -453,7 +547,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
       <Chrome copy={copy} lang={lang} />
       <main className="ar-main">
         <nav className="ar-tabs" aria-label={copy.tabs.drills}>
-          {(['drills', 'sens', 'crosshair', 'history'] as Tab[]).map((key) => (
+          {(['drills', 'sens', 'crosshair', 'target', 'history'] as Tab[]).map((key) => (
             <button
               type="button"
               key={key}
@@ -468,40 +562,61 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
 
         {tab === 'drills' ? (
           <div className="ar-drills">
-            <ul className="ar-scenarios">
-              {SCENARIO_ORDER.map((id) => {
-                const item = copy.scenarios[id];
-                const pb = ready ? personalBest(vault, id) : null;
-                return (
-                  <li key={id}>
-                    <button
-                      type="button"
-                      className={id === scenario ? 'ar-scenario ar-scenario-on' : 'ar-scenario'}
-                      aria-pressed={id === scenario}
-                      onClick={() => setScenario(id)}
-                    >
-                      <span className="ar-scenario-tag">{item.tag}</span>
-                      <strong>{item.name}</strong>
-                      <span className="ar-scenario-desc">{item.desc}</span>
-                      <span className="ar-scenario-pb">
-                        {copy.pb}: {pb ? num(lang, pb.score, 0) : '—'}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="ar-drills-list">
+              <ul className="ar-scenarios">
+                {SCENARIO_ORDER.map((id) => {
+                  const item = copy.scenarios[id];
+                  const pb = ready ? personalBest(vault, id) : null;
+                  const isOn = !activeCustomDrill && id === scenario;
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        className={isOn ? 'ar-scenario ar-scenario-on' : 'ar-scenario'}
+                        aria-pressed={isOn}
+                        onClick={() => {
+                          setScenario(id);
+                          setCustomDrillId(null);
+                        }}
+                      >
+                        <span className="ar-scenario-tag">{item.tag}</span>
+                        <strong>{item.name}</strong>
+                        <span className="ar-scenario-desc">{item.desc}</span>
+                        <span className="ar-scenario-pb">
+                          {copy.pb}: {pb ? num(lang, pb.score, 0) : '—'}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <CustomDrillsSection
+                copy={copy}
+                lang={lang}
+                vault={vault}
+                drills={vault.customDrills}
+                selectedId={customDrillId}
+                onSelect={(id) => {
+                  if (id) setCustomDrillId(id);
+                  else setCustomDrillId(null);
+                }}
+                onChange={(customDrills) => setVault((current) => ({ ...current, customDrills }))}
+              />
+            </div>
 
             <aside className="ar-card ar-sticky">
               <SetupPanel
                 copy={copy}
-                id={scenario}
+                id={activeCustomDrill ? undefined : scenario}
+                title={activeCustomDrill?.name}
+                mode={activeCustomDrill?.mode}
                 config={config}
-                onChange={(next) =>
-                  setVault((current) => ({
-                    ...current,
-                    configs: { ...current.configs, [scenario]: clampConfig(next) },
-                  }))
+                onChange={updateConfig}
+                onReset={
+                  activeCustomDrill
+                    ? () => updateConfig(defaultConfigForMode(activeCustomDrill.mode))
+                    : undefined
                 }
                 onStart={arm}
               />
@@ -527,7 +642,17 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
           <CrosshairPanel
             copy={copy}
             crosshair={vault.crosshair}
+            audio={vault.audio}
+            onAudioChange={(audio) => setVault((current) => ({ ...current, audio }))}
             onChange={(crosshair) => setVault((current) => ({ ...current, crosshair }))}
+          />
+        ) : null}
+
+        {tab === 'target' ? (
+          <TargetPanel
+            copy={copy}
+            style={vault.targetStyle}
+            onChange={(targetStyle) => setVault((current) => ({ ...current, targetStyle }))}
           />
         ) : null}
 

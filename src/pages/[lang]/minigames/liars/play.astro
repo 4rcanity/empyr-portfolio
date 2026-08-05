@@ -1,0 +1,42 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import LiarsGame from '../../../../games/liars/LiarsGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const title = lang === 'nl' ? "Liar's Bar — tafel" : "Liar's Bar — table";
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background-color: #12100c;
+        background-image:
+          radial-gradient(120% 80% at 50% -10%, rgba(200, 162, 83, 0.09), transparent 62%),
+          radial-gradient(80% 60% at 12% 108%, rgba(28, 43, 34, 0.35), transparent 66%);
+        background-attachment: fixed;
+      }
+    </style>
+  </head>
+  <body>
+    <LiarsGame client:only="react" lang={lang} />
+  </body>
+</html>

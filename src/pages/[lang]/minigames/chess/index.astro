@@ -1,0 +1,632 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+import HeroBoard from '../../../../games/chess/heroBoard';
+
+/** The Spanish, Morphy Defence — a real position rather than a bare checkerboard. */
+const HERO_FEN = 'r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 5';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'Empyr Gambit — online schaken met klok',
+        description:
+          'Speel schaken in je browser. Volledige regels op de server, echte klokken met increment, remiseclaims, notatie en PGN.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Twee stoelen,',
+        h1b: 'één klok.',
+        blurb:
+          'Een schaakbord voor twee, plus toeschouwers. Alle regels worden door de server gecontroleerd — rokade, en passant, promotie, mat, pat en elke remiseregel. De klok loopt op de server, dus vlagvallen is niet te betwisten.',
+        createTitle: 'Nieuw bord',
+        createSub: 'Open een kamer en stuur de link naar je tegenstander.',
+        create: 'Bord openen',
+        joinTitle: 'Meedoen',
+        joinSub: 'Heb je een code gekregen?',
+        joinPlaceholder: 'Kamercode',
+        join: 'Meedoen',
+        rulesTitle: 'Hoe het werkt',
+        rules: [
+          ['De server telt de zetten', 'Elke zet wordt op de server op legaliteit gecontroleerd. Je bord markeert alleen wat het denkt te mogen.'],
+          ['Klok met increment', 'Bullet, blitz, rapid of je eigen tempo. De tijd wordt op de server bijgehouden en pauzeert als niemand aan tafel zit.'],
+          ['Slepen of tikken', 'Sleep een stuk, of tik het aan en tik het doelveld. Beide werken, ook op een telefoon.'],
+          ['Terugkijken', 'Klik in de notatie om een eerdere stelling te bekijken en spring daarna terug naar live.'],
+        ],
+        detailTitle: 'Wat er precies in zit',
+        detailSub: 'Zelf geschreven regelmotor, geen bibliotheek.',
+        details: [
+          ['Rokade en en passant', 'Met alle voorwaarden: geen schaak op het pad, rechten die vervallen, en een slagrecht dat na één zet verloopt.'],
+          ['Promotie naar keuze', 'Dame, toren, loper of paard — je kiest zelf, er wordt nooit stil gepromoveerd.'],
+          ['Automatische remises', 'Pat, dood materiaal, vijfmaal dezelfde stelling en vijfenzeventig zetten gaan automatisch.'],
+          ['Claims', 'Driemaal dezelfde stelling en de vijftigzettenregel claim je zelf, precies zoals in een toernooi.'],
+          ['Vlag met te weinig materiaal', 'Loopt de tijd af terwijl je tegenstander niet meer mat kan zetten? Dan is het remise, geen verlies.'],
+          ['Notatie en PGN', 'Volledige notatie met disambiguatie, plus PGN van de hele partij om te kopiëren.'],
+        ],
+        tcTitle: 'Speeltempo',
+        tcs: ['1+0 bullet', '2+1 bullet', '3+2 blitz', '5+0 blitz', '10+0 rapid', '15+10 rapid', 'Zelf instellen'],
+        back: '← Terug naar minigames',
+      }
+    : {
+        title: 'Empyr Gambit — online chess with clocks',
+        description:
+          'Play chess in your browser. Complete rules enforced server-side, real clocks with increment, draw claims, notation and PGN.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Two seats,',
+        h1b: 'one clock.',
+        blurb:
+          'A board for two, with room for spectators. Every rule is enforced on the server — castling, en passant, promotion, mate, stalemate and every draw condition. The clock lives there too, so a flag is never up for debate.',
+        createTitle: 'New board',
+        createSub: 'Open a room and send the link to your opponent.',
+        create: 'Open a board',
+        joinTitle: 'Join',
+        joinSub: 'Got a code from someone?',
+        joinPlaceholder: 'Room code',
+        join: 'Join',
+        rulesTitle: 'How it works',
+        rules: [
+          ['The server counts the moves', 'Legality is decided on the server. Your board only highlights what it believes is allowed.'],
+          ['Clocks with increment', 'Bullet, blitz, rapid or your own numbers. Time is kept server-side and parks itself when nobody is at the board.'],
+          ['Drag or tap', 'Drag a piece, or tap it and tap the destination. Both work, phones included.'],
+          ['Walk it back', 'Click any move in the scoresheet to review that position, then jump back to live play.'],
+        ],
+        detailTitle: 'What is actually in there',
+        detailSub: 'A hand-written rules engine, no libraries.',
+        details: [
+          ['Castling and en passant', 'Every condition: no castling through check, rights that expire, and a capture right that lapses after one move.'],
+          ['Promotion you choose', 'Queen, rook, bishop or knight — never silently queened.'],
+          ['Automatic draws', 'Stalemate, dead material, fivefold repetition and seventy-five moves end the game on their own.'],
+          ['Claims', 'Threefold repetition and the fifty-move rule are yours to claim, exactly as in a tournament.'],
+          ['Flagging with no material', 'Run out of time against a side that cannot mate and it is a draw, not a loss.'],
+          ['Notation and PGN', 'Full algebraic notation with disambiguation, plus a PGN of the finished game to copy.'],
+        ],
+        tcTitle: 'Time controls',
+        tcs: ['1+0 bullet', '2+1 bullet', '3+2 blitz', '5+0 blitz', '10+0 rapid', '15+10 rapid', 'Custom'],
+        back: '← Back to minigames',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/chess" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <LocaleRedirect lang={lang} />
+    <style>
+      :root {
+        --ink: #14171a;
+        --paper: #ece6da;
+        --dim: #9aa3a8;
+        --faint: #6d767c;
+        --line: rgba(236, 230, 218, 0.11);
+        --line-strong: rgba(236, 230, 218, 0.22);
+        --brass: #c8a253;
+        --panel: #1c2126;
+        --light-sq: #cbc1ab;
+        --dark-sq: #4b5a56;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--paper);
+        font-family: 'IBM Plex Sans', system-ui, sans-serif;
+        line-height: 1.6;
+        background-color: var(--ink);
+        background-image:
+          radial-gradient(120% 80% at 50% -10%, rgba(200, 162, 83, 0.1), transparent 62%),
+          radial-gradient(80% 60% at 10% 108%, rgba(75, 90, 86, 0.3), transparent 66%),
+          repeating-linear-gradient(122deg, rgba(236, 230, 218, 0.014) 0 1px, rgba(0, 0, 0, 0) 1px 4px);
+        background-attachment: fixed;
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: 68rem;
+        margin: 0 auto;
+        padding: 0 clamp(1rem, 4vw, 1.75rem);
+      }
+
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-family: 'Spectral', Georgia, serif;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--paper);
+        text-decoration: none;
+      }
+
+      .brand img {
+        width: 1.85rem;
+        height: 1.85rem;
+        border-radius: 0.35rem;
+        object-fit: cover;
+      }
+
+      .grow {
+        flex: 1;
+      }
+
+      .lang {
+        display: flex;
+        gap: 0.2rem;
+        padding: 0.15rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+      }
+
+      .lang a {
+        padding: 0.2rem 0.65rem;
+        border-radius: 999px;
+        color: var(--dim);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+      }
+
+      .lang a[aria-current='true'] {
+        background: var(--brass);
+        color: #1a1408;
+      }
+
+      .hero {
+        display: grid;
+        gap: 2.5rem;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        align-items: center;
+        padding: 3.5rem 0 2.5rem;
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--brass);
+      }
+
+      h1 {
+        margin: 1rem 0 0;
+        font-family: 'Spectral', Georgia, serif;
+        font-size: clamp(2.5rem, 7vw, 4.2rem);
+        font-weight: 500;
+        line-height: 1.02;
+        letter-spacing: -0.02em;
+      }
+
+      h1 span {
+        color: var(--brass);
+      }
+
+      .blurb {
+        margin: 1.3rem 0 0;
+        max-width: 34rem;
+        color: var(--dim);
+        font-size: 1rem;
+      }
+
+      /* A little board vignette, so the page reads as chess before a word is. */
+      .vignette {
+        width: 100%;
+        max-width: 22rem;
+        margin-left: auto;
+        border: 1px solid rgba(13, 20, 18, 0.9);
+        box-shadow: 0 0 0 1px rgba(236, 230, 218, 0.08), 0 20px 44px -20px rgba(10, 16, 14, 0.9);
+      }
+
+      .cards {
+        display: grid;
+        gap: 0.85rem;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        margin-top: 2rem;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 0.5rem;
+        padding: 1.1rem 1.15rem 1.25rem;
+        background: linear-gradient(180deg, rgba(236, 230, 218, 0.045), rgba(236, 230, 218, 0.012)), var(--panel);
+        box-shadow: 0 10px 26px -14px rgba(13, 20, 18, 0.75);
+      }
+
+      .card h2 {
+        margin: 0;
+        font-family: 'Spectral', Georgia, serif;
+        font-size: 1.15rem;
+        font-weight: 500;
+      }
+
+      .card p {
+        margin: 0.35rem 0 0;
+        color: var(--dim);
+        font-size: 0.86rem;
+      }
+
+      .field {
+        width: 100%;
+        margin-top: 0.85rem;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 0.3rem;
+        background: rgba(9, 12, 13, 0.5);
+        color: var(--paper);
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        text-transform: lowercase;
+      }
+
+      .field:focus-visible {
+        outline: 2px solid var(--brass);
+        outline-offset: 1px;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 0.75rem;
+        padding: 0.55rem 1.05rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 0.3rem;
+        background: linear-gradient(180deg, rgba(236, 230, 218, 0.08), rgba(236, 230, 218, 0.02));
+        color: var(--paper);
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.16s, border-color 0.16s, transform 0.12s;
+      }
+
+      .btn:hover {
+        border-color: var(--brass);
+        background: linear-gradient(180deg, rgba(200, 162, 83, 0.18), rgba(200, 162, 83, 0.06));
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      .btn:focus-visible {
+        outline: 2px solid var(--brass);
+        outline-offset: 2px;
+      }
+
+      .btn.go {
+        border-color: rgba(200, 162, 83, 0.6);
+        background: linear-gradient(180deg, #d8b264, #b98f3f);
+        color: #1a1408;
+        font-weight: 600;
+      }
+
+      section.block {
+        padding: 2.75rem 0;
+        border-top: 1px solid var(--line);
+      }
+
+      section.block h2 {
+        margin: 0.7rem 0 0;
+        font-family: 'Spectral', Georgia, serif;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        font-weight: 500;
+        letter-spacing: -0.015em;
+      }
+
+      section.block > p {
+        margin: 0.5rem 0 0;
+        max-width: 34rem;
+        color: var(--dim);
+        font-size: 0.92rem;
+      }
+
+      .steps {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        margin: 1.75rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .steps li {
+        padding-left: 0.9rem;
+        border-left: 1px solid var(--brass);
+      }
+
+      .steps b {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .steps span {
+        display: block;
+        margin-top: 0.25rem;
+        color: var(--dim);
+        font-size: 0.84rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 0.7rem;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        margin-top: 1.75rem;
+      }
+
+      .item {
+        border: 1px solid var(--line);
+        border-radius: 0.4rem;
+        padding: 0.9rem 1rem;
+        background: rgba(9, 12, 13, 0.3);
+      }
+
+      .item b {
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
+      .item p {
+        margin: 0.3rem 0 0;
+        color: var(--dim);
+        font-size: 0.82rem;
+      }
+
+      .tcs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 1.5rem;
+        padding: 0;
+        list-style: none;
+      }
+
+      .tcs li {
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        padding: 0.28rem 0.75rem;
+        color: var(--dim);
+        font-family: 'IBM Plex Mono', ui-monospace, monospace;
+        font-size: 0.75rem;
+      }
+
+      footer {
+        padding: 2rem 0 3rem;
+      }
+
+      footer a {
+        color: var(--dim);
+        font-size: 0.85rem;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        color: var(--paper);
+      }
+
+      @media (max-width: 52rem) {
+        .hero {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 1.75rem;
+          padding-top: 2.5rem;
+        }
+
+        .vignette {
+          margin: 0 auto;
+          max-width: 17rem;
+        }
+      }
+    </style>
+
+    <!-- The hero board is a React component rendered at build time, so its
+         classes need unscoped rules. -->
+    <style is:global>
+      .cxh-board {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        aspect-ratio: 1 / 1;
+      }
+
+      .cxh-sq {
+        display: grid;
+        place-items: center;
+        min-height: 0;
+      }
+
+      .cxh-sq--l {
+        background-color: #cbc1ab;
+        background-image: repeating-linear-gradient(
+          58deg,
+          rgba(255, 255, 255, 0.16) 0 1px,
+          rgba(90, 74, 48, 0.05) 1px 3px
+        );
+      }
+
+      .cxh-sq--d {
+        background-color: #4b5a56;
+        background-image: repeating-linear-gradient(
+          58deg,
+          rgba(255, 255, 255, 0.06) 0 1px,
+          rgba(10, 20, 18, 0.14) 1px 3px
+        );
+      }
+
+      .cxh-board .cx-piece {
+        display: block;
+        width: 86%;
+        height: 86%;
+      }
+
+      .cxh-board .cx-piece--w {
+        fill: #f4efe3;
+        stroke: #22272a;
+        stroke-width: 1.1;
+        filter: drop-shadow(0 1px 1.5px rgba(12, 20, 16, 0.5));
+      }
+
+      .cxh-board .cx-piece--b {
+        fill: #1c2226;
+        stroke: #0d1114;
+        stroke-width: 1.1;
+        filter: drop-shadow(0 0 0.6px rgba(238, 233, 219, 0.75))
+          drop-shadow(0 1px 1.5px rgba(12, 20, 16, 0.5));
+      }
+
+      .cxh-board .cx-piece--w .cx-eye {
+        fill: #22272a;
+        stroke: none;
+      }
+
+      .cxh-board .cx-piece--b .cx-eye {
+        fill: #d3ccbd;
+        stroke: none;
+      }
+
+      .cxh-board .cx-piece--b .cx-mane,
+      .cxh-board .cx-piece--b .cx-slit {
+        stroke: #8c968f;
+      }
+
+      .cxh-board .cx-piece .cx-mane,
+      .cxh-board .cx-piece .cx-slit {
+        fill: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="brand" href={`/${lang}`}>
+          <img src="/images/empyr-logo.png" alt="Empyr" width="30" height="30" />
+          Empyr
+        </a>
+        <span class="grow"></span>
+        <div class="lang">
+          {languages.map((l) => (
+            <a href={`/${l}/minigames/chess`} aria-current={l === lang ? 'true' : 'false'}>{l.toUpperCase()}</a>
+          ))}
+        </div>
+      </header>
+
+      <div class="hero">
+        <div>
+          <p class="eyebrow">{copy.eyebrow}</p>
+          <h1>
+            {copy.h1a}<br /><span>{copy.h1b}</span>
+          </h1>
+          <p class="blurb">{copy.blurb}</p>
+        </div>
+        <div class="vignette">
+          <HeroBoard fen={HERO_FEN} />
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h2>{copy.createTitle}</h2>
+          <p>{copy.createSub}</p>
+          <button class="btn go" id="make">{copy.create}</button>
+        </div>
+        <div class="card">
+          <h2>{copy.joinTitle}</h2>
+          <p>{copy.joinSub}</p>
+          <form id="join">
+            <input class="field" id="code" maxlength="12" placeholder={copy.joinPlaceholder} required />
+            <button class="btn" type="submit">{copy.join}</button>
+          </form>
+        </div>
+      </div>
+
+      <section class="block">
+        <p class="eyebrow">{copy.rulesTitle}</p>
+        <h2>{copy.rulesTitle}</h2>
+        <ul class="steps">
+          {copy.rules.map(([head, text]) => (
+            <li>
+              <b>{head}</b>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.detailTitle}</p>
+        <h2>{copy.detailTitle}</h2>
+        <p>{copy.detailSub}</p>
+        <div class="grid">
+          {copy.details.map(([head, text]) => (
+            <div class="item">
+              <b>{head}</b>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.tcTitle}</p>
+        <h2>{copy.tcTitle}</h2>
+        <ul class="tcs">
+          {copy.tcs.map((tc) => (
+            <li>{tc}</li>
+          ))}
+        </ul>
+      </section>
+
+      <footer>
+        <a href={`/${lang}/minigames`}>{copy.back}</a>
+      </footer>
+    </div>
+
+    <script is:inline define:vars={{ lang }}>
+      function freshCode() {
+        const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+        const bytes = new Uint8Array(5);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+      }
+
+      document.getElementById('make').addEventListener('click', () => {
+        window.location.href = `/${lang}/minigames/chess/play?code=${freshCode()}`;
+      });
+
+      document.getElementById('join').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const raw = document.getElementById('code').value.trim().toLowerCase();
+        const code = raw.replace(/[^a-z0-9-]/g, '').slice(0, 12);
+        if (code) window.location.href = `/${lang}/minigames/chess/play?code=${code}`;
+      });
+    </script>
+  </body>
+</html>

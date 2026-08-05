@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "empyr-draughts",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "observability": { "enabled": true },
+  "durable_objects": {
+    "bindings": [{ "name": "DRAUGHTS_ROOM", "class_name": "DraughtsRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DraughtsRoom"] }]
+}

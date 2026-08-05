@@ -1,0 +1,45 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import DraughtsGame from '../../../../games/draughts/DraughtsGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const title = lang === 'nl' ? 'DAMCAFÉ — aan het bord' : 'DAMCAFÉ — at the board';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Azeret+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+      body {
+        min-height: 100vh;
+        background:
+          radial-gradient(120% 65% at 50% 0%, rgba(215, 161, 60, 0.1), transparent 62%),
+          radial-gradient(80% 50% at 8% 100%, rgba(125, 74, 41, 0.22), transparent 68%),
+          linear-gradient(180deg, #241a13 0%, #1d1611 55%, #17110d 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <DraughtsGame client:only="react" lang={lang} />
+  </body>
+</html>

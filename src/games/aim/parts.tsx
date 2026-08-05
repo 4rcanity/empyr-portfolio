@@ -1,8 +1,17 @@
-import { useId, useMemo, useState } from 'react';
-import type { Crosshair, RunResult } from './engine';
-import { DEFAULT_CROSSHAIR } from './engine';
+import { useId, useMemo, useRef, useState } from 'react';
+import type { Crosshair, RunResult, TargetShape, TargetStyle } from './engine';
+import { DEFAULT_CROSSHAIR, DEFAULT_TARGET_STYLE } from './engine';
 import type { Copy, Lang } from './copy';
-import { SCENARIOS, defaultConfig, LIMITS, type RunConfig, type ScenarioId } from './scenarios';
+import { SCENARIOS, defaultConfig, LIMITS, type RunConfig, type ScenarioId, type ScoreMode } from './scenarios';
+import {
+  createCustomDrill,
+  downloadJson,
+  exportAll,
+  exportDrill,
+  parseImport,
+  slugify,
+} from './customDrills';
+import { estimateRank } from './ranks';
 import {
   GAMES,
   conversionTable,
@@ -13,7 +22,7 @@ import {
   sensForCm360,
   cm360 as cmFor,
 } from './sens';
-import type { SensSettings, Vault } from './storage';
+import type { SensSettings, Vault, CustomDrill, AudioSettings } from './storage';
 import { personalBest, recentAverage } from './storage';
 import { Compare, Histogram, Scatter, Timeline } from './charts';
 
@@ -27,6 +36,20 @@ export function num(lang: Lang, value: number, places = 0): string {
 
 export function pct(lang: Lang, value: number, places = 1): string {
   return `${num(lang, value * 100, places)}%`;
+}
+
+/** A run's stable PB/history key: the ScenarioId for builtins, or the custom
+    drill's id. Falls back gracefully for runs stored before `drillKey`
+    existed. */
+export function drillKeyOf(run: RunResult): string {
+  return run.drillKey ?? run.scenario;
+}
+
+/** Display name for a run, whether it's a builtin scenario (looked up in
+    `copy`) or a custom drill (using the name snapshot taken at run time). */
+export function labelFor(copy: Copy, run: RunResult): string {
+  if (run.scenario === 'custom') return run.customLabel ?? copy.customDrillFallback;
+  return copy.scenarios[run.scenario].name;
 }
 
 export function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -70,7 +93,16 @@ export function NumberField({ label, value, min, max, step, suffix, onChange }: 
   );
 }
 
-export function RangeField({ label, value, min, max, step, suffix, onChange }: NumberFieldProps) {
+export function RangeField({
+  label,
+  value,
+  min,
+  max,
+  step,
+  suffix,
+  disabled,
+  onChange,
+}: NumberFieldProps & { disabled?: boolean }) {
   const id = useId();
   return (
     <div className="ar-range">
@@ -88,6 +120,7 @@ export function RangeField({ label, value, min, max, step, suffix, onChange }: N
         min={min}
         max={max}
         step={step}
+        disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
       />
     </div>
@@ -101,27 +134,43 @@ const DURATIONS = [30, 60, 120];
 export function SetupPanel({
   copy,
   id,
+  title,
+  desc,
+  hint,
+  mode,
   config,
   onChange,
   onStart,
+  onReset,
 }: {
   copy: Copy;
-  id: ScenarioId;
+  id?: ScenarioId;
+  title?: string;
+  desc?: string;
+  hint?: string;
+  mode?: ScoreMode;
   config: RunConfig;
   onChange: (config: RunConfig) => void;
   onStart: () => void;
+  onReset?: () => void;
 }) {
-  const scenario = copy.scenarios[id];
-  const def = SCENARIOS[id];
-  const trackOnly = def.mode !== 'click';
+  const scenario = id ? copy.scenarios[id] : null;
+  const def = id ? SCENARIOS[id] : null;
+  const scoreMode = mode ?? def?.mode ?? 'click';
+  const trackOnly = scoreMode !== 'click';
+  const heading = title ?? scenario?.name ?? copy.customDrillFallback;
+  const subtitle = desc ?? scenario?.desc ?? '';
+  const hintText = hint ?? scenario?.hint ?? '';
+
+  const reset = onReset ?? (id ? () => onChange(defaultConfig(id)) : undefined);
 
   return (
     <div className="ar-setup">
       <div className="ar-setup-head">
         <p className="ar-eyebrow">{copy.setup}</p>
-        <h2>{scenario.name}</h2>
-        <p className="ar-muted">{scenario.desc}</p>
-        <p className="ar-hint">{scenario.hint}</p>
+        <h2>{heading}</h2>
+        {subtitle ? <p className="ar-muted">{subtitle}</p> : null}
+        {hintText ? <p className="ar-hint">{hintText}</p> : null}
       </div>
 
       <div className="ar-setup-group">
@@ -179,16 +228,35 @@ export function SetupPanel({
         suffix={copy.degrees}
         onChange={(area) => onChange({ ...config, area })}
       />
+      <RangeField
+        label={copy.targetSpeed}
+        value={config.speed}
+        min={LIMITS.speed.min}
+        max={LIMITS.speed.max}
+        step={LIMITS.speed.step}
+        suffix={`${copy.degrees}/s`}
+        onChange={(speed) => onChange({ ...config, speed })}
+      />
+      <RangeField
+        label={copy.directionChange}
+        value={config.turnEvery}
+        min={LIMITS.turnEvery.min}
+        max={LIMITS.turnEvery.max}
+        step={LIMITS.turnEvery.step}
+        suffix={copy.seconds}
+        onChange={(turnEvery) => onChange({ ...config, turnEvery })}
+      />
 
       <div className="ar-setup-actions">
-        <button type="button" className="ar-btn ar-btn-ghost" onClick={() => onChange(defaultConfig(id))}>
-          {copy.reset}
-        </button>
+        {reset ? (
+          <button type="button" className="ar-btn ar-btn-ghost" onClick={reset}>
+            {copy.reset}
+          </button>
+        ) : null}
         <button type="button" className="ar-btn ar-btn-hot" onClick={onStart}>
           {copy.start}
         </button>
       </div>
-
     </div>
   );
 }
@@ -405,91 +473,503 @@ export function CrosshairPreview({ crosshair, size = 120 }: { crosshair: Crossha
   );
 }
 
+/* ---- audio ------------------------------------------------------------- */
+
+export function AudioPanel({
+  copy,
+  audio,
+  onChange,
+}: {
+  copy: Copy;
+  audio: AudioSettings;
+  onChange: (audio: AudioSettings) => void;
+}) {
+  const volumePct = Math.round(audio.volume * 100);
+  return (
+    <section className="ar-card ar-audio">
+      <p className="ar-eyebrow">{copy.audioTitle}</p>
+      <p className="ar-muted">{copy.audioSub}</p>
+      <label className="ar-check">
+        <input
+          type="checkbox"
+          checked={audio.enabled}
+          onChange={(event) => onChange({ ...audio, enabled: event.target.checked })}
+        />
+        <span>{copy.soundEnabled}</span>
+      </label>
+      <RangeField
+        label={copy.volume}
+        value={volumePct}
+        min={0}
+        max={100}
+        step={5}
+        suffix="%"
+        disabled={!audio.enabled}
+        onChange={(value) => onChange({ ...audio, volume: value / 100 })}
+      />
+    </section>
+  );
+}
+
 export function CrosshairPanel({
   copy,
   crosshair,
   onChange,
+  audio,
+  onAudioChange,
 }: {
   copy: Copy;
   crosshair: Crosshair;
   onChange: (crosshair: Crosshair) => void;
+  audio?: AudioSettings;
+  onAudioChange?: (audio: AudioSettings) => void;
 }) {
   return (
+    <div className="ar-panel-stack">
+      {audio && onAudioChange ? <AudioPanel copy={copy} audio={audio} onChange={onAudioChange} /> : null}
+      <section className="ar-card">
+        <p className="ar-eyebrow">{copy.crossTitle}</p>
+        <p className="ar-muted">{copy.crossSub}</p>
+
+        <div className="ar-cross-layout">
+          <div className="ar-cross-stage">
+            <CrosshairPreview crosshair={crosshair} />
+            <span className="ar-tiny ar-muted">{copy.preview}</span>
+          </div>
+
+          <div className="ar-cross-controls">
+            <div className="ar-swatches">
+              <span className="ar-field-label">{copy.colour}</span>
+              <div>
+                {SWATCHES.map((swatch) => (
+                  <button
+                    type="button"
+                    key={swatch}
+                    className={crosshair.colour === swatch ? 'ar-swatch ar-swatch-on' : 'ar-swatch'}
+                    style={{ background: swatch }}
+                    aria-label={swatch}
+                    aria-pressed={crosshair.colour === swatch}
+                    onClick={() => onChange({ ...crosshair, colour: swatch })}
+                  />
+                ))}
+              </div>
+            </div>
+            <RangeField
+              label={copy.thickness}
+              value={crosshair.thickness}
+              min={1}
+              max={6}
+              step={1}
+              onChange={(thickness) => onChange({ ...crosshair, thickness })}
+            />
+            <RangeField
+              label={copy.gap}
+              value={crosshair.gap}
+              min={0}
+              max={20}
+              step={1}
+              onChange={(gap) => onChange({ ...crosshair, gap })}
+            />
+            <RangeField
+              label={copy.length}
+              value={crosshair.length}
+              min={0}
+              max={24}
+              step={1}
+              onChange={(length) => onChange({ ...crosshair, length })}
+            />
+            <div className="ar-checks">
+              <label className="ar-check">
+                <input
+                  type="checkbox"
+                  checked={crosshair.dot}
+                  onChange={(event) => onChange({ ...crosshair, dot: event.target.checked })}
+                />
+                <span>{copy.centreDot}</span>
+              </label>
+              <label className="ar-check">
+                <input
+                  type="checkbox"
+                  checked={crosshair.outline}
+                  onChange={(event) => onChange({ ...crosshair, outline: event.target.checked })}
+                />
+                <span>{copy.outline}</span>
+              </label>
+              <button type="button" className="ar-btn ar-btn-ghost" onClick={() => onChange({ ...DEFAULT_CROSSHAIR })}>
+                {copy.reset}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ---- target ------------------------------------------------------------ */
+
+const TARGET_SWATCHES = ['#ff4655', '#ff8c42', '#ffe94d', '#29c46a', '#ffffff', '#b15fde'];
+
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function styleFromHex(hex: string): Pick<TargetStyle, 'fill' | 'outlineColour' | 'dimFill' | 'dimOutline'> {
+  return {
+    fill: hexToRgba(hex, 0.9),
+    outlineColour: hexToRgba(hex, 0.95),
+    dimFill: 'rgba(120,140,160,0.16)',
+    dimOutline: 'rgba(150,170,190,0.35)',
+  };
+}
+
+function fillHex(style: TargetStyle): string {
+  const match = style.fill.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) return '#ff4655';
+  const r = Number(match[1]).toString(16).padStart(2, '0');
+  const g = Number(match[2]).toString(16).padStart(2, '0');
+  const b = Number(match[3]).toString(16).padStart(2, '0');
+  return `#${r}${g}${b}`;
+}
+
+function TargetShapePreview({ style, size = 120 }: { style: TargetStyle; size?: number }) {
+  const mid = size / 2;
+  const r = size * 0.28;
+  const path = (() => {
+    switch (style.shape) {
+      case 'square':
+        return <rect x={mid - r * 1.15} y={mid - r * 1.15} width={r * 2.3} height={r * 2.3} />;
+      case 'diamond':
+        return <polygon points={`${mid},${mid - r * 1.2} ${mid + r * 1.2},${mid} ${mid},${mid + r * 1.2} ${mid - r * 1.2},${mid}`} />;
+      case 'hexagon': {
+        const pts = Array.from({ length: 6 }, (_, i) => {
+          const angle = (Math.PI / 3) * i - Math.PI / 2;
+          return `${mid + r * Math.cos(angle)},${mid + r * Math.sin(angle)}`;
+        }).join(' ');
+        return <polygon points={pts} />;
+      }
+      case 'circle':
+      default:
+        return <circle cx={mid} cy={mid} r={r} />;
+    }
+  })();
+  return (
+    <svg className="ar-target-preview" viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden="true">
+      <rect width={size} height={size} fill="#151b21" />
+      <g fill={style.fill} stroke={style.outline ? style.outlineColour : 'none'} strokeWidth={2}>
+        {path}
+      </g>
+    </svg>
+  );
+}
+
+const SHAPE_OPTIONS: { id: TargetShape; label: (copy: Copy) => string }[] = [
+  { id: 'circle', label: (c) => c.shapeCircle },
+  { id: 'square', label: (c) => c.shapeSquare },
+  { id: 'diamond', label: (c) => c.shapeDiamond },
+  { id: 'hexagon', label: (c) => c.shapeHexagon },
+];
+
+export function TargetPanel({
+  copy,
+  style,
+  onChange,
+}: {
+  copy: Copy;
+  style: TargetStyle;
+  onChange: (style: TargetStyle) => void;
+}) {
+  const selectedHex = fillHex(style);
+  return (
     <section className="ar-card">
-      <p className="ar-eyebrow">{copy.crossTitle}</p>
-      <p className="ar-muted">{copy.crossSub}</p>
+      <p className="ar-eyebrow">{copy.targetTitle}</p>
+      <p className="ar-muted">{copy.targetSub}</p>
 
       <div className="ar-cross-layout">
         <div className="ar-cross-stage">
-          <CrosshairPreview crosshair={crosshair} />
+          <TargetShapePreview style={style} />
           <span className="ar-tiny ar-muted">{copy.preview}</span>
         </div>
 
         <div className="ar-cross-controls">
+          <div className="ar-target-shapes">
+            <span className="ar-field-label">{copy.targetShape}</span>
+            <div className="ar-chips">
+              {SHAPE_OPTIONS.map(({ id, label }) => (
+                <button
+                  type="button"
+                  key={id}
+                  className={style.shape === id ? 'ar-chip ar-chip-on' : 'ar-chip'}
+                  aria-pressed={style.shape === id}
+                  onClick={() => onChange({ ...style, shape: id })}
+                >
+                  {label(copy)}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="ar-swatches">
             <span className="ar-field-label">{copy.colour}</span>
             <div>
-              {SWATCHES.map((swatch) => (
+              {TARGET_SWATCHES.map((swatch) => (
                 <button
                   type="button"
                   key={swatch}
-                  className={crosshair.colour === swatch ? 'ar-swatch ar-swatch-on' : 'ar-swatch'}
+                  className={selectedHex.toLowerCase() === swatch ? 'ar-swatch ar-swatch-on' : 'ar-swatch'}
                   style={{ background: swatch }}
                   aria-label={swatch}
-                  aria-pressed={crosshair.colour === swatch}
-                  onClick={() => onChange({ ...crosshair, colour: swatch })}
+                  aria-pressed={selectedHex.toLowerCase() === swatch}
+                  onClick={() => onChange({ ...style, ...styleFromHex(swatch) })}
                 />
               ))}
             </div>
           </div>
-          <RangeField
-            label={copy.thickness}
-            value={crosshair.thickness}
-            min={1}
-            max={6}
-            step={1}
-            onChange={(thickness) => onChange({ ...crosshair, thickness })}
-          />
-          <RangeField
-            label={copy.gap}
-            value={crosshair.gap}
-            min={0}
-            max={20}
-            step={1}
-            onChange={(gap) => onChange({ ...crosshair, gap })}
-          />
-          <RangeField
-            label={copy.length}
-            value={crosshair.length}
-            min={0}
-            max={24}
-            step={1}
-            onChange={(length) => onChange({ ...crosshair, length })}
-          />
-          <div className="ar-checks">
-            <label className="ar-check">
-              <input
-                type="checkbox"
-                checked={crosshair.dot}
-                onChange={(event) => onChange({ ...crosshair, dot: event.target.checked })}
-              />
-              <span>{copy.centreDot}</span>
-            </label>
-            <label className="ar-check">
-              <input
-                type="checkbox"
-                checked={crosshair.outline}
-                onChange={(event) => onChange({ ...crosshair, outline: event.target.checked })}
-              />
-              <span>{copy.outline}</span>
-            </label>
-            <button type="button" className="ar-btn ar-btn-ghost" onClick={() => onChange({ ...DEFAULT_CROSSHAIR })}>
-              {copy.reset}
-            </button>
-          </div>
+
+          <label className="ar-check">
+            <input
+              type="checkbox"
+              checked={style.outline}
+              onChange={(event) => onChange({ ...style, outline: event.target.checked })}
+            />
+            <span>{copy.outline}</span>
+          </label>
+
+          <button type="button" className="ar-btn ar-btn-ghost" onClick={() => onChange({ ...DEFAULT_TARGET_STYLE })}>
+            {copy.reset}
+          </button>
         </div>
       </div>
     </section>
+  );
+}
+
+/* ---- custom drills ----------------------------------------------------- */
+
+function modeLabel(copy: Copy, mode: ScoreMode): string {
+  if (mode === 'click') return copy.modeClick;
+  if (mode === 'track') return copy.modeTrack;
+  return copy.modeSpray;
+}
+
+export function CustomDrillsSection({
+  copy,
+  lang,
+  vault,
+  drills,
+  selectedId,
+  onSelect,
+  onChange,
+}: {
+  copy: Copy;
+  lang: Lang;
+  vault: Vault;
+  drills: CustomDrill[];
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
+  onChange: (drills: CustomDrill[]) => void;
+}) {
+  const [showForm, setShowForm] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newMode, setNewMode] = useState<ScoreMode>('click');
+  const [importMsg, setImportMsg] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const updateDrill = (id: string, patch: Partial<CustomDrill>) => {
+    onChange(drills.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  };
+
+  const handleCreate = () => {
+    const drill = createCustomDrill(newName || copy.customDrillFallback, newMode);
+    onChange([...drills, drill]);
+    onSelect(drill.id);
+    setShowForm(false);
+    setNewName('');
+    setNewMode('click');
+  };
+
+  const handleImport = async (file: File) => {
+    try {
+      const text = await file.text();
+      const parsed = parseImport(JSON.parse(text));
+      if (!parsed.length) {
+        setImportMsg(copy.importNone);
+      } else {
+        onChange([...drills, ...parsed]);
+        setImportMsg(copy.importedCount.replace('{n}', String(parsed.length)));
+      }
+    } catch {
+      setImportMsg(copy.importNone);
+    }
+    window.setTimeout(() => setImportMsg(null), 4000);
+  };
+
+  return (
+    <div className="ar-custom-section">
+      <div className="ar-custom-head">
+        <p className="ar-eyebrow">{copy.myDrills}</p>
+        <div className="ar-custom-toolbar">
+          <button type="button" className="ar-btn ar-btn-ghost ar-btn-quiet" onClick={() => setShowForm((v) => !v)}>
+            {copy.newDrill}
+          </button>
+          <button
+            type="button"
+            className="ar-btn ar-btn-ghost ar-btn-quiet"
+            disabled={!drills.length}
+            onClick={() => downloadJson('range-07-custom-drills.json', exportAll(drills))}
+          >
+            {copy.exportAll}
+          </button>
+          <button type="button" className="ar-btn ar-btn-ghost ar-btn-quiet" onClick={() => fileRef.current?.click()}>
+            {copy.importDrills}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json"
+            className="ar-sr-only"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleImport(file);
+              event.target.value = '';
+            }}
+          />
+        </div>
+      </div>
+
+      {importMsg ? <p className="ar-tiny ar-muted">{importMsg}</p> : null}
+
+      {showForm ? (
+        <div className="ar-custom-form">
+          <input
+            type="text"
+            className="ar-custom-input"
+            placeholder={copy.customDrillFallback}
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+          />
+          <div className="ar-chips">
+            {(['click', 'track', 'spray'] as ScoreMode[]).map((mode) => (
+              <button
+                type="button"
+                key={mode}
+                className={newMode === mode ? 'ar-chip ar-chip-on' : 'ar-chip'}
+                aria-pressed={newMode === mode}
+                onClick={() => setNewMode(mode)}
+              >
+                {modeLabel(copy, mode)}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="ar-btn ar-btn-hot" onClick={handleCreate}>
+            {copy.createDrill}
+          </button>
+        </div>
+      ) : null}
+
+      {drills.length === 0 ? (
+        <p className="ar-empty">{copy.noCustomDrills}</p>
+      ) : (
+        <ul className="ar-custom-list">
+          {drills.map((drill) => {
+            const pb = personalBest(vault, drill.id);
+            const isSelected = selectedId === drill.id;
+            const isEditing = editingId === drill.id;
+            return (
+              <li key={drill.id} className="ar-custom-row">
+                <button
+                  type="button"
+                  className={isSelected ? 'ar-scenario ar-scenario-on' : 'ar-scenario'}
+                  aria-pressed={isSelected}
+                  onClick={() => onSelect(drill.id)}
+                >
+                  <span className="ar-scenario-tag">{modeLabel(copy, drill.mode)}</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="ar-custom-input ar-custom-input-inline"
+                      value={editName}
+                      autoFocus
+                      onClick={(event) => event.stopPropagation()}
+                      onChange={(event) => setEditName(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          updateDrill(drill.id, { name: editName.trim() || drill.name });
+                          setEditingId(null);
+                        }
+                        if (event.key === 'Escape') setEditingId(null);
+                      }}
+                      onBlur={() => {
+                        updateDrill(drill.id, { name: editName.trim() || drill.name });
+                        setEditingId(null);
+                      }}
+                    />
+                  ) : (
+                    <strong>{drill.name}</strong>
+                  )}
+                  <span className="ar-scenario-pb">
+                    {copy.pb}: {pb ? num(lang, pb.score, 0) : '—'}
+                  </span>
+                </button>
+                <div className="ar-custom-actions">
+                  <button
+                    type="button"
+                    className="ar-btn ar-btn-quiet"
+                    onClick={() => {
+                      setEditingId(drill.id);
+                      setEditName(drill.name);
+                    }}
+                  >
+                    {copy.rename}
+                  </button>
+                  <button
+                    type="button"
+                    className="ar-btn ar-btn-quiet"
+                    onClick={() => {
+                      const clone = createCustomDrill(`${drill.name} (copy)`, drill.mode);
+                      onChange([...drills, { ...clone, config: { ...drill.config } }]);
+                      onSelect(clone.id);
+                    }}
+                  >
+                    {copy.duplicate}
+                  </button>
+                  <button
+                    type="button"
+                    className="ar-btn ar-btn-quiet"
+                    onClick={() => downloadJson(`${slugify(drill.name)}.json`, exportDrill(drill))}
+                  >
+                    {copy.exportDrill}
+                  </button>
+                  <button
+                    type="button"
+                    className="ar-btn ar-btn-quiet"
+                    onClick={() => {
+                      if (confirmDeleteId !== drill.id) {
+                        setConfirmDeleteId(drill.id);
+                        window.setTimeout(() => setConfirmDeleteId((id) => (id === drill.id ? null : id)), 3000);
+                        return;
+                      }
+                      onChange(drills.filter((d) => d.id !== drill.id));
+                      if (selectedId === drill.id) onSelect(null);
+                      setConfirmDeleteId(null);
+                    }}
+                  >
+                    {confirmDeleteId === drill.id ? copy.confirmDelete : copy.deleteDrill}
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -530,7 +1010,7 @@ export function HistoryPanel({
               <tbody>
                 {vault.history.slice(0, 12).map((run, i) => (
                   <tr key={`${run.startedAt}-${i}`}>
-                    <th scope="row">{copy.scenarios[run.scenario].name}</th>
+                    <th scope="row">{labelFor(copy, run)}</th>
                     <td>{num(lang, run.score, 0)}</td>
                     <td>{pct(lang, run.accuracy)}</td>
                     <td>{num(lang, run.kps, 2)}</td>
@@ -555,6 +1035,41 @@ export function HistoryPanel({
 
 /* ---- results ----------------------------------------------------------- */
 
+const RANK_SUB = ['I', 'II', 'III'] as const;
+
+export function RankBadge({ copy, lang, result }: { copy: Copy; lang: Lang; result: RunResult }) {
+  const rank = useMemo(() => estimateRank(result), [result]);
+  const suffix = rank.tierIndex === 8 ? '' : ` ${RANK_SUB[rank.sub - 1]}`;
+
+  const toNextFormatted =
+    result.mode === 'track'
+      ? pct(lang, rank.toNext, 0)
+      : num(lang, rank.toNext, 0);
+
+  const progressText = rank.nextTier
+    ? copy.rankToNext.replace('{n}', toNextFormatted).replace('{name}', rank.nextTier.name)
+    : copy.rankMaxed;
+
+  return (
+    <div className="ar-rank-block">
+      <p className="ar-tiny ar-muted">{copy.rankTitle}</p>
+      <span
+        className="ar-rank-badge"
+        style={{
+          color: rank.tier.color,
+          borderColor: rank.tier.color,
+          background: `${rank.tier.color}22`,
+        }}
+      >
+        {rank.tier.name}
+        {suffix}
+      </span>
+      <p className="ar-tiny ar-muted">{progressText}</p>
+      <p className="ar-tiny ar-muted">{copy.rankDisclaimer}</p>
+    </div>
+  );
+}
+
 export function ResultScreen({
   copy,
   lang,
@@ -570,8 +1085,9 @@ export function ResultScreen({
   onAgain: () => void;
   onMenu: () => void;
 }) {
-  const best = personalBest(vault, result.scenario);
-  const average = recentAverage(vault, result.scenario, 5);
+  const key = drillKeyOf(result);
+  const best = personalBest(vault, key);
+  const average = recentAverage(vault, key, 5);
   const isPb = !best || result.score >= best.score;
   const mode = result.mode;
 
@@ -586,8 +1102,11 @@ export function ResultScreen({
       <header className="ar-result-head">
         <div>
           <p className="ar-eyebrow">{copy.resultTitle}</p>
-          <h2>{copy.scenarios[result.scenario].name}</h2>
-          {isPb ? <span className="ar-badge">{copy.newPb}</span> : null}
+          <h2>{labelFor(copy, result)}</h2>
+          <div className="ar-result-badges">
+            {isPb ? <span className="ar-badge">{copy.newPb}</span> : null}
+            <RankBadge copy={copy} lang={lang} result={result} />
+          </div>
         </div>
         <div className="ar-result-actions">
           <button type="button" className="ar-btn ar-btn-ghost" onClick={onMenu}>

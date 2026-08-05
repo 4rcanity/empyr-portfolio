@@ -1,0 +1,1006 @@
+/* Empyr Gambit — a quiet tournament room: slate, bone and brass. */
+
+.cx-shell {
+  --ink: #14171a;
+  --panel: #1c2126;
+  --panel-2: #222930;
+  --line: rgba(236, 230, 218, 0.11);
+  --line-strong: rgba(236, 230, 218, 0.22);
+  --paper: #ece6da;
+  --dim: #9aa3a8;
+  --faint: #6d767c;
+  --brass: #c8a253;
+  --brass-soft: rgba(200, 162, 83, 0.16);
+  --light-sq: #cbc1ab;
+  --dark-sq: #4b5a56;
+  --shade-1: 0 1px 2px rgba(13, 20, 18, 0.5);
+  --shade-2: 0 10px 26px -12px rgba(13, 20, 18, 0.75);
+
+  box-sizing: border-box;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0.85rem clamp(0.7rem, 2.5vw, 1.6rem) 3rem;
+  max-width: 78rem;
+  color: var(--paper);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.cx-shell *,
+.cx-shell *::before,
+.cx-shell *::after {
+  box-sizing: border-box;
+}
+
+.cx-shell--gate {
+  display: grid;
+  place-items: center;
+  min-height: 90vh;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.cx-top {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.cx-brand {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.cx-roomcode {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.cx-roomcode b {
+  color: var(--paper);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+}
+
+.cx-grow {
+  flex: 1;
+}
+
+.cx-status {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.cx-status::before {
+  content: '';
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: var(--faint);
+  vertical-align: 0.05rem;
+}
+
+.cx-status.is-live::before {
+  background: #7fbf8a;
+}
+.cx-status.is-lost::before,
+.cx-status.is-dialing::before {
+  background: var(--brass);
+}
+
+.cx-leave {
+  color: var(--dim);
+  font-size: 0.8rem;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.cx-leave:hover {
+  color: var(--paper);
+  border-bottom-color: var(--brass);
+}
+
+.cx-gate {
+  color: var(--dim);
+  font-size: 0.95rem;
+  padding: 3rem 0;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ common parts */
+
+.cx-eyebrow {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.cx-card {
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 1rem 1.05rem 1.15rem;
+  background:
+    linear-gradient(180deg, rgba(236, 230, 218, 0.045), rgba(236, 230, 218, 0.012)),
+    var(--panel);
+  box-shadow: var(--shade-2);
+}
+
+.cx-card h1 {
+  margin: 0.5rem 0 0;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.9rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.cx-card h2 {
+  margin: 0;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.cx-sub {
+  margin: 0.35rem 0 0.9rem;
+  color: var(--dim);
+  font-size: 0.85rem;
+}
+
+.cx-note {
+  margin: 0.6rem 0 0;
+  color: var(--faint);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.cx-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.cx-btn {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.3rem;
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(180deg, rgba(236, 230, 218, 0.08), rgba(236, 230, 218, 0.02));
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.16s, border-color 0.16s, transform 0.12s;
+}
+
+.cx-btn:hover:not(:disabled) {
+  border-color: var(--brass);
+  background: linear-gradient(180deg, rgba(200, 162, 83, 0.18), rgba(200, 162, 83, 0.06));
+}
+
+.cx-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.cx-btn:focus-visible,
+.cx-move:focus-visible,
+.cx-chip:focus-visible,
+.cx-promobtn:focus-visible,
+.cx-fen:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.cx-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.cx-btn--go {
+  border-color: rgba(200, 162, 83, 0.6);
+  background: linear-gradient(180deg, #d8b264, #b98f3f);
+  color: #1a1408;
+  font-weight: 600;
+}
+
+.cx-btn--go:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e2bd70, #c39a48);
+}
+
+.cx-btn--quiet {
+  background: transparent;
+  color: var(--dim);
+}
+
+.cx-btn--danger {
+  border-color: rgba(198, 90, 76, 0.55);
+  color: #f0b4ab;
+  background: linear-gradient(180deg, rgba(198, 90, 76, 0.24), rgba(198, 90, 76, 0.08));
+}
+
+.cx-btn--tiny {
+  padding: 0.34rem 0.62rem;
+  font-size: 0.72rem;
+}
+
+.cx-field {
+  display: block;
+  margin-top: 0.6rem;
+}
+
+.cx-field > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cx-field input {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.3rem;
+  padding: 0.55rem 0.7rem;
+  background: rgba(9, 12, 13, 0.5);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.cx-field input:focus {
+  outline: 2px solid var(--brass);
+  outline-offset: 1px;
+}
+
+.cx-field input:disabled {
+  opacity: 0.5;
+}
+
+.cx-fields {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.cx-fen {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  font-size: 0.72rem !important;
+}
+
+.cx-checkin {
+  width: min(28rem, 92vw);
+}
+
+/* ------------------------------------------------------------------- lobby */
+
+.cx-lobby {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-content: start;
+  margin-top: 1rem;
+}
+
+/* The preview stands beside the settings and spans them, so the board is the
+   first thing you see even before the clocks start. */
+.cx-card--preview {
+  grid-row: span 3;
+}
+
+.cx-preview {
+  width: 100%;
+  max-width: 26rem;
+  margin: 0.7rem auto 0;
+  pointer-events: none;
+}
+
+.cx-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.cx-chip {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.cx-chip:hover:not(:disabled) {
+  color: var(--paper);
+  border-color: var(--brass);
+}
+
+.cx-chip.is-on {
+  border-color: var(--brass);
+  background: var(--brass-soft);
+  color: var(--paper);
+}
+
+.cx-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cx-seats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.cx-seat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(9, 12, 13, 0.35);
+}
+
+.cx-seatdot,
+.cx-mark {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(13, 20, 18, 0.6);
+}
+
+.cx-seat--w .cx-seatdot,
+.cx-mark--w {
+  background: linear-gradient(160deg, #f6f1e6, #cfc7b7);
+}
+
+.cx-seat--b .cx-seatdot,
+.cx-mark--b {
+  background: linear-gradient(160deg, #3a4145, #1b1f22);
+  box-shadow: inset 0 0 0 1px rgba(236, 230, 218, 0.35);
+}
+
+.cx-seatname {
+  font-size: 0.9rem;
+}
+
+.cx-seatname em {
+  color: var(--faint);
+  font-style: normal;
+}
+
+.cx-seatcolor {
+  margin-left: auto;
+  color: var(--faint);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cx-tags {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.cx-tag {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.05rem 0.4rem;
+  color: var(--dim);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cx-tag.is-good {
+  border-color: rgba(127, 191, 138, 0.5);
+  color: #a8d7af;
+}
+
+.cx-tag.is-bad {
+  border-color: rgba(198, 90, 76, 0.5);
+  color: #e0a79e;
+}
+
+/* -------------------------------------------------------------- play frame */
+
+.cx-play {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: min(42rem, 100%) minmax(15rem, 22rem);
+  justify-content: center;
+  align-items: start;
+  margin-top: 0.9rem;
+}
+
+.cx-boardside {
+  min-width: 0;
+  width: 100%;
+  /* Keep the whole board, both clocks and the controls on one screen. */
+  max-width: min(100%, 76vh);
+  margin: 0 auto;
+}
+
+.cx-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.55rem;
+  border: 1px solid var(--line);
+  background: rgba(9, 12, 13, 0.4);
+}
+
+.cx-bar--top {
+  border-radius: 0.4rem 0.4rem 0 0;
+  border-bottom: none;
+}
+
+.cx-bar--bottom {
+  border-radius: 0 0 0.4rem 0.4rem;
+  border-top: none;
+}
+
+.cx-bar.is-ticking {
+  border-color: rgba(200, 162, 83, 0.4);
+  background: linear-gradient(90deg, rgba(200, 162, 83, 0.12), rgba(9, 12, 13, 0.4));
+}
+
+.cx-who {
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 8rem;
+}
+
+.cx-who em {
+  color: var(--faint);
+  font-style: normal;
+  font-size: 0.72rem;
+}
+
+.cx-tray {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
+.cx-tray .cx-piece {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-right: -0.18rem;
+  opacity: 0.85;
+}
+
+.cx-balance {
+  margin-left: 0.45rem;
+  color: var(--brass);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+}
+
+.cx-clock {
+  flex: none;
+  min-width: 4.1rem;
+  padding: 0.16rem 0.45rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.25rem;
+  background: rgba(6, 9, 10, 0.7);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  color: var(--paper);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.cx-clock.is-run {
+  border-color: rgba(200, 162, 83, 0.5);
+  color: #f3e6c8;
+}
+
+.cx-clock.is-low {
+  border-color: rgba(198, 90, 76, 0.6);
+  color: #f0b4ab;
+}
+
+/* ------------------------------------------------------------------- board */
+
+.cx-boardwrap {
+  position: relative;
+}
+
+.cx-board {
+  display: grid;
+  /* Both axes have to be declared, or tall rows of pieces stretch the squares. */
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 1px solid rgba(13, 20, 18, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(236, 230, 218, 0.08),
+    0 18px 40px -18px rgba(10, 16, 14, 0.9);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cx-sq {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Fine grain rather than a flat fill, so the board reads as a real surface. */
+.cx-sq--light {
+  background-color: var(--light-sq);
+  background-image: repeating-linear-gradient(
+    58deg,
+    rgba(255, 255, 255, 0.16) 0 1px,
+    rgba(90, 74, 48, 0.05) 1px 3px
+  );
+}
+
+.cx-sq--dark {
+  background-color: var(--dark-sq);
+  background-image: repeating-linear-gradient(
+    58deg,
+    rgba(255, 255, 255, 0.06) 0 1px,
+    rgba(10, 20, 18, 0.14) 1px 3px
+  );
+}
+
+.cx-rank,
+.cx-file {
+  position: absolute;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: clamp(0.42rem, 1.1vw, 0.58rem);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.cx-rank {
+  top: 0.1rem;
+  left: 0.14rem;
+}
+
+.cx-file {
+  right: 0.16rem;
+  bottom: 0.02rem;
+}
+
+.cx-sq--light .cx-rank,
+.cx-sq--light .cx-file {
+  color: rgba(52, 44, 30, 0.55);
+}
+
+.cx-sq--dark .cx-rank,
+.cx-sq--dark .cx-file {
+  color: rgba(228, 222, 208, 0.5);
+}
+
+.cx-sq.is-last::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 3px rgba(200, 162, 83, 0.55);
+  pointer-events: none;
+}
+
+.cx-sq.is-selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(200, 162, 83, 0.26);
+  box-shadow: inset 0 0 0 2px rgba(200, 162, 83, 0.8);
+  pointer-events: none;
+}
+
+.cx-sq.is-pending::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px rgba(200, 162, 83, 0.7);
+  pointer-events: none;
+}
+
+.cx-sq.is-check {
+  background-image: radial-gradient(circle at 50% 50%, rgba(198, 90, 76, 0.85), transparent 68%);
+}
+
+.cx-dot,
+.cx-capture {
+  position: absolute;
+  pointer-events: none;
+}
+
+.cx-dot {
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background: rgba(24, 32, 30, 0.34);
+}
+
+.cx-sq--dark .cx-dot {
+  background: rgba(12, 18, 16, 0.42);
+}
+
+.cx-capture {
+  inset: 6%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.28rem rgba(24, 32, 30, 0.3);
+}
+
+.cx-sq.is-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(200, 162, 83, 0.3);
+  pointer-events: none;
+}
+
+.cx-piece {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 88%;
+  height: 88%;
+  filter: drop-shadow(0 1px 1.5px rgba(12, 20, 16, 0.55));
+}
+
+.cx-piece--w {
+  fill: #f4efe3;
+  stroke: #22272a;
+  stroke-width: 1.1;
+}
+
+.cx-piece--b {
+  fill: #1c2226;
+  stroke: #0d1114;
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 0.6px rgba(238, 233, 219, 0.75))
+    drop-shadow(0 1px 1.5px rgba(12, 20, 16, 0.5));
+}
+
+.cx-piece--b .cx-mane,
+.cx-piece--b .cx-slit {
+  stroke: #8c968f;
+}
+
+.cx-piece--w .cx-eye {
+  fill: #22272a;
+  stroke: none;
+}
+
+.cx-piece--b .cx-eye {
+  fill: #d3ccbd;
+  stroke: none;
+}
+
+.cx-piece .cx-mane,
+.cx-piece .cx-slit {
+  fill: none;
+}
+
+.cx-float {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.cx-float .cx-piece {
+  width: 104%;
+  height: 104%;
+  filter: drop-shadow(0 6px 8px rgba(8, 14, 12, 0.6));
+}
+
+.cx-underboard {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.cx-flag {
+  border: 1px solid rgba(198, 90, 76, 0.55);
+  border-radius: 999px;
+  padding: 0.14rem 0.55rem;
+  color: #f0b4ab;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------- side panel */
+
+.cx-side {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.cx-banner {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--brass);
+  border-radius: 0.3rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(9, 12, 13, 0.45);
+}
+
+.cx-banner b {
+  display: block;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.cx-banner span {
+  display: block;
+  color: var(--dim);
+  font-size: 0.78rem;
+}
+
+.cx-banner.is-over {
+  border-left-color: #d8b264;
+  background: linear-gradient(180deg, rgba(200, 162, 83, 0.16), rgba(9, 12, 13, 0.45));
+}
+
+.cx-banner.is-offer {
+  border-left-color: #7fbf8a;
+}
+
+.cx-score {
+  margin-top: 0.25rem;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--brass) !important;
+}
+
+.cx-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  background: rgba(9, 12, 13, 0.3);
+}
+
+.cx-controls .cx-note {
+  flex-basis: 100%;
+  margin-top: 0.2rem;
+}
+
+.cx-sheet {
+  border: 1px solid var(--line);
+  border-radius: 0.3rem;
+  padding: 0.7rem 0.75rem 0.8rem;
+  background: rgba(9, 12, 13, 0.3);
+}
+
+.cx-sheet h2 {
+  margin: 0 0 0.45rem;
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.cx-moves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.28rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 13rem;
+  overflow-y: auto;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.78rem;
+}
+
+.cx-moves li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.cx-num {
+  color: var(--faint);
+}
+
+.cx-move {
+  appearance: none;
+  border: none;
+  border-radius: 0.2rem;
+  padding: 0.05rem 0.22rem;
+  background: transparent;
+  color: var(--paper);
+  font: inherit;
+  cursor: pointer;
+}
+
+.cx-move:hover {
+  background: var(--brass-soft);
+}
+
+.cx-move.is-on {
+  background: var(--brass);
+  color: #1a1408;
+}
+
+.cx-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.18rem;
+  font-size: 0.74rem;
+  color: var(--dim);
+}
+
+.cx-log li.is-good {
+  color: #a8d7af;
+}
+.cx-log li.is-bad {
+  color: #e0a79e;
+}
+.cx-log li.is-sharp {
+  color: var(--brass);
+}
+
+/* ------------------------------------------------------------ promotion */
+
+.cx-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(8, 12, 13, 0.52);
+  backdrop-filter: blur(1.5px);
+}
+
+.cx-promo {
+  width: min(24rem, 94vw);
+}
+
+.cx-promorow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.cx-promobtn {
+  appearance: none;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.3rem;
+  padding: 0.5rem 0.2rem;
+  background: linear-gradient(180deg, rgba(203, 193, 171, 0.16), rgba(203, 193, 171, 0.04));
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.cx-promobtn:hover {
+  border-color: var(--brass);
+  background: var(--brass-soft);
+}
+
+.cx-promobtn .cx-piece {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+/* ---------------------------------------------------------------- toasts */
+
+.cx-toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 60;
+  display: grid;
+  gap: 0.35rem;
+  width: min(24rem, 92vw);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.cx-toasts p {
+  margin: 0;
+  border: 1px solid rgba(198, 90, 76, 0.5);
+  border-radius: 0.3rem;
+  padding: 0.5rem 0.7rem;
+  background: rgba(28, 20, 18, 0.94);
+  color: #f0d9d4;
+  font-size: 0.8rem;
+  text-align: center;
+  box-shadow: var(--shade-2);
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 61rem) {
+  .cx-play {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cx-boardside {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 26rem) {
+  .cx-shell {
+    padding: 0.6rem 0.55rem 2.5rem;
+    font-size: 14px;
+  }
+
+  .cx-who {
+    max-width: 5rem;
+    font-size: 0.8rem;
+  }
+
+  .cx-clock {
+    min-width: 3.5rem;
+    font-size: 0.92rem;
+  }
+
+  .cx-tray .cx-piece {
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .cx-lobby {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cx-card--preview {
+    grid-row: auto;
+  }
+}

@@ -18,8 +18,9 @@ const copy =
         status: 'Speelbaar',
         headingA: 'Kleine games,',
         headingB: 'grote vibes.',
-        body: 'Speelbare browserexperimenten — drie multiplayer tafels die draaien op eigen realtime servers.',
+        body: 'Speelbare browserexperimenten — multiplayer tafels en solo-tools, elk op een eigen realtime server waar nodig.',
         back: 'Terug naar webdesign',
+        explore: 'Alles ontdekken',
         gamesNav: 'Game development',
         frenzyTitle: 'HI/LO Frenzy',
         frenzyBody:
@@ -34,6 +35,28 @@ const copy =
         monoBody:
           'Bordspel met straten, veilingen, ruilhandel, hypotheken, huizen, hotels en faillissementen. 2 tot 8 spelers.',
         monoCta: 'Speel Ledger',
+        wordTitle: 'EMPYR Wordsearch',
+        wordBody: 'Gedeeld woordrooster — wie een woord eerst vindt, claimt het. Race tegen anderen op dezelfde grid.',
+        wordCta: 'Speel Wordsearch',
+        gooseTitle: 'Ganzenbord',
+        gooseBody: 'Klassiek Nederlands ganzenbord met een strafvenster dat uitlegt wat er gebeurt als je een tegel raakt.',
+        gooseCta: 'Speel Ganzenbord',
+        mensTitle: 'Mens erger je niet',
+        mensBody: 'Pionnen, dobbelstenen en het classic race-naar-huis — speelbaar in de browser.',
+        mensCta: 'Speel Mens',
+        aimTitle: 'RANGE-07',
+        aimBody: 'Aim trainer met Valorant-achtige cm/360-instellingen. Solo, geen server nodig.',
+        aimCta: 'Open RANGE-07',
+        chessTitle: 'Empyr Gambit',
+        chessBody: 'Klassiek schaken met klok, promotie, remise-claims en PGN — 1v1 op een eigen realtime server.',
+        chessCta: 'Speel Schaak',
+        draughtsTitle: 'Draughts',
+        draughtsBody: 'Internationaal dammen 10×10 met verplichte slagen, multi-captures en dam-promotie.',
+        draughtsCta: 'Speel Dammen',
+        liarsTitle: 'Liars Bar',
+        liarsBody: 'Bluf met tafelkaarten, daag liars uit, en overleef de revolver — 2 tot 6 spelers aan de bar.',
+        liarsCta: 'Speel Liars Bar',
+        soloBadge: 'Solo',
         more: 'Meer minigames volgen.',
       }
     : {
@@ -43,8 +66,9 @@ const copy =
         status: 'Playable',
         headingA: 'Small games,',
         headingB: 'big vibes.',
-        body: 'Playable browser experiments — three multiplayer tables, each running on its own realtime server.',
+        body: 'Playable browser experiments — multiplayer tables and solo tools, each on its own realtime server where needed.',
         back: 'Back to web design',
+        explore: 'Explore all',
         gamesNav: 'Game development',
         frenzyTitle: 'HI/LO Frenzy',
         frenzyBody:
@@ -59,6 +83,28 @@ const copy =
         monoBody:
           'Property board game with auctions, trading, mortgages, houses, hotels and bankruptcies. 2 to 8 players.',
         monoCta: 'Play Ledger',
+        wordTitle: 'EMPYR Wordsearch',
+        wordBody: 'Shared word grid — first to find a word claims it. Race others on the same board.',
+        wordCta: 'Play Wordsearch',
+        gooseTitle: 'Ganzenbord',
+        gooseBody: 'Classic Dutch goose board with a punishment window that explains what a square does to you.',
+        gooseCta: 'Play Ganzenbord',
+        mensTitle: 'Mens erger je niet',
+        mensBody: 'Pawns, dice, and the classic race home — playable in the browser.',
+        mensCta: 'Play Mens',
+        aimTitle: 'RANGE-07',
+        aimBody: 'Aim trainer with Valorant-style cm/360 settings. Solo — no server required.',
+        aimCta: 'Open RANGE-07',
+        chessTitle: 'Empyr Gambit',
+        chessBody: 'Classic chess with clocks, promotion, draw claims and PGN — 1v1 on its own realtime server.',
+        chessCta: 'Play Chess',
+        draughtsTitle: 'Draughts',
+        draughtsBody: 'International draughts 10×10 with forced captures, multi-capture chains and king promotion.',
+        draughtsCta: 'Play Draughts',
+        liarsTitle: 'Liars Bar',
+        liarsBody: 'Bluff table cards, call liars, and survive the revolver — 2 to 6 players at the bar.',
+        liarsCta: 'Play Liars Bar',
+        soloBadge: 'Solo',
         more: 'More minigames coming soon.',
       };
 ---
@@ -90,6 +136,18 @@ const copy =
           Empyr
         </a>
         <div class="flex items-center gap-3">
+          <a
+            href={`/${lang}?chooser=1`}
+            class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-medium text-zinc-300 transition hover:border-white/25 hover:text-white"
+          >
+            <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1.6"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.6"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.6"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.6"></rect>
+            </svg>
+            <span class="hidden sm:inline">{copy.explore}</span>
+          </a>
           <a href={`/${lang}/games`} class="hidden text-sm font-medium text-zinc-400 transition hover:text-white sm:inline">
             {copy.gamesNav}
           </a>
@@ -199,6 +257,193 @@ const copy =
             <p class="mt-3 max-w-xl text-sm leading-6 text-zinc-400">{copy.monoBody}</p>
             <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300">
               {copy.monoCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/wordsearch`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-amber-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-amber-500/20 blur-3xl transition group-hover:bg-amber-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="11" cy="11" r="6.5"></circle>
+                  <path d="m16 16 4 4" stroke-linecap="round"></path>
+                </svg>
+              </span>
+              <span class="rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-300">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.wordTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.wordBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-amber-300">
+              {copy.wordCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/ganzenbord`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-violet-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-violet-500/20 blur-3xl transition group-hover:bg-violet-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500 text-white shadow-lg shadow-violet-500/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <path d="M4 19c3-1 5-4 5-7s-1-5-3-6c3 1 7 1 10-1 1 4-1 9-4 12-2 2-5 3-8 2z" stroke-linejoin="round"></path>
+                </svg>
+              </span>
+              <span class="rounded-full border border-violet-400/20 bg-violet-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-violet-300">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.gooseTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.gooseBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-violet-300">
+              {copy.gooseCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/mens`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-rose-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-rose-500/20 blur-3xl transition group-hover:bg-rose-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-lg shadow-rose-500/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="8" cy="8" r="2.5"></circle>
+                  <circle cx="16" cy="8" r="2.5"></circle>
+                  <circle cx="8" cy="16" r="2.5"></circle>
+                  <circle cx="16" cy="16" r="2.5"></circle>
+                </svg>
+              </span>
+              <span class="rounded-full border border-rose-400/20 bg-rose-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-300">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.mensTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.mensBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-rose-300">
+              {copy.mensCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/aim`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-sky-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-sky-500/20 blur-3xl transition group-hover:bg-sky-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 text-white shadow-lg shadow-sky-500/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="12" cy="12" r="8"></circle>
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-linecap="round"></path>
+                </svg>
+              </span>
+              <span class="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">
+                {copy.soloBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.aimTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.aimBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-sky-300">
+              {copy.aimCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/chess`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-yellow-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-yellow-500/20 blur-3xl transition group-hover:bg-yellow-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-600 text-white shadow-lg shadow-yellow-600/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <path d="M8 20h8M10 20V9l-2-2h8l-2 2v11M12 4v3M9 7h6" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </span>
+              <span class="rounded-full border border-yellow-400/20 bg-yellow-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-yellow-200">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.chessTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.chessBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-yellow-200">
+              {copy.chessCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/draughts`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-orange-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-orange-500/20 blur-3xl transition group-hover:bg-orange-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="8" cy="8" r="2.2"></circle>
+                  <circle cx="16" cy="8" r="2.2"></circle>
+                  <circle cx="12" cy="14" r="2.2"></circle>
+                  <circle cx="8" cy="18" r="2.2"></circle>
+                  <circle cx="16" cy="18" r="2.2"></circle>
+                </svg>
+              </span>
+              <span class="rounded-full border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-orange-300">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.draughtsTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.draughtsBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-orange-300">
+              {copy.draughtsCta}
+              <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
+            </span>
+          </div>
+        </a>
+
+        <a
+          href={`/${lang}/minigames/liars`}
+          class="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-7 transition duration-500 hover:-translate-y-1 hover:border-red-400/45 sm:p-9"
+        >
+          <div class="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-red-500/20 blur-3xl transition group-hover:bg-red-500/30"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between gap-4">
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9c2b2b] text-white shadow-lg shadow-red-900/40">
+                <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <path d="M4 14h10l4-2 2 1v3l-2 1-4-2H4z" stroke-linejoin="round"></path>
+                  <circle cx="7" cy="15.5" r="1.2"></circle>
+                  <path d="M14 8v4M16 9v3" stroke-linecap="round"></path>
+                </svg>
+              </span>
+              <span class="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-300">
+                {copy.frenzyBadge}
+              </span>
+            </div>
+            <h2 class="mt-10 text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.liarsTitle}</h2>
+            <p class="mt-3 max-w-md text-sm leading-6 text-zinc-400">{copy.liarsBody}</p>
+            <span class="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-red-300">
+              {copy.liarsCta}
               <span class="transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">→</span>
             </span>
           </div>

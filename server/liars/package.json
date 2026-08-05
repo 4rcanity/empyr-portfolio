@@ -1,0 +1,19 @@
+{
+  "name": "empyr-liars",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8795",
+    "deploy": "wrangler deploy",
+    "check": "wrangler deploy --dry-run",
+    "types": "wrangler types",
+    "smoke": "node scripts/smoke.mjs",
+    "afk": "node scripts/afk.mjs",
+    "bots": "node scripts/bots.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "wrangler": "^4.26.0"
+  }
+}

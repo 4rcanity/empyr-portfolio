@@ -14,9 +14,10 @@ export interface Copy {
   tagline: string;
   back: string;
 
-  tabs: { drills: string; sens: string; crosshair: string; history: string };
+  tabs: { drills: string; sens: string; crosshair: string; target: string; history: string };
 
   scenarios: Record<ScenarioId, ScenarioCopy>;
+  customDrillFallback: string;
 
   setup: string;
   duration: string;
@@ -25,10 +26,29 @@ export interface Copy {
   targetSize: string;
   targetCount: string;
   spawnArea: string;
+  targetSpeed: string;
+  directionChange: string;
   degrees: string;
   reset: string;
   start: string;
   quickStart: string;
+
+  myDrills: string;
+  noCustomDrills: string;
+  newDrill: string;
+  createDrill: string;
+  exportAll: string;
+  importDrills: string;
+  importedCount: string;
+  importNone: string;
+  rename: string;
+  duplicate: string;
+  deleteDrill: string;
+  confirmDelete: string;
+  exportDrill: string;
+  modeClick: string;
+  modeTrack: string;
+  modeSpray: string;
 
   sensTitle: string;
   sensSub: string;
@@ -65,6 +85,24 @@ export interface Copy {
   centreDot: string;
   outline: string;
   preview: string;
+
+  audioTitle: string;
+  audioSub: string;
+  soundEnabled: string;
+  volume: string;
+
+  targetTitle: string;
+  targetSub: string;
+  targetShape: string;
+  shapeCircle: string;
+  shapeSquare: string;
+  shapeDiamond: string;
+  shapeHexagon: string;
+
+  rankTitle: string;
+  rankDisclaimer: string;
+  rankToNext: string;
+  rankMaxed: string;
 
   historyTitle: string;
   historySub: string;
@@ -221,8 +259,9 @@ const en: Copy = {
   brand: 'RANGE-07',
   tagline: 'VALORANT aim trainer',
   back: '← Back',
-  tabs: { drills: 'Drills', sens: 'Sensitivity', crosshair: 'Crosshair', history: 'History' },
+  tabs: { drills: 'Drills', sens: 'Sensitivity', crosshair: 'Crosshair', target: 'Target', history: 'History' },
   scenarios: scenariosEn,
+  customDrillFallback: 'Custom drill',
 
   setup: 'Run setup',
   duration: 'Duration',
@@ -231,10 +270,29 @@ const en: Copy = {
   targetSize: 'Target size',
   targetCount: 'Targets at once',
   spawnArea: 'Spawn area',
+  targetSpeed: 'Target speed',
+  directionChange: 'Direction change',
   degrees: '°',
   reset: 'Reset to default',
   start: 'Start drill',
   quickStart: 'Start',
+
+  myDrills: 'My drills',
+  noCustomDrills: 'No custom drills yet. Build one below.',
+  newDrill: '+ New drill',
+  createDrill: 'Create',
+  exportAll: 'Export all',
+  importDrills: 'Import',
+  importedCount: 'Imported {n} drill(s).',
+  importNone: 'No valid drills found in that file.',
+  rename: 'Rename',
+  duplicate: 'Duplicate',
+  deleteDrill: 'Delete',
+  confirmDelete: 'Click again to confirm',
+  exportDrill: 'Export',
+  modeClick: 'Click',
+  modeTrack: 'Track',
+  modeSpray: 'Spray',
 
   sensTitle: 'Sensitivity',
   sensSub:
@@ -272,6 +330,24 @@ const en: Copy = {
   centreDot: 'Centre dot',
   outline: 'Outline',
   preview: 'Preview',
+
+  audioTitle: 'Audio',
+  audioSub: 'Short synthesized feedback for shots and personal bests.',
+  soundEnabled: 'Sound effects',
+  volume: 'Volume',
+
+  targetTitle: 'Target',
+  targetSub: 'Shape and colour for every target on the range.',
+  targetShape: 'Shape',
+  shapeCircle: 'Circle',
+  shapeSquare: 'Square',
+  shapeDiamond: 'Diamond',
+  shapeHexagon: 'Hexagon',
+
+  rankTitle: 'Estimated rank',
+  rankDisclaimer: 'A rough VALORANT-style estimate from this run only — not a real rank.',
+  rankToNext: '+{n} to {name}',
+  rankMaxed: 'Radiant — as good as this estimate gets.',
 
   historyTitle: 'Run history',
   historySub: 'Stored in this browser only. Nothing leaves your machine.',
@@ -339,8 +415,9 @@ const nl: Copy = {
   brand: 'RANGE-07',
   tagline: 'VALORANT aim-trainer',
   back: '← Terug',
-  tabs: { drills: 'Drills', sens: 'Gevoeligheid', crosshair: 'Crosshair', history: 'Historie' },
+  tabs: { drills: 'Drills', sens: 'Gevoeligheid', crosshair: 'Crosshair', target: 'Doel', history: 'Historie' },
   scenarios: scenariosNl,
+  customDrillFallback: 'Aangepaste drill',
 
   setup: 'Instellingen',
   duration: 'Duur',
@@ -349,10 +426,29 @@ const nl: Copy = {
   targetSize: 'Doelgrootte',
   targetCount: 'Doelen tegelijk',
   spawnArea: 'Spawnvlak',
+  targetSpeed: 'Doelsnelheid',
+  directionChange: 'Richtingswissel',
   degrees: '°',
   reset: 'Terug naar standaard',
   start: 'Start drill',
   quickStart: 'Start',
+
+  myDrills: 'Mijn drills',
+  noCustomDrills: 'Nog geen aangepaste drills. Maak er hieronder een.',
+  newDrill: '+ Nieuwe drill',
+  createDrill: 'Aanmaken',
+  exportAll: 'Alles exporteren',
+  importDrills: 'Importeren',
+  importedCount: '{n} drill(s) geïmporteerd.',
+  importNone: 'Geen geldige drills in dat bestand.',
+  rename: 'Hernoemen',
+  duplicate: 'Dupliceren',
+  deleteDrill: 'Verwijderen',
+  confirmDelete: 'Nogmaals klikken om te bevestigen',
+  exportDrill: 'Exporteren',
+  modeClick: 'Klik',
+  modeTrack: 'Track',
+  modeSpray: 'Spray',
 
   sensTitle: 'Gevoeligheid',
   sensSub:
@@ -390,6 +486,24 @@ const nl: Copy = {
   centreDot: 'Middenstip',
   outline: 'Rand',
   preview: 'Voorbeeld',
+
+  audioTitle: 'Audio',
+  audioSub: 'Korte synthetische feedback voor schoten en persoonlijke records.',
+  soundEnabled: 'Geluidseffecten',
+  volume: 'Volume',
+
+  targetTitle: 'Doel',
+  targetSub: 'Vorm en kleur voor elk doel op de baan.',
+  targetShape: 'Vorm',
+  shapeCircle: 'Cirkel',
+  shapeSquare: 'Vierkant',
+  shapeDiamond: 'Ruit',
+  shapeHexagon: 'Hexagon',
+
+  rankTitle: 'Geschatte rank',
+  rankDisclaimer: 'Een ruwe VALORANT-achtige schatting op basis van alleen deze run — geen echte rank.',
+  rankToNext: '+{n} naar {name}',
+  rankMaxed: 'Radiant — zo goed als deze schatting wordt.',
 
   historyTitle: 'Historie',
   historySub: 'Alleen in deze browser opgeslagen. Er gaat niets van je apparaat af.',

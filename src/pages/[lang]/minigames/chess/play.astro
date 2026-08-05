@@ -1,0 +1,47 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import ChessGame from '../../../../games/chess/ChessGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const title = lang === 'nl' ? 'Empyr Gambit — bord' : 'Empyr Gambit — board';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background-color: #14171a;
+        background-image:
+          radial-gradient(120% 80% at 50% -10%, rgba(200, 162, 83, 0.09), transparent 62%),
+          radial-gradient(80% 60% at 12% 108%, rgba(75, 90, 86, 0.28), transparent 66%),
+          repeating-linear-gradient(
+            122deg,
+            rgba(236, 230, 218, 0.014) 0 1px,
+            rgba(0, 0, 0, 0) 1px 4px
+          );
+        background-attachment: fixed;
+      }
+    </style>
+  </head>
+  <body>
+    <ChessGame client:only="react" lang={lang} />
+  </body>
+</html>

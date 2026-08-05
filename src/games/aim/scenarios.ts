@@ -45,11 +45,24 @@ export interface RunConfig {
   size: number;
   targets: number;
   area: number;
+  /** Target travel speed, degrees per second. 0 = static. Lets any drill —
+      including normally-static click drills — be turned into a moving one. */
+  speed: number;
+  /** Seconds between direction changes while moving. 0 = bounce off the
+      spawn box edges only, never picking a fresh heading early. */
+  turnEvery: number;
 }
 
 export function defaultConfig(id: ScenarioId): RunConfig {
   const def = SCENARIOS[id];
-  return { duration: def.duration, size: def.size, targets: def.targets, area: def.area };
+  return {
+    duration: def.duration,
+    size: def.size,
+    targets: def.targets,
+    area: def.area,
+    speed: def.speed,
+    turnEvery: def.turnEvery,
+  };
 }
 
 export const LIMITS = {
@@ -57,6 +70,8 @@ export const LIMITS = {
   size: { min: 0.25, max: 6, step: 0.05 },
   targets: { min: 1, max: 16, step: 1 },
   area: { min: 4, max: 45, step: 1 },
+  speed: { min: 0, max: 60, step: 1 },
+  turnEvery: { min: 0, max: 6, step: 0.1 },
 };
 
 export function clampConfig(config: RunConfig): RunConfig {
@@ -67,5 +82,7 @@ export function clampConfig(config: RunConfig): RunConfig {
     size: Math.round(fit(config.size, 'size') * 100) / 100,
     targets: Math.round(fit(config.targets, 'targets')),
     area: Math.round(fit(config.area, 'area')),
+    speed: Math.round(fit(config.speed, 'speed')),
+    turnEvery: Math.round(fit(config.turnEvery, 'turnEvery') * 10) / 10,
   };
 }
