@@ -6,9 +6,15 @@
     <title>Empyr — Redirect</title>
     <script>
       (function () {
-        var match = location.pathname.match(/^\/(nl|en)\/minigames\/frenzy\/(?:room|table)\/([^/]+)\/?$/);
+        // Pretty room links (/minigames/<game>/room/<code>) are rewritten onto the
+        // static play page, since GitHub Pages cannot serve dynamic routes.
+        var match = location.pathname.match(
+          /^\/(nl|en)\/minigames\/(frenzy|uno|monopoly)\/(?:room|table)\/([^/]+)\/?$/
+        );
         if (match) {
-          location.replace('/' + match[1] + '/minigames/frenzy/play?code=' + encodeURIComponent(match[2]));
+          location.replace(
+            '/' + match[1] + '/minigames/' + match[2] + '/play?code=' + encodeURIComponent(match[3])
+          );
           return;
         }
         location.replace('/nl/');

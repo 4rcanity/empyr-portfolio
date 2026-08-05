@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "empyr-monopoly",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "observability": { "enabled": true },
+  "durable_objects": {
+    "bindings": [{ "name": "MONOPOLY_ROOM", "class_name": "MonopolyRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MonopolyRoom"] }]
+}

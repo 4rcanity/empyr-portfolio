@@ -1,0 +1,347 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'EMPYR UNO — multiplayer kaartspel',
+        description:
+          'Speel UNO online met vrienden. Vijf uitbreidingen: Flip, No Mercy, All Wild, Attack en House Rules.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Leg je laatste kaart.',
+        h1b: 'Roep UNO.',
+        blurb:
+          'Een volledige UNO-tafel in je browser. Private kamers, 2 tot 10 spelers, beurtklok en vijf uitbreidingen die je in de lobby aanzet.',
+        createTitle: 'Nieuwe tafel',
+        createSub: 'Maak een kamer en deel de link.',
+        create: 'Tafel openen',
+        joinTitle: 'Meedoen',
+        joinSub: 'Heb je een code van een vriend?',
+        joinPlaceholder: 'Kamercode',
+        join: 'Meedoen',
+        rulesTitle: 'Hoe het werkt',
+        rules: [
+          ['Leg of pak', 'Match de bovenste kaart op kleur of symbool. Kun je niet? Pak er één.'],
+          ['Roep UNO', 'Bij je laatste kaart moet je UNO roepen. Vergeet je het, dan betrap je tegenstander je voor twee kaarten.'],
+          ['Stapel door', 'Een pakkaart mag je beantwoorden met je eigen pakkaart — de volgende speler krijgt de hele stapel.'],
+          ['Punten', 'Wie zijn hand leegt, krijgt de punten van alle kaarten die de rest nog vasthoudt.'],
+        ],
+        dlcTitle: 'Vijf uitbreidingen',
+        dlcSub: 'Aan te zetten in het lobbymenu voordat er gedeeld wordt.',
+        dlcs: [
+          ['UNO Flip!', 'Dubbelzijdig deck. Een Flip-kaart draait de hele tafel naar de donkere kant: Pak Vijf, Iedereen Over en Joker Pak Kleur.'],
+          ["Show 'em No Mercy", 'Pak Zes, Joker Pak Tien, Alles Afleggen. Stapelen staat vast aan en bij 25 kaarten lig je eruit.'],
+          ['All Wild!', 'Geen cijfers, geen kleuren. Elke kaart is een actiekaart.'],
+          ['UNO Attack!', 'Vuurstoot-kaarten schieten 0 tot 12 kaarten naar de volgende speler.'],
+          ['House Rules', '7-0 handen ruilen, Jump-In, stapelen en pakken tot je kunt leggen.'],
+        ],
+        back: '← Terug naar minigames',
+      }
+    : {
+        title: 'EMPYR UNO — multiplayer card game',
+        description:
+          'Play UNO online with friends. Five expansions: Flip, No Mercy, All Wild, Attack and House Rules.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Dump your last card.',
+        h1b: 'Shout UNO.',
+        blurb:
+          'A full UNO table in your browser. Private rooms, 2 to 10 players, a turn clock, and five expansions you switch on in the lobby.',
+        createTitle: 'New table',
+        createSub: 'Open a room and share the link.',
+        create: 'Open a table',
+        joinTitle: 'Join',
+        joinSub: 'Got a code from a friend?',
+        joinPlaceholder: 'Room code',
+        join: 'Join',
+        rulesTitle: 'How it works',
+        rules: [
+          ['Play or draw', 'Match the top card by colour or symbol. If you cannot, draw one.'],
+          ['Call UNO', 'On your last card you have to call it. Forget, and anyone can catch you for two cards.'],
+          ['Stack it on', 'Answer a draw card with your own and the whole pile lands on the next player instead.'],
+          ['Score', 'Empty your hand and you score the value of every card still stuck in everyone else’s.'],
+        ],
+        dlcTitle: 'Five expansions',
+        dlcSub: 'Switch them on in the lobby before the cards are dealt.',
+        dlcs: [
+          ['UNO Flip!', 'Double-sided deck. A Flip card turns the whole table to the dark side: Draw Five, Skip Everyone and Wild Draw Colour.'],
+          ["Show 'em No Mercy", 'Draw Six, Wild Draw Ten, Discard All. Stacking is forced on and 25 cards knocks you out.'],
+          ['All Wild!', 'No numbers, no colour matching. Every single card is an action.'],
+          ['UNO Attack!', 'Hit Fire cards spray 0 to 12 cards at the next player.'],
+          ['House Rules', '7-0 hand swapping, Jump-In, stacking and draw-until-playable.'],
+        ],
+        back: '← Back to minigames',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/uno" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <LocaleRedirect lang={lang} />
+    <style>
+      :root {
+        --ink: #f6f2ff;
+        --dim: #a79ecb;
+        --faint: #6f6796;
+        --edge: rgba(255, 255, 255, 0.12);
+        --panel: rgba(255, 255, 255, 0.055);
+        --hot: #ff3d8b;
+        --lime: #b8ff3d;
+        --gold: #ffce3d;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: 'Outfit', system-ui, sans-serif;
+        background:
+          radial-gradient(120% 70% at 50% 0%, rgba(255, 61, 139, 0.18), transparent 60%),
+          radial-gradient(90% 60% at 10% 100%, rgba(155, 77, 255, 0.22), transparent 65%),
+          linear-gradient(180deg, #1b1040 0%, #0e0724 60%, #090518 100%);
+      }
+
+      .wrap { width: 100%; max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
+
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.1rem 0;
+        border-bottom: 1px solid var(--edge);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 900;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand img { width: 2rem; height: 2rem; border-radius: 0.6rem; object-fit: cover; }
+      .grow { flex: 1; }
+
+      .lang { display: flex; gap: 0.25rem; padding: 0.2rem; border: 1px solid var(--edge); border-radius: 999px; }
+      .lang a {
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--dim);
+        text-decoration: none;
+      }
+      .lang a[aria-current='true'] { background: #fff; color: #1b1040; }
+
+      .hero { padding: 4rem 0 2.5rem; }
+      .eyebrow {
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: var(--hot);
+        margin: 0;
+      }
+      h1 {
+        margin: 1.1rem 0 0;
+        font-size: clamp(2.6rem, 8vw, 5rem);
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.045em;
+      }
+      h1 span { color: var(--faint); }
+      .blurb { margin: 1.4rem 0 0; max-width: 34rem; font-size: 1.05rem; line-height: 1.6; color: var(--dim); }
+
+      .cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin-top: 2.5rem; }
+
+      .card {
+        border: 1px solid var(--edge);
+        border-radius: 1.5rem;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.03));
+        padding: 1.5rem;
+      }
+
+      .card h2 { margin: 0; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; }
+      .card p { margin: 0.5rem 0 0; color: var(--dim); font-size: 0.9rem; line-height: 1.55; }
+
+      .field {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.9rem;
+        border: 1px solid var(--edge);
+        background: rgba(0, 0, 0, 0.3);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .field:focus { outline: 2px solid var(--hot); outline-offset: 1px; }
+
+      .btn {
+        display: inline-block;
+        margin-top: 0.8rem;
+        padding: 0.8rem 1.4rem;
+        border: none;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #200a2e;
+        background: linear-gradient(180deg, #ffe27a, var(--gold));
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.15s, filter 0.15s;
+      }
+      .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+      .btn.hot { background: linear-gradient(180deg, #ff6ba7, var(--hot)); color: #fff; }
+
+      section.block { padding: 3rem 0; border-top: 1px solid var(--edge); }
+      section.block h2 { margin: 0.8rem 0 0; font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 900; letter-spacing: -0.035em; }
+      section.block > p { margin: 0.7rem 0 0; color: var(--dim); max-width: 34rem; line-height: 1.6; }
+
+      .steps { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); margin-top: 2rem; list-style: none; padding: 0; }
+      .steps li { border-left: 2px solid var(--hot); padding: 0.1rem 0 0.1rem 1rem; }
+      .steps b { display: block; font-size: 1rem; font-weight: 800; }
+      .steps span { display: block; margin-top: 0.35rem; color: var(--dim); font-size: 0.88rem; line-height: 1.55; }
+
+      .dlcs { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: 2rem; }
+      .dlc { border: 1px solid var(--edge); border-radius: 1.2rem; background: var(--panel); padding: 1.1rem 1.2rem; }
+      .dlc b { font-size: 1rem; font-weight: 900; }
+      .dlc .tag {
+        float: right;
+        font-size: 0.6rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        background: rgba(255, 61, 139, 0.18);
+        color: #ffb3d3;
+      }
+      .dlc p { margin: 0.5rem 0 0; color: var(--dim); font-size: 0.85rem; line-height: 1.55; }
+
+      footer { padding: 2.5rem 0 3rem; }
+      footer a { color: var(--dim); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+      footer a:hover { color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="brand" href={`/${lang}`}>
+          <img src="/images/empyr-logo.png" alt="Empyr" width="32" height="32" />
+          Empyr
+        </a>
+        <span class="grow"></span>
+        <div class="lang">
+          {languages.map((l) => (
+            <a href={`/${l}/minigames/uno`} aria-current={l === lang ? 'true' : 'false'}>{l.toUpperCase()}</a>
+          ))}
+        </div>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>
+          {copy.h1a}<br /><span>{copy.h1b}</span>
+        </h1>
+        <p class="blurb">{copy.blurb}</p>
+
+        <div class="cards">
+          <div class="card">
+            <h2>{copy.createTitle}</h2>
+            <p>{copy.createSub}</p>
+            <button class="btn hot" id="make">{copy.create}</button>
+          </div>
+
+          <div class="card">
+            <h2>{copy.joinTitle}</h2>
+            <p>{copy.joinSub}</p>
+            <form id="join">
+              <input class="field" id="code" maxlength="12" placeholder={copy.joinPlaceholder} required />
+              <button class="btn" type="submit">{copy.join}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <section class="block">
+        <p class="eyebrow">{copy.rulesTitle}</p>
+        <h2>{copy.rulesTitle}</h2>
+        <ul class="steps">
+          {copy.rules.map(([head, text]) => (
+            <li>
+              <b>{head}</b>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">DLC</p>
+        <h2>{copy.dlcTitle}</h2>
+        <p>{copy.dlcSub}</p>
+        <div class="dlcs">
+          {copy.dlcs.map(([head, text]) => (
+            <div class="dlc">
+              <span class="tag">DLC</span>
+              <b>{head}</b>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <a href={`/${lang}/minigames`}>{copy.back}</a>
+      </footer>
+    </div>
+
+    <script is:inline define:vars={{ lang }}>
+      function freshCode() {
+        const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+        const bytes = new Uint8Array(5);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+      }
+
+      document.getElementById('make').addEventListener('click', () => {
+        window.location.href = `/${lang}/minigames/uno/play?code=${freshCode()}`;
+      });
+
+      document.getElementById('join').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const raw = document.getElementById('code').value.trim().toLowerCase();
+        const code = raw.replace(/[^a-z0-9-]/g, '').slice(0, 12);
+        if (code) window.location.href = `/${lang}/minigames/uno/play?code=${code}`;
+      });
+    </script>
+  </body>
+</html>

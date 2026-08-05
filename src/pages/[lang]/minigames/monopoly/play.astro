@@ -1,0 +1,34 @@
+---
+import '../../../../styles/global.css';
+import { languages, type Lang } from '../../../../i18n/ui';
+import MonopolyGame from '../../../../games/monopoly/MonopolyGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const title = lang === 'nl' ? 'Empyr Ledger — tafel' : 'Empyr Ledger — table';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #f6f1e4;
+      }
+    </style>
+  </head>
+  <body>
+    <MonopolyGame client:only="react" lang={lang} />
+  </body>
+</html>

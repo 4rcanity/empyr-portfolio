@@ -1,4 +1,4 @@
-﻿# Empyr Portfolio
+# Empyr Portfolio
 
 Personal portfolio and demo sites (Astro).
 

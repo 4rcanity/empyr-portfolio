@@ -11,7 +11,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "hilo:dev": "npm run dev --prefix server/hilo",
-    "hilo:deploy": "npm run deploy --prefix server/hilo"
+    "hilo:deploy": "npm run deploy --prefix server/hilo",
+    "uno:dev": "npm run dev --prefix server/uno",
+    "uno:deploy": "npm run deploy --prefix server/uno",
+    "monopoly:dev": "npm run dev --prefix server/monopoly",
+    "monopoly:deploy": "npm run deploy --prefix server/monopoly"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",

@@ -1,0 +1,377 @@
+---
+import '../../../../styles/global.css';
+import '../../../../games/monopoly/monopoly.css';
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'Empyr Ledger — Empyr Minigames',
+        description:
+          'Multiplayer bordspel over vastgoed in de browser. Koop straten, bouw huizen, veil akten en drijf je vrienden de vernieling in.',
+        eyebrow: 'Empyr / Minigames',
+        lead: 'Veertig vakjes, acht kleurreeksen, één grootboek. De laatste solvabele speler wint de tafel.',
+        stepsTitle: 'Hoe het loopt',
+        steps: [
+          'Gooi, verplaats en beur salaris telkens als je Grootboek Start passeert.',
+          'Kom je op een vrije straat, koop hem — of weiger en laat de tafel erop bieden.',
+          'Verzamel een hele kleurreeks en zet er huizen op. De huur schiet omhoog.',
+          'Kun je niet betalen? Verkoop, verhypothekeer of ga failliet. Wie overblijft, wint.',
+        ],
+        featuresTitle: 'Wat erin zit',
+        features: [
+          ['Veilingen', 'Live oplopend bieden met een aftellende hamer.'],
+          ['Ruilen', 'Contant, akten en vrijbrieven in beide richtingen.'],
+          ['Hypotheken', 'Maak geld vrij tegen 10% rente bij aflossing.'],
+          ['Gelijkmatig bouwen', 'Optionele regel die scheve reeksen tegenhoudt.'],
+          ['Schuldpoort', 'Betaal, speel een vrijbrief of gooi dubbel.'],
+          ['Beurtklok', 'De server speelt door als iemand wegvalt.'],
+        ],
+        groupsTitle: 'De acht reeksen',
+        createTitle: 'Nieuwe tafel',
+        createBody: '2 tot 8 spelers. Je krijgt een kamercode om te delen.',
+        create: 'Tafel openen',
+        joinTitle: 'Tafel joinen',
+        joinBody: 'Code van een vriend? Vul hem hier in.',
+        joinPlaceholder: 'kamercode',
+        join: 'Meedoen',
+        back: 'Terug naar minigames',
+      }
+    : {
+        title: 'Empyr Ledger — Empyr Minigames',
+        description:
+          'Multiplayer property board game in the browser. Buy streets, raise houses, auction deeds and bankrupt your friends.',
+        eyebrow: 'Empyr / Minigames',
+        lead: 'Forty squares, eight colour groups, one ledger. The last solvent player takes the table.',
+        stepsTitle: 'How it runs',
+        steps: [
+          'Roll, move, and draw your salary every time you pass Ledger Start.',
+          'Land on a free street and buy it — or decline and let the table bid.',
+          'Collect a whole colour group and raise houses. Rent climbs hard.',
+          'Cannot pay? Sell, mortgage, or fold. Whoever is left standing wins.',
+        ],
+        featuresTitle: 'What is in the box',
+        features: [
+          ['Auctions', 'Live ascending bidding under a falling hammer.'],
+          ['Trading', 'Cash, deeds and release cards in both directions.'],
+          ['Mortgages', 'Free up cash, redeem later at 10% interest.'],
+          ['Even build', 'Optional rule that stops lopsided colour groups.'],
+          ['Debtors Gate', 'Pay, play a release card, or roll for doubles.'],
+          ['Turn clock', 'The server plays on when somebody drops out.'],
+        ],
+        groupsTitle: 'The eight groups',
+        createTitle: 'New table',
+        createBody: '2 to 8 players. You get a room code to share.',
+        create: 'Open a table',
+        joinTitle: 'Join a table',
+        joinBody: 'Got a code from a friend? Drop it in here.',
+        joinPlaceholder: 'room code',
+        join: 'Join',
+        back: 'Back to minigames',
+      };
+
+const groups: [string, string, string][] =
+  lang === 'nl'
+    ? [
+        ['#6b4a2f', 'Havenkwartier', "Tanner's Row · Kiln Lane"],
+        ['#5f9ec4', 'Rivieroever', 'Ferry Steps · Salt Quay · Willow Bend'],
+        ['#bf5f8c', 'Oude Stad', "Lantern Court · Cobbler's Gate · Verdigris Square"],
+        ['#d1802f', 'Marktbuurt', 'Copper Market · Saffron Street · Guildhall Way'],
+        ['#b3341f', 'Theaterrij', 'Vermilion Arcade · Opera Terrace · Crimson Mile'],
+        ['#d9b13b', 'De Hoogten', 'Amberfield · Sunhaven Rise · Goldleaf Parade'],
+        ['#2f6b47', 'Parkring', 'Emerald Gardens · Laurel Concourse · Cypress Boulevard'],
+        ['#27406e', 'Kroonwijk', 'Meridian Place · Empyr Crown'],
+      ]
+    : [
+        ['#6b4a2f', 'Docklands', "Tanner's Row · Kiln Lane"],
+        ['#5f9ec4', 'Riverside', 'Ferry Steps · Salt Quay · Willow Bend'],
+        ['#bf5f8c', 'Old Town', "Lantern Court · Cobbler's Gate · Verdigris Square"],
+        ['#d1802f', 'Market', 'Copper Market · Saffron Street · Guildhall Way'],
+        ['#b3341f', 'Theatre Row', 'Vermilion Arcade · Opera Terrace · Crimson Mile'],
+        ['#d9b13b', 'The Heights', 'Amberfield · Sunhaven Rise · Goldleaf Parade'],
+        ['#2f6b47', 'Park Ring', 'Emerald Gardens · Laurel Concourse · Cypress Boulevard'],
+        ['#27406e', 'Crown Quarter', 'Meridian Place · Empyr Crown'],
+      ];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/monopoly" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <LocaleRedirect lang={lang} />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #f6f1e4;
+      }
+
+      .ml-hero {
+        padding: clamp(2.5rem, 8vw, 5.5rem) 0 clamp(1.5rem, 4vw, 2.5rem);
+        border-bottom: 2px solid #17233a;
+        position: relative;
+      }
+
+      .ml-hero::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -5px;
+        height: 1px;
+        background: #17233a;
+        opacity: 0.35;
+      }
+
+      .ml-title {
+        font-family: var(--serif);
+        margin: 0.7rem 0 0;
+        font-size: clamp(2.6rem, 11vw, 6.5rem);
+        line-height: 0.92;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+
+      .ml-title em {
+        font-style: normal;
+        color: #b3341f;
+      }
+
+      .ml-lead {
+        margin: 1.2rem 0 0;
+        max-width: 46ch;
+        font-size: clamp(1rem, 2.2vw, 1.2rem);
+        color: #4c5568;
+        line-height: 1.6;
+      }
+
+      .ml-cols {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 1rem;
+        margin-top: 1.6rem;
+      }
+
+      @media (max-width: 860px) {
+        .ml-cols {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .ml-steps {
+        list-style: none;
+        margin: 0.8rem 0 0;
+        padding: 0;
+        display: grid;
+        gap: 0.75rem;
+        counter-reset: step;
+      }
+
+      .ml-steps li {
+        counter-increment: step;
+        display: grid;
+        grid-template-columns: 1.7rem 1fr;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: #4c5568;
+      }
+
+      .ml-steps li::before {
+        content: counter(step);
+        font-family: var(--serif);
+        font-size: 0.95rem;
+        color: #b3341f;
+        border: 1px solid #cdc0a4;
+        border-radius: 50%;
+        width: 1.7rem;
+        height: 1.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ml-grid {
+        display: grid;
+        gap: 0.6rem;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        margin-top: 0.8rem;
+      }
+
+      .ml-card {
+        border: 1px solid #cdc0a4;
+        border-left: 3px solid #17233a;
+        background: #fffdf7;
+        border-radius: 2px;
+        padding: 0.7rem 0.85rem;
+      }
+
+      .ml-card h3 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: 0.95rem;
+        letter-spacing: 0.06em;
+      }
+
+      .ml-card p {
+        margin: 0.25rem 0 0;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: #4c5568;
+      }
+
+      .ml-group {
+        display: grid;
+        grid-template-columns: 0.55rem 1fr;
+        gap: 0.65rem;
+        align-items: stretch;
+        padding: 0.5rem 0;
+        border-bottom: 1px dotted #cdc0a4;
+      }
+
+      .ml-group:last-child {
+        border-bottom: 0;
+      }
+
+      .ml-group i {
+        display: block;
+        border-radius: 1px;
+      }
+
+      .ml-group b {
+        display: block;
+        font-family: var(--serif);
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+
+      .ml-group span {
+        font-size: 0.74rem;
+        color: #7d8494;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mp">
+      <div class="mp-shell">
+        <header class="mp-top">
+          <span class="mp-word">Empyr<span> · </span>Ledger</span>
+          <span class="mp-grow"></span>
+          <div style="display:flex; gap:0.35rem;">
+            {languages.map((l) => (
+              <a class="mp-chip" data-on={l === lang} href={`/${l}/minigames/monopoly`}>{l.toUpperCase()}</a>
+            ))}
+          </div>
+          <a class="mp-chip" href={`/${lang}/minigames`}>{copy.back}</a>
+        </header>
+
+        <section class="ml-hero">
+          <p class="mp-label">{copy.eyebrow}</p>
+          <h1 class="ml-title">Empyr<br /><em>Ledger</em></h1>
+          <p class="ml-lead">{copy.lead}</p>
+        </section>
+
+        <section class="ml-cols">
+          <div class="mp-panel">
+            <p class="mp-head">{copy.stepsTitle}</p>
+            <ol class="ml-steps">
+              {copy.steps.map((step) => <li>{step}</li>)}
+            </ol>
+          </div>
+
+          <div class="mp-panel">
+            <p class="mp-head">{copy.createTitle}</p>
+            <p class="mp-note">{copy.createBody}</p>
+            <button type="button" class="mp-btn" id="ml-create" style="margin-top:0.9rem;">
+              {copy.create}
+            </button>
+
+            <hr style="border:0; border-top:1px solid #ded3b9; margin:1.3rem 0;" />
+
+            <p class="mp-head">{copy.joinTitle}</p>
+            <p class="mp-note">{copy.joinBody}</p>
+            <form id="ml-join" style="margin-top:0.9rem; display:grid; gap:0.5rem;">
+              <input
+                id="ml-code"
+                class="mp-input"
+                placeholder={copy.joinPlaceholder}
+                autocomplete="off"
+                spellcheck="false"
+                maxlength="24"
+              />
+              <button type="submit" class="mp-btn" data-tone="ghost">{copy.join}</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="mp-panel" style="margin-top:1rem;">
+          <p class="mp-head">{copy.featuresTitle}</p>
+          <div class="ml-grid">
+            {copy.features.map(([name, note]) => (
+              <div class="ml-card">
+                <h3>{name}</h3>
+                <p>{note}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section class="mp-panel" style="margin-top:1rem;">
+          <p class="mp-head">{copy.groupsTitle}</p>
+          {groups.map(([ink, name, streets]) => (
+            <div class="ml-group">
+              <i style={`background:${ink}`}></i>
+              <div>
+                <b>{name}</b>
+                <span>{streets}</span>
+              </div>
+            </div>
+          ))}
+        </section>
+      </div>
+    </div>
+
+    <script is:inline define:vars={{ lang }}>
+      (function () {
+        var alphabet = 'abcdefghijkmnpqrstuvwxyz23456789';
+
+        function go(code) {
+          var clean = String(code || '')
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, '')
+            .slice(0, 24);
+          if (!clean) return;
+          location.href = '/' + lang + '/minigames/monopoly/play?code=' + encodeURIComponent(clean);
+        }
+
+        document.getElementById('ml-create').addEventListener('click', function () {
+          var out = '';
+          var bytes = new Uint32Array(6);
+          window.crypto.getRandomValues(bytes);
+          for (var i = 0; i < 6; i++) out += alphabet[bytes[i] % alphabet.length];
+          go(out);
+        });
+
+        document.getElementById('ml-join').addEventListener('submit', function (event) {
+          event.preventDefault();
+          go(document.getElementById('ml-code').value);
+        });
+      })();
+    </script>
+  </body>
+</html>
