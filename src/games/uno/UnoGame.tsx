@@ -1,8 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import './uno.css';
 import { TableLink, playerKey, recallName, rememberName, tableUrl, type LinkStatus } from './net';
 import { copyFor, type Lang } from './copy';
-import { CardBack, CardFace, Feed, Hand, PlayerRail, Scores } from './parts';
+import {
+  Deck,
+  Discard,
+  DirectionArrows,
+  Feed,
+  FxLayer,
+  Hand,
+  Scores,
+  Seat,
+  ringSeats,
+  type FxEvent,
+  type PileCard,
+} from './parts';
 import { Lobby } from './lobby';
 import {
   canPlay,
@@ -11,12 +23,14 @@ import {
   paletteFor,
   type Card,
   type Color,
+  type FxKind,
   type Inbound,
   type Outbound,
   type RoomView,
   type Rules,
+  type Side,
 } from './protocol';
-import { play as playSfx, setMuted } from './sfx';
+import { play as playSfx, setMuted, type Sfx } from './sfx';
 
 const HOST =
   (import.meta.env.PUBLIC_UNO_HOST as string | undefined) ||
@@ -34,11 +48,43 @@ const COLOR_HEX: Record<Color, string> = {
   wild: '#9b4dff',
 };
 
-interface Flash {
-  id: number;
-  text: string;
-  tone: 'good' | 'bad' | 'wild';
-}
+/** Where the middle of the table sits, in percent of the felt box. */
+const PILE = { x: 54, y: 48 };
+const DECK = { x: 30, y: 36 };
+const FALLBACK = { x: 50, y: 48 };
+
+/** How long each effect stays mounted, in ms. */
+const FX_LIFE: Record<FxKind, number> = {
+  play: 680,
+  draw: 700,
+  skip: 780,
+  reverse: 1000,
+  wild: 900,
+  flip: 1050,
+  blast: 1000,
+  uno: 1150,
+  caught: 950,
+  swap: 950,
+  out: 1100,
+  round: 1800,
+  win: 2400,
+};
+
+const FX_SOUND: Record<FxKind, Sfx> = {
+  play: 'play',
+  draw: 'draw',
+  skip: 'skip',
+  reverse: 'reverse',
+  wild: 'wild',
+  flip: 'flip',
+  blast: 'blast',
+  uno: 'uno',
+  caught: 'caught',
+  swap: 'swap',
+  out: 'out',
+  round: 'win',
+  win: 'fanfare',
+};
 
 export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: string }) {
   const copy = copyFor(lang);
@@ -55,16 +101,67 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
   const [error, setError] = useState('');
   const [quiet, setQuiet] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [flash, setFlash] = useState<Flash | null>(null);
   const [wildFor, setWildFor] = useState<Card | null>(null);
   const [swapFor, setSwapFor] = useState<Card | null>(null);
+  const [fxEvents, setFxEvents] = useState<FxEvent[]>([]);
+  const [spin, setSpin] = useState(false);
+  const [showEnd, setShowEnd] = useState(false);
+  const [pile, setPile] = useState<PileCard[]>([]);
   const [, setTick] = useState(0);
 
   const link = useRef<TableLink | null>(null);
   const skew = useRef(0);
-  const flashSeq = useRef(0);
+  const fxSeq = useRef(0);
+  const pileSeq = useRef(0);
+  const lastDiscard = useRef(-1);
+  const lastPending = useRef(0);
+  /** Latest seat anchors, so the socket callback can place effects without re-subscribing. */
+  const anchors = useRef(new Map<string, { x: number; y: number }>());
+  const topRef = useRef<Side | null>(null);
 
   const send = useCallback((message: Inbound) => link.current?.send(message), []);
+
+  /* ------------------------------------------------------------------- fx */
+
+  const pushFx = useCallback((kind: FxKind, playerId?: string, text?: string) => {
+    const seat = (playerId && anchors.current.get(playerId)) || FALLBACK;
+    let origin = seat;
+    let target = seat;
+
+    if (kind === 'play') {
+      origin = seat;
+      target = PILE;
+    } else if (kind === 'draw') {
+      origin = DECK;
+      target = seat;
+    } else if (kind === 'round' || kind === 'win' || kind === 'wild' || kind === 'reverse') {
+      origin = PILE;
+      target = PILE;
+    }
+
+    const event: FxEvent = {
+      id: ++fxSeq.current,
+      kind,
+      playerId,
+      text,
+      x: origin.x,
+      y: origin.y,
+      dx: target.x - origin.x,
+      dy: target.y - origin.y,
+      card: kind === 'play' ? topRef.current ?? undefined : undefined,
+    };
+
+    setFxEvents((prev) => [...prev.slice(-7), event]);
+    window.setTimeout(
+      () => setFxEvents((prev) => prev.filter((item) => item.id !== event.id)),
+      FX_LIFE[kind],
+    );
+
+    if (kind === 'reverse') {
+      setSpin(true);
+      window.setTimeout(() => setSpin(false), FX_LIFE.reverse);
+    }
+  }, []);
 
   /* ------------------------------------------------------------- connection */
 
@@ -77,6 +174,7 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
       onMessage: (message: Outbound) => {
         if (message.t === 'sync') {
           skew.current = message.room.now - Date.now();
+          topRef.current = message.room.top;
           setRoom(message.room);
           setHand(message.hand);
           setYouId(message.youId);
@@ -89,38 +187,8 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
           return;
         }
         if (message.t === 'fx') {
-          const label = message.text ?? copy.fx[message.kind] ?? '';
-          const tone: Flash['tone'] =
-            message.kind === 'caught' || message.kind === 'blast' || message.kind === 'out'
-              ? 'bad'
-              : message.kind === 'win' || message.kind === 'round'
-                ? 'good'
-                : 'wild';
-          if (label && message.kind !== 'play' && message.kind !== 'draw') {
-            setFlash({ id: ++flashSeq.current, text: label, tone });
-          }
-          switch (message.kind) {
-            case 'play':
-              playSfx('play');
-              break;
-            case 'draw':
-              playSfx('draw');
-              break;
-            case 'uno':
-              playSfx('uno');
-              break;
-            case 'win':
-            case 'round':
-              playSfx('win');
-              break;
-            case 'caught':
-            case 'blast':
-            case 'out':
-              playSfx('bad');
-              break;
-            default:
-              playSfx('wild');
-          }
+          pushFx(message.kind, message.playerId, message.text);
+          playSfx(FX_SOUND[message.kind] ?? 'tap');
         }
       },
     });
@@ -131,18 +199,12 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
       socket.dispose();
       link.current = null;
     };
-  }, [seated, code, name, copy]);
+  }, [seated, code, name, pushFx]);
 
   useEffect(() => {
     const timer = setInterval(() => setTick((n) => n + 1), 250);
     return () => clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    if (!flash) return;
-    const timer = setTimeout(() => setFlash(null), 1000);
-    return () => clearTimeout(timer);
-  }, [flash]);
 
   useEffect(() => setMuted(quiet), [quiet]);
 
@@ -156,12 +218,64 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
   const myTurn = Boolean(room && room.activeId === youId && !me?.out);
   const active = room?.players.find((player) => player.id === room.activeId) ?? null;
 
+  const seats = useMemo(
+    () => (room ? ringSeats(room.players, youId, room.direction) : []),
+    [room, youId],
+  );
+
+  useEffect(() => {
+    const next = new Map<string, { x: number; y: number }>();
+    for (const slot of seats) next.set(slot.player.id, { x: slot.x, y: slot.y });
+    anchors.current = next;
+  }, [seats]);
+
+  /* Rebuild the visible discard scatter from the authoritative discard count. */
+  const discardCount = room?.discardCount ?? 0;
+  const topCard = room?.top ?? null;
+  useEffect(() => {
+    if (discardCount === lastDiscard.current) return;
+    const grew = discardCount > lastDiscard.current;
+    lastDiscard.current = discardCount;
+    if (!topCard) {
+      setPile([]);
+      return;
+    }
+    const seq = ++pileSeq.current;
+    const fresh: PileCard = {
+      key: seq,
+      side: topCard,
+      rot: ((seq * 37) % 27) - 13,
+      dx: ((seq * 53) % 19) - 9,
+      dy: ((seq * 29) % 19) - 9,
+    };
+    setPile((prev) => (grew ? [...prev, fresh].slice(-5) : [fresh]));
+  }, [discardCount, topCard]);
+
+  /* Let the celebration land on the table before the scoreboard covers it. */
+  const phase = room?.phase;
+  useEffect(() => {
+    if (phase !== 'roundOver' && phase !== 'over') {
+      setShowEnd(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setShowEnd(true), 1100);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+
+  /* A growing stacked penalty gets its own rising tone. */
+  const pending = room?.pendingDraw ?? 0;
+  useEffect(() => {
+    if (pending > lastPending.current) playSfx('threat');
+    lastPending.current = pending;
+  }, [pending]);
+
   const remaining = room?.turnEndsAt
     ? Math.max(0, room.turnEndsAt - (Date.now() + skew.current))
     : 0;
   const clockPct = room && room.turnEndsAt
     ? Math.max(0, Math.min(100, (remaining / (room.rules.turnSeconds * 1000)) * 100))
     : 0;
+  const seconds = Math.ceil(remaining / 1000);
 
   const isPlayable = useCallback(
     (card: Card) => {
@@ -328,7 +442,7 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
 
   /* ------------------------------------------------------------------ table */
 
-  const wash = `radial-gradient(60% 60% at 50% 50%, ${COLOR_HEX[room.activeColor]}, transparent 72%)`;
+  const tint = COLOR_HEX[room.activeColor];
   const palette = paletteFor(room.side);
   const canShout = Boolean(me && !me.out && hand.length <= 2 && hand.length > 0 && !me.uno);
 
@@ -347,19 +461,62 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
     ) : (
       <div className="un-stage">
         <div className="un-arena">
-          <PlayerRail
-            players={room.players}
-            activeId={room.activeId}
-            youId={youId}
-            copy={copy}
-            lobby={false}
-            onCatch={(id) => send({ t: 'catch', playerId: id })}
-          />
+          <div
+            className="un-ring"
+            data-side={room.side}
+            data-seats={room.players.length}
+            style={{ '--tint': tint } as CSSProperties}
+          >
+            <div className="un-felt-zone">
+              <div className="un-table" aria-hidden="true">
+                <span className="un-table-felt" />
+                <span className="un-table-wash" />
+                <span className="un-table-rim" />
+                <span className="un-table-grain" />
+              </div>
 
-          <section className="un-felt">
-            <div className="un-wash" style={{ background: wash }} />
+              <DirectionArrows direction={room.direction} spin={spin} />
 
-            <p className="un-turnline">
+              <div className="un-center">
+                <div className="un-slot un-slot-deck">
+                  <button
+                    type="button"
+                    className="un-deck-btn"
+                    disabled={!myTurn || room.drewThisTurn}
+                    onClick={() => send({ t: 'draw' })}
+                    aria-label={`${copy.drawBtn} — ${room.deckLeft}`}
+                  >
+                    <Deck left={room.deckLeft} width="clamp(2.9rem, 6.5vw, 4.4rem)" />
+                  </button>
+                  <span className="un-slot-label">
+                    {copy.drawPile} · {room.deckLeft}
+                  </span>
+                </div>
+
+                <div className="un-slot un-slot-discard">
+                  <Discard
+                    pile={pile}
+                    width="clamp(4rem, 9vw, 6.2rem)"
+                    label={
+                      room.top
+                        ? `${copy.discardPile}: ${copy.colors[room.top.color] ?? room.top.color} ${
+                            copy.faces[room.top.face] ?? room.top.face
+                          }`
+                        : copy.discardPile
+                    }
+                  />
+                </div>
+              </div>
+
+              {room.pendingDraw > 0 && (
+                <div className="un-threat" data-heavy={room.pendingDraw >= 8}>
+                  <span className="un-threat-label">{copy.incoming}</span>
+                  <b>+{room.pendingDraw}</b>
+                </div>
+              )}
+            </div>
+
+            <p className="un-turnline" aria-live="polite">
               {myTurn ? (
                 <b>{copy.yourTurn}</b>
               ) : (
@@ -367,56 +524,32 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
                   {copy.waitingFor} <b>{active?.name ?? '—'}</b>
                 </>
               )}
-              {room.pendingDraw > 0 && (
-                <span className="un-badge">
-                  {copy.stackWarn} +{room.pendingDraw}
-                </span>
-              )}
               {room.rules.pack === 'flip' && (
-                <span className="un-badge">
+                <span className="un-badge" data-k="side">
                   {room.side === 'dark' ? copy.darkSide : copy.lightSide}
                 </span>
               )}
+              <span className="un-badge" data-k="dir">
+                {room.direction === 1 ? `↻ ${copy.clockwise}` : `↺ ${copy.counter}`}
+              </span>
             </p>
 
-            <div className="un-piles">
-              <div className="un-pile">
-                <span className="un-pile-label">
-                  {copy.drawPile} · {room.deckLeft}
-                </span>
-                <button
-                  type="button"
-                  className="un-deck-btn"
-                  disabled={!myTurn || room.drewThisTurn}
-                  onClick={() => send({ t: 'draw' })}
-                  aria-label={copy.drawBtn}
-                >
-                  <CardBack width="clamp(4.4rem, 9vw, 6.2rem)" />
-                </button>
-              </div>
-
-              <div className="un-pile un-discard">
-                <span className="un-pile-label">{copy.discardPile}</span>
-                {room.top ? (
-                  <CardFace side={room.top} width="clamp(5.2rem, 11vw, 7.6rem)" />
-                ) : (
-                  <CardBack width="clamp(5.2rem, 11vw, 7.6rem)" />
-                )}
-              </div>
+            <div className="un-seats">
+              {seats.map((slot) => (
+                <Seat
+                  key={slot.player.id}
+                  slot={slot}
+                  activeId={room.activeId}
+                  copy={copy}
+                  clockPct={clockPct}
+                  seconds={seconds}
+                  onCatch={(id) => send({ t: 'catch', playerId: id })}
+                />
+              ))}
             </div>
 
-            <span className="un-arrow">
-              {room.direction === 1 ? `↻ ${copy.clockwise}` : `↺ ${copy.counter}`}
-            </span>
-
-            {room.turnEndsAt && (
-              <span
-                className="un-clockbar"
-                data-warn={remaining < 8000 ? 'true' : 'false'}
-                style={{ width: `${clockPct}%` }}
-              />
-            )}
-          </section>
+            <FxLayer events={fxEvents} copy={copy} />
+          </div>
 
           <section className="un-tray">
             <div className="un-tray-head">
@@ -525,7 +658,7 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
     </div>
   );
 
-  const endModal = (room.phase === 'roundOver' || room.phase === 'over') && (
+  const endModal = showEnd && (room.phase === 'roundOver' || room.phase === 'over') && (
     <div className="un-veil" role="dialog" aria-modal="true">
       <div className="un-modal">
         <p className="un-eyebrow">
@@ -569,11 +702,6 @@ export default function UnoGame({ lang, code: codeProp }: { lang: Lang; code?: s
         {error && <p className="un-error">{error}</p>}
         {body}
       </div>
-      {flash && (
-        <span key={flash.id} className="un-flash" data-tone={flash.tone}>
-          {flash.text}
-        </span>
-      )}
       {colorModal}
       {swapModal}
       {endModal}

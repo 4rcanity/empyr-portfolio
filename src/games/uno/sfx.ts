@@ -1,6 +1,8 @@
 /** Tiny synth for UNO table sounds. No assets, no dependencies. */
 
-export type Sfx = 'tap' | 'deal' | 'play' | 'draw' | 'wild' | 'uno' | 'bad' | 'win';
+export type Sfx =
+  | 'tap' | 'deal' | 'play' | 'draw' | 'wild' | 'uno' | 'bad' | 'win'
+  | 'skip' | 'reverse' | 'flip' | 'blast' | 'caught' | 'swap' | 'out' | 'fanfare' | 'threat';
 
 let ctx: AudioContext | null = null;
 let muted = false;
@@ -86,6 +88,58 @@ export function play(kind: Sfx) {
         { freq: 659, dur: 0.13, at: 0.12 },
         { freq: 784, dur: 0.15, at: 0.24 },
         { freq: 1046, dur: 0.26, at: 0.36 },
+      ]);
+    case 'skip':
+      // A hard downward chop.
+      return blips([
+        { freq: 900, to: 180, dur: 0.16, type: 'square', gain: 0.11 },
+        { freq: 150, dur: 0.1, at: 0.13, type: 'sawtooth', gain: 0.1 },
+      ]);
+    case 'reverse':
+      // Two tones crossing over each other.
+      return blips([
+        { freq: 300, to: 760, dur: 0.24, gain: 0.1 },
+        { freq: 760, to: 300, dur: 0.24, gain: 0.1 },
+      ]);
+    case 'flip':
+      return blips([
+        { freq: 620, to: 240, dur: 0.13, type: 'square', gain: 0.1 },
+        { freq: 240, to: 880, dur: 0.2, at: 0.13, type: 'square', gain: 0.11 },
+      ]);
+    case 'blast':
+      return blips([
+        { freq: 130, to: 46, dur: 0.42, type: 'sawtooth', gain: 0.16 },
+        { freq: 320, to: 70, dur: 0.3, at: 0.03, type: 'square', gain: 0.1 },
+        { freq: 900, to: 200, dur: 0.14, at: 0, type: 'triangle', gain: 0.08 },
+      ]);
+    case 'caught':
+      return blips([
+        { freq: 480, to: 150, dur: 0.14, type: 'square', gain: 0.13 },
+        { freq: 300, to: 100, dur: 0.22, at: 0.12, type: 'sawtooth', gain: 0.12 },
+      ]);
+    case 'swap':
+      return blips([
+        { freq: 420, to: 700, dur: 0.12, gain: 0.09 },
+        { freq: 700, to: 420, dur: 0.12, at: 0.11, gain: 0.09 },
+      ]);
+    case 'out':
+      return blips([
+        { freq: 240, to: 60, dur: 0.5, type: 'sawtooth', gain: 0.15 },
+        { freq: 120, to: 40, dur: 0.4, at: 0.08, type: 'triangle', gain: 0.11 },
+      ]);
+    case 'threat':
+      // Rises with every card added to the stack.
+      return blips([{ freq: 180, to: 460, dur: 0.18, type: 'square', gain: 0.1 }]);
+    case 'fanfare':
+      return blips([
+        { freq: 523, dur: 0.12, at: 0, gain: 0.13 },
+        { freq: 659, dur: 0.12, at: 0.1, gain: 0.13 },
+        { freq: 784, dur: 0.12, at: 0.2, gain: 0.13 },
+        { freq: 1046, dur: 0.18, at: 0.3, gain: 0.14 },
+        { freq: 784, dur: 0.1, at: 0.5, gain: 0.11 },
+        { freq: 1046, dur: 0.12, at: 0.6, gain: 0.12 },
+        { freq: 1318, dur: 0.42, at: 0.72, gain: 0.14 },
+        { freq: 1568, dur: 0.42, at: 0.72, gain: 0.09 },
       ]);
   }
 }

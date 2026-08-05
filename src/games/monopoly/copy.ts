@@ -70,6 +70,12 @@ export interface Copy {
   debtToBank: string;
   debtBody: string;
   declareBankrupt: string;
+  foldTitle: string;
+  foldLocked: string;
+  foldConfirmTo: string;
+  foldConfirmBank: string;
+  foldConfirm: string;
+  foldKeepPlaying: string;
 
   auctionTitle: string;
   auctionSub: string;
@@ -99,6 +105,16 @@ export interface Copy {
   refuse: string;
   awaitingAnswer: string;
   tradeNoDeeds: string;
+  tradesTitle: string;
+  tradesEmpty: string;
+  tradeCreate: string;
+  tradeNoRivals: string;
+  tradeElsewhere: string;
+  tradeIncoming: string;
+  tradeOutgoing: string;
+  tradeGives: string;
+  tradeWithdraw: string;
+  tradeNothing: string;
 
   deedsTitle: string;
   noDeeds: string;
@@ -128,6 +144,7 @@ export interface Copy {
   spectating: string;
 
   feedTitle: string;
+  feedEmpty: string;
   winnerTitle: string;
   youWin: string;
   playAgain: string;
@@ -401,6 +418,12 @@ const EN: Copy = {
   debtToBank: 'Owed to the bank',
   debtBody: 'Sell buildings or mortgage deeds until the bill is covered — it settles itself the moment you can pay.',
   declareBankrupt: 'Declare bankruptcy',
+  foldTitle: 'Fold the ledger',
+  foldLocked: 'You can only fold once a bill lands that you cannot cover. Sell or mortgage first.',
+  foldConfirmTo: 'Folding hands {a} every deed you hold and every coin you have left, and takes you out of the game. This cannot be undone.',
+  foldConfirmBank: 'Folding returns every deed you hold to the bank and takes you out of the game. This cannot be undone.',
+  foldConfirm: 'Yes, fold',
+  foldKeepPlaying: 'Keep playing',
 
   auctionTitle: 'Auction',
   auctionSub: 'Highest bid when the hammer falls takes the deed.',
@@ -430,6 +453,16 @@ const EN: Copy = {
   refuse: 'Refuse',
   awaitingAnswer: 'Waiting for an answer…',
   tradeNoDeeds: 'No tradable deeds.',
+  tradesTitle: 'Trades',
+  tradesEmpty: 'Swap cash, deeds and release cards with another player to finish a colour set. One offer runs at a time.',
+  tradeCreate: 'New offer',
+  tradeNoRivals: 'Nobody left to trade with.',
+  tradeElsewhere: '{a} and {b} are settling an offer.',
+  tradeIncoming: 'On your desk',
+  tradeOutgoing: 'Sent, awaiting reply',
+  tradeGives: '{a} hands over',
+  tradeWithdraw: 'Withdraw offer',
+  tradeNothing: 'nothing',
 
   deedsTitle: 'Your deeds',
   noDeeds: 'You hold nothing yet.',
@@ -459,6 +492,7 @@ const EN: Copy = {
   spectating: 'You are watching the rest play out.',
 
   feedTitle: 'The record',
+  feedEmpty: 'Nothing entered yet.',
   winnerTitle: '{a} wins the table',
   youWin: 'You win the table',
   playAgain: 'Back to the lobby',
@@ -552,6 +586,12 @@ const NL: Copy = {
   debtToBank: 'Verschuldigd aan de bank',
   debtBody: 'Verkoop gebouwen of verhypothekeer akten tot de rekening gedekt is — hij vereffent zichzelf zodra je kunt betalen.',
   declareBankrupt: 'Faillissement aanvragen',
+  foldTitle: 'Boeken sluiten',
+  foldLocked: 'Je kunt pas sluiten als er een rekening ligt die je niet kunt dekken. Verkoop of verhypothekeer eerst.',
+  foldConfirmTo: 'Sluiten geeft {a} al je akten en al je resterende geld, en haalt je uit het spel. Dit kan niet ongedaan worden gemaakt.',
+  foldConfirmBank: 'Sluiten geeft al je akten terug aan de bank en haalt je uit het spel. Dit kan niet ongedaan worden gemaakt.',
+  foldConfirm: 'Ja, sluiten',
+  foldKeepPlaying: 'Doorspelen',
 
   auctionTitle: 'Veiling',
   auctionSub: 'Het hoogste bod bij de hamerslag krijgt de akte.',
@@ -581,6 +621,16 @@ const NL: Copy = {
   refuse: 'Afwijzen',
   awaitingAnswer: 'Wachten op antwoord…',
   tradeNoDeeds: 'Geen verhandelbare akten.',
+  tradesTitle: 'Ruilen',
+  tradesEmpty: 'Ruil contant geld, akten en vrijbrieven met een andere speler om een kleurreeks vol te maken. Er loopt één voorstel tegelijk.',
+  tradeCreate: 'Nieuw voorstel',
+  tradeNoRivals: 'Er is niemand om mee te ruilen.',
+  tradeElsewhere: '{a} en {b} zijn een voorstel aan het afhandelen.',
+  tradeIncoming: 'Op jouw bureau',
+  tradeOutgoing: 'Verstuurd, wacht op antwoord',
+  tradeGives: '{a} geeft',
+  tradeWithdraw: 'Voorstel intrekken',
+  tradeNothing: 'niets',
 
   deedsTitle: 'Jouw akten',
   noDeeds: 'Je bezit nog niets.',
@@ -610,6 +660,7 @@ const NL: Copy = {
   spectating: 'Je kijkt toe hoe de rest het uitspeelt.',
 
   feedTitle: 'Het journaal',
+  feedEmpty: 'Nog niets geboekt.',
   winnerTitle: '{a} wint de tafel',
   youWin: 'Jij wint de tafel',
   playAgain: 'Terug naar de lobby',

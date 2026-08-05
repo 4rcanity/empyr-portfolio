@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './monopoly.css';
 import BoardView from './BoardView';
-import { ActionPanel, DeedManager, LogFeed, SeatRail, SettingsPanel } from './panels';
+import { ActionPanel, DeedManager, FoldPanel, LogFeed, SeatRail, SettingsPanel, TradeRail } from './panels';
 import { AuctionModal, DeedModal, OfferModal, TradeModal, WinnerOverlay } from './modals';
 import { copyFor, money, type Lang } from './copy';
 import {
@@ -342,8 +342,16 @@ export default function MonopolyGame({ lang, code: given }: { lang: Lang; code?:
               onTrade={() => setTradeOpen(true)}
             />
             <SeatRail room={room} copy={copy} youId={youId} showMoney />
+            <TradeRail
+              room={room}
+              copy={copy}
+              youId={youId}
+              send={send}
+              onCreate={() => setTradeOpen(true)}
+            />
             {you && <DeedManager room={room} copy={copy} youId={youId} send={send} onInspect={setInspect} />}
-            <div className="mp-panel">
+            <FoldPanel room={room} copy={copy} youId={youId} send={send} />
+            <section className="mp-panel">
               <p className="mp-head">{copy.bankTitle}</p>
               <div className="mp-deed-stat">
                 <span>{copy.housesLeft}</span>
@@ -364,7 +372,7 @@ export default function MonopolyGame({ lang, code: given }: { lang: Lang; code?:
                   {copy.cards[room.lastCard] ?? room.lastCard}
                 </div>
               )}
-            </div>
+            </section>
             <LogFeed room={room} copy={copy} />
           </div>
         </div>
@@ -373,7 +381,7 @@ export default function MonopolyGame({ lang, code: given }: { lang: Lang; code?:
       {room.auction && (
         <AuctionModal room={room} copy={copy} youId={youId} seconds={auctionSeconds} send={send} />
       )}
-      {room.trade && (room.trade.toId === youId || room.trade.fromId === youId) && (
+      {room.trade && room.trade.toId === youId && (
         <OfferModal room={room} copy={copy} youId={youId} send={send} />
       )}
       {tradeOpen && !room.trade && (

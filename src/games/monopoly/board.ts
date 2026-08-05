@@ -126,33 +126,114 @@ export const OWNABLE: number[] = TILES.filter((tile) => tile.group !== null).map
 
 export const STREET_GROUPS: Group[] = ['brown', 'lblue', 'pink', 'orange', 'red', 'yellow', 'green', 'dblue'];
 
-/** Ink-on-paper band colours for the eight street groups. */
+/** Saturated band colours. Read against the ivory deed face under warm table light. */
 export const GROUP_INK: Record<Group, string> = {
-  brown: '#6b4a2f',
-  lblue: '#5f9ec4',
-  pink: '#bf5f8c',
-  orange: '#d1802f',
-  red: '#b3341f',
-  yellow: '#d9b13b',
-  green: '#2f6b47',
-  dblue: '#27406e',
-  rail: '#3a3a44',
-  util: '#7d7a94',
+  brown: '#8a5326',
+  lblue: '#3fa3d6',
+  pink: '#d8478f',
+  orange: '#ef8622',
+  red: '#d62f22',
+  yellow: '#f0bf1e',
+  green: '#23a35c',
+  dblue: '#2e5ed0',
+  rail: '#414d5f',
+  util: '#2f9d95',
 };
 
-/** Eight seat colours — deliberately distinct at token size. */
+/** Deeper twin of GROUP_INK, used for the band's lower edge and deed-card shading. */
+export const GROUP_SHADE: Record<Group, string> = {
+  brown: '#5f3616',
+  lblue: '#1f6f9c',
+  pink: '#9c2a62',
+  orange: '#b25a09',
+  red: '#96150c',
+  yellow: '#b08505',
+  green: '#12703c',
+  dblue: '#1a3a8c',
+  rail: '#232b36',
+  util: '#17685f',
+};
+
+/** Eight seat colours — spread across hue *and* luminance so they survive greyscale. */
 export const TOKEN_INK: string[] = [
-  '#b3341f',
-  '#27406e',
-  '#2f6b47',
-  '#b8892b',
-  '#7a3d8f',
-  '#0f7d84',
-  '#c25d1e',
-  '#5c5f6b',
+  '#e04a38',
+  '#f5b528',
+  '#2fa862',
+  '#3f8fdb',
+  '#dc5aa8',
+  '#12b3ab',
+  '#a3c93a',
+  '#95a6ba',
 ];
 
-export const TOKEN_GLYPH: string[] = ['♜', '♞', '♝', '♛', '✦', '⬢', '❖', '▲'];
+/** Ink used for text drawn on top of a seat colour. */
+export const TOKEN_ON: string[] = [
+  '#2a0a06',
+  '#2e2103',
+  '#04240f',
+  '#04172c',
+  '#2e0620',
+  '#022420',
+  '#1e2604',
+  '#111a24',
+];
+
+/** Seat marks are geometric, not pictorial — each silhouette differs from the rest. */
+export type SeatMark = 'ring' | 'spire' | 'lozenge' | 'star' | 'hex' | 'crescent' | 'cross' | 'chevron';
+
+export const TOKEN_MARK: SeatMark[] = [
+  'ring',
+  'spire',
+  'lozenge',
+  'star',
+  'hex',
+  'crescent',
+  'cross',
+  'chevron',
+];
+
+export function seatIndex(token: number): number {
+  return ((token % TOKEN_INK.length) + TOKEN_INK.length) % TOKEN_INK.length;
+}
+
+/* --------------------------------------------------------------- geometry */
+
+/** Corner tracks are 1.62fr, the nine between them 1fr — see .mp-board. */
+const CORNER_FR = 1.62;
+const TOTAL_FR = CORNER_FR * 2 + 9;
+
+function track(index: number): { start: number; size: number } {
+  if (index <= 1) return { start: 0, size: CORNER_FR };
+  if (index >= 11) return { start: CORNER_FR + 9, size: CORNER_FR };
+  return { start: CORNER_FR + (index - 2), size: 1 };
+}
+
+export interface TileBox {
+  /** Centre of the square, as a 0–1 fraction of the board's track space. */
+  cx: number;
+  cy: number;
+  /** Square size, as a 0–1 fraction of the board's track space. */
+  w: number;
+  h: number;
+  /** 1-based grid line the square starts on, so callers can add the grid gaps back. */
+  col: number;
+  row: number;
+}
+
+/** Where a square sits on the board, independent of how big the board is drawn. */
+export function tileBox(i: number): TileBox {
+  const tile = TILES[i] ?? TILES[0];
+  const col = track(tile.col);
+  const row = track(tile.row);
+  return {
+    cx: (col.start + col.size / 2) / TOTAL_FR,
+    cy: (row.start + row.size / 2) / TOTAL_FR,
+    w: col.size / TOTAL_FR,
+    h: row.size / TOTAL_FR,
+    col: tile.col,
+    row: tile.row,
+  };
+}
 
 export function tileName(i: number): string {
   return TILES[i]?.name ?? `#${i}`;

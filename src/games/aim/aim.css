@@ -1,0 +1,577 @@
+/* RANGE-07 — a tactical training range console.
+   Cold graphite surfaces, one signal-red accent, hairline rules, square
+   corners and tabular numerals throughout. Deliberately shares nothing with
+   the arcade, neon or printed-board identities of the sibling games. */
+
+.ar {
+  --void: #0a0d11;
+  --deck: #10151a;
+  --deck-2: #151b22;
+  --rule: #232c35;
+  --rule-hot: #33404c;
+  --ink: #e4ecf2;
+  --dim: #8b9aa8;
+  --faint: #5d6b78;
+  --hot: #ff4655;
+  --hot-soft: rgba(255, 70, 85, 0.14);
+  --good: #00ff9c;
+  --shadow: 0 1px 0 rgba(228, 236, 242, 0.03), 0 12px 28px rgba(6, 10, 14, 0.55);
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    linear-gradient(180deg, rgba(255, 70, 85, 0.05), transparent 22rem),
+    repeating-linear-gradient(90deg, rgba(140, 165, 185, 0.035) 0 1px, transparent 1px 96px),
+    var(--void);
+  color: var(--ink);
+  font-family: "Outfit", system-ui, -apple-system, sans-serif;
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+
+.ar *,
+.ar *::before,
+.ar *::after {
+  box-sizing: border-box;
+}
+
+.ar :focus-visible {
+  outline: 2px solid var(--hot);
+  outline-offset: 2px;
+}
+
+/* ---- chrome ------------------------------------------------------------ */
+
+.ar-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem clamp(0.9rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--rule);
+  background: rgba(10, 13, 17, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  backdrop-filter: blur(6px);
+}
+
+.ar-mark {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  padding: 0.25rem 0.5rem;
+  color: var(--void);
+  background: var(--hot);
+}
+
+.ar-tagline {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.ar-grow { flex: 1; }
+
+.ar-main {
+  width: 100%;
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem) clamp(0.9rem, 3vw, 2rem) 4rem;
+}
+
+/* ---- primitives -------------------------------------------------------- */
+
+.ar-eyebrow {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--hot);
+}
+
+.ar-muted { margin: 0.5rem 0 0; color: var(--dim); font-size: 0.9rem; line-height: 1.6; }
+.ar-tiny { font-size: 0.78rem; }
+.ar-hint {
+  margin: 0.6rem 0 0;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--hot);
+  color: var(--dim);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.ar-empty { margin: 1rem 0 0; color: var(--faint); font-size: 0.85rem; }
+
+.ar h2 {
+  margin: 0.45rem 0 0;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.ar-card {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: linear-gradient(180deg, var(--deck-2), var(--deck));
+  box-shadow: var(--shadow);
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+}
+
+.ar-card::before,
+.ar-card::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: var(--rule-hot);
+  border-style: solid;
+  pointer-events: none;
+}
+.ar-card::before { top: 0; left: 0; border-width: 2px 0 0 2px; border-color: var(--hot); }
+.ar-card::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+/* Every single-column grid needs an explicit minmax(0, 1fr): the default
+   `auto` track is sized by min-content, which lets a wide table or a long
+   monospace line blow the column out past the viewport. */
+.ar-panel-stack { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+
+.ar-scenarios,
+.ar-setup,
+.ar-setup-group,
+.ar-cross-controls,
+.ar-swatches,
+.ar-range,
+.ar-compare,
+.ar-result,
+.ar-stat,
+.ar-field,
+.ar-working {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ar-charts > *,
+.ar-drills > *,
+.ar-panel-stack > *,
+.ar-result > * {
+  min-width: 0;
+}
+
+.ar-working li { overflow-wrap: anywhere; }
+
+.ar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.05rem;
+  border: 1px solid var(--rule-hot);
+  background: var(--deck-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ar-btn:hover { border-color: var(--hot); background: #1b232b; }
+.ar-btn:active { transform: translateY(1px); }
+
+.ar-btn-hot {
+  border-color: var(--hot);
+  background: var(--hot);
+  color: #12060a;
+}
+.ar-btn-hot:hover { background: #ff5f6d; border-color: #ff5f6d; }
+
+.ar-btn-ghost { background: transparent; color: var(--dim); }
+.ar-btn-ghost:hover { color: var(--ink); }
+
+.ar-btn-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--dim);
+  font-size: 0.8rem;
+}
+.ar-btn-quiet:hover { color: var(--ink); border-color: var(--rule-hot); }
+
+.ar-badge {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.2rem 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--void);
+  background: var(--good);
+}
+
+/* ---- tabs -------------------------------------------------------------- */
+
+.ar-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1.4rem;
+}
+
+.ar-tab {
+  padding: 0.7rem 1.05rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--faint);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ar-tab:hover { color: var(--ink); }
+.ar-tab-on { color: var(--ink); border-bottom-color: var(--hot); }
+
+/* ---- drill picker ------------------------------------------------------ */
+
+.ar-drills {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.ar-scenarios {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ar-scenario {
+  display: grid;
+  gap: 0.25rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--rule-hot);
+  background: var(--deck);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ar-scenario:hover { border-color: var(--rule-hot); border-left-color: var(--hot); background: var(--deck-2); }
+.ar-scenario-on { border-left-color: var(--hot); background: var(--deck-2); box-shadow: inset 0 0 0 1px rgba(255, 70, 85, 0.18); }
+
+.ar-scenario-tag {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hot);
+}
+.ar-scenario strong { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; }
+.ar-scenario-desc { color: var(--dim); font-size: 0.83rem; line-height: 1.5; }
+.ar-scenario-pb { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); letter-spacing: 0.06em; }
+
+.ar-sticky { position: sticky; top: 4.5rem; }
+
+.ar-setup { display: grid; gap: 1rem; }
+.ar-setup-head h2 { font-size: 1.35rem; }
+.ar-setup-group { display: grid; gap: 0.5rem; }
+.ar-setup-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; }
+
+.ar-chips { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.4rem; }
+.ar-chip {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--rule-hot);
+  background: var(--deck);
+  color: var(--dim);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.ar-chip:hover { color: var(--ink); border-color: var(--hot); }
+.ar-chip-on { background: var(--hot-soft); border-color: var(--hot); color: var(--ink); }
+
+/* ---- fields ------------------------------------------------------------ */
+
+.ar-field { display: grid; gap: 0.3rem; }
+.ar-field-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ar-field-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--rule-hot);
+  background: #0c1116;
+}
+.ar-field-box:focus-within { border-color: var(--hot); }
+.ar-field-box input,
+.ar-field-box select {
+  width: 100%;
+  min-width: 4.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+}
+.ar-field-box input:focus,
+.ar-field-box select:focus { outline: none; }
+.ar-field-box select option { background: #0c1116; }
+.ar-field-suffix { padding-right: 0.6rem; color: var(--faint); font-family: var(--mono); font-size: 0.78rem; }
+
+.ar-range { display: grid; gap: 0.35rem; }
+.ar-range label { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+.ar-range output { font-family: var(--mono); font-size: 0.85rem; color: var(--ink); }
+.ar-range input[type="range"] {
+  display: block;
+  width: 100%;
+  margin: 0;
+  height: 1.4rem;
+  accent-color: var(--hot);
+  background: transparent;
+  cursor: pointer;
+}
+
+.ar-check { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem; color: var(--dim); font-size: 0.85rem; cursor: pointer; }
+.ar-check input { accent-color: var(--hot); width: 1rem; height: 1rem; }
+.ar-checks { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem; }
+
+.ar-grid-2 { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); margin-top: 1rem; }
+.ar-inline { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.8rem; margin-top: 1rem; }
+.ar-solve { margin: 0 0 0.35rem; font-family: var(--mono); font-size: 0.85rem; color: var(--dim); }
+.ar-solve b { color: var(--good); }
+
+/* ---- stats ------------------------------------------------------------- */
+
+.ar-stats { display: grid; gap: 1px; margin-top: 1rem; background: var(--rule); border: 1px solid var(--rule); }
+.ar-stats-4 { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+.ar-stats-6 { grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); }
+
+.ar-stat { display: grid; gap: 0.15rem; padding: 0.7rem 0.85rem; background: var(--deck); }
+.ar-stat-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ar-stat-value { font-family: var(--mono); font-size: 1.22rem; font-weight: 700; letter-spacing: -0.01em; }
+.ar-stat-sub { font-family: var(--mono); font-size: 0.7rem; color: var(--faint); }
+
+/* ---- working / tables -------------------------------------------------- */
+
+.ar-working { margin: 1rem 0 0; padding: 0 0 0 1.2rem; display: grid; gap: 0.6rem; }
+.ar-working li { color: var(--dim); font-size: 0.85rem; }
+.ar-working code {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--faint);
+  letter-spacing: 0.02em;
+}
+.ar-working span { display: block; font-family: var(--mono); font-size: 0.85rem; color: var(--ink); }
+.ar-working b { color: var(--good); }
+
+.ar-table-wrap { margin-top: 1rem; overflow-x: auto; }
+.ar-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; }
+.ar-table th,
+.ar-table td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
+.ar-table thead th {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 700;
+}
+.ar-table thead th:first-child { text-align: left; }
+.ar-table tbody th { text-align: left; font-weight: 700; color: var(--ink); }
+.ar-table tbody th small { display: block; font-weight: 400; font-size: 0.65rem; color: var(--faint); }
+.ar-table .ar-row-on { background: var(--hot-soft); }
+
+/* ---- crosshair --------------------------------------------------------- */
+
+.ar-cross-layout { display: grid; gap: 1.2rem; grid-template-columns: auto minmax(0, 1fr); margin-top: 1rem; align-items: start; }
+.ar-cross-stage { display: grid; gap: 0.4rem; justify-items: center; }
+.ar-cross-preview { border: 1px solid var(--rule-hot); display: block; }
+.ar-cross-controls { display: grid; gap: 0.7rem; }
+.ar-swatches { display: grid; gap: 0.35rem; }
+.ar-swatches > div { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.ar-swatch { width: 1.7rem; height: 1.7rem; border: 1px solid var(--rule-hot); cursor: pointer; }
+.ar-swatch:hover { border-color: var(--ink); }
+.ar-swatch-on { box-shadow: 0 0 0 2px var(--void), 0 0 0 3px var(--ink); }
+
+/* ---- charts ------------------------------------------------------------ */
+
+.ar-charts {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(26rem, 100%), 1fr));
+  align-items: start;
+  margin-top: 1rem;
+}
+.ar-chart { margin-top: 0.8rem; }
+.ar-chart-square { max-width: 19rem; margin-inline: auto; }
+.ar-chart svg { width: 100%; height: auto; display: block; border: 1px solid var(--rule); background: #0c1116; }
+.ar-chart-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--faint);
+}
+.ar-key { width: 0.6rem; height: 0.6rem; display: inline-block; }
+.ar-key-hit { background: #00ff9c; }
+.ar-key-miss { background: #ff7882; margin-left: 0.7rem; }
+.ar-key-score { background: #ff4655; }
+.ar-key-acc { background: #00ff9c; margin-left: 0.7rem; }
+.ar-chart-scale { margin-left: auto; }
+.ar-axis { fill: #5d6b78; font-family: ui-monospace, monospace; font-size: 9px; }
+
+.ar-compare { display: grid; gap: 0.55rem; margin-top: 1rem; }
+.ar-compare-row { display: grid; grid-template-columns: 8rem minmax(0, 1fr) 4.5rem; gap: 0.6rem; align-items: center; }
+.ar-compare-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.ar-compare-track { height: 0.7rem; background: #0c1116; border: 1px solid var(--rule); display: block; }
+.ar-compare-fill { display: block; height: 100%; background: var(--rule-hot); }
+.ar-compare-fill-hot { background: var(--hot); }
+.ar-compare-value { font-family: var(--mono); font-size: 0.85rem; text-align: right; }
+
+/* ---- results ----------------------------------------------------------- */
+
+.ar-result { display: grid; gap: 1.1rem; }
+.ar-result-head { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; justify-content: space-between; }
+.ar-result-actions { display: flex; gap: 0.5rem; }
+
+/* ---- play view --------------------------------------------------------- */
+
+.ar-playing { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
+
+.ar-hud {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  padding: 0.5rem clamp(0.7rem, 2vw, 1.2rem);
+  border-bottom: 1px solid var(--rule);
+  background: #0c1116;
+}
+.ar-hud-name {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hot);
+}
+.ar-hud-cell { display: grid; }
+.ar-hud-cell small {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.ar-hud-cell b { font-family: var(--mono); font-size: 1rem; font-weight: 700; }
+.ar-hud-badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--rule-hot);
+  color: var(--dim);
+}
+.ar-hud .ar-btn-quiet { margin-left: auto; }
+
+.ar-stage { position: relative; flex: 1; min-height: 0; background: #0d1116; }
+.ar-canvas { display: block; width: 100%; height: 100%; cursor: none; }
+
+.ar-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  background: rgba(10, 13, 17, 0.86);
+  cursor: default;
+}
+.ar-overlay-card {
+  max-width: 30rem;
+  padding: 1.5rem;
+  border: 1px solid var(--rule-hot);
+  border-top: 2px solid var(--hot);
+  background: var(--deck);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.ar-overlay-card h2 { margin: 0; font-size: 1.4rem; }
+.ar-overlay-card p { margin: 0.7rem 0 0; color: var(--dim); font-size: 0.9rem; line-height: 1.6; }
+.ar-overlay-card .ar-hint { text-align: left; }
+.ar-overlay-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1.2rem; }
+
+/* ---- motion ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ar-btn,
+  .ar-chip,
+  .ar-scenario,
+  .ar-tab,
+  .ar-swatch {
+    transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease, transform 0.08s ease;
+  }
+  .ar-compare-fill { transition: width 0.35s ease; }
+}
+
+/* ---- narrow ------------------------------------------------------------ */
+
+@media (max-width: 60rem) {
+  .ar-drills { grid-template-columns: minmax(0, 1fr); }
+  .ar-sticky { position: static; }
+}
+
+@media (max-width: 34rem) {
+  .ar-chrome { gap: 0.5rem; }
+  .ar-tagline { display: none; }
+  .ar-cross-layout { grid-template-columns: minmax(0, 1fr); }
+  .ar-compare-row { grid-template-columns: 5.5rem minmax(0, 1fr) 3.6rem; }
+  .ar-stats-6, .ar-stats-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ar-hud { gap: 0.6rem; }
+  .ar-hud-cell b { font-size: 0.9rem; }
+  .ar-setup-actions { justify-content: stretch; }
+  .ar-setup-actions .ar-btn { flex: 1; }
+}
+.ar-scenarios,
+.ar-setup,
+.ar-setup-group,
+.ar-cross-controls,
+.ar-swatches,
+.ar-range,
+.ar-compare,
+.ar-result,
+.ar-stat,
+.ar-field,
+.ar-working { grid-template-columns: minmax(0, 1fr); }
+
+.ar-charts > *,
+.ar-drills > *,
+.ar-panel-stack > * { min-width: 0; }
+
+.ar-working li { min-width: 0; overflow-wrap: anywhere; }

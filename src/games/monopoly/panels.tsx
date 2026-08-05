@@ -1,18 +1,32 @@
-import type { CSSProperties } from 'react';
-import { GROUP_INK, OWNABLE, TILES, TOKEN_GLYPH, TOKEN_INK } from './board';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { GROUP_INK, GROUP_SHADE, OWNABLE, TILES } from './board';
+import { Seal } from './avatars';
 import { fill, logText, money, type Copy } from './copy';
-import type { Inbound, PlayerView, RoomView, Settings } from './protocol';
+import type { Inbound, PlayerView, RoomView, Settings, TradeBundle } from './protocol';
 
 type Send = (message: Inbound) => void;
 
-const tokenStyle = (token: number): CSSProperties =>
-  ({ ['--tok']: TOKEN_INK[token % TOKEN_INK.length] }) as CSSProperties;
+export function Pin({ player, turn = false }: { player: PlayerView; turn?: boolean }) {
+  return <Seal token={player.token} label={player.name} turn={turn} out={player.bankrupt} />;
+}
 
-export function Pin({ player }: { player: PlayerView }) {
+/** Cash with a one-shot tint whenever the balance moves, so money is felt, not just read. */
+function Cash({ value }: { value: number }) {
+  const previous = useRef(value);
+  const [swing, setSwing] = useState<'up' | 'down' | null>(null);
+
+  useEffect(() => {
+    if (previous.current === value) return;
+    setSwing(value > previous.current ? 'up' : 'down');
+    previous.current = value;
+    const timer = window.setTimeout(() => setSwing(null), 900);
+    return () => window.clearTimeout(timer);
+  }, [value]);
+
   return (
-    <span className="mp-pin" style={tokenStyle(player.token)}>
-      {TOKEN_GLYPH[player.token % TOKEN_GLYPH.length]}
-    </span>
+    <b className="mp-cash" data-swing={swing ?? undefined}>
+      {money(value)}
+    </b>
   );
 }
 
@@ -30,7 +44,7 @@ export function SeatRail({
   showMoney: boolean;
 }) {
   return (
-    <div className="mp-panel">
+    <section className="mp-panel">
       <p className="mp-head">{copy.seatsTitle}</p>
       {room.players.map((player) => (
         <div
@@ -39,11 +53,11 @@ export function SeatRail({
           data-turn={room.activeId === player.id}
           data-out={player.bankrupt}
         >
-          <Pin player={player} />
+          <Pin player={player} turn={room.activeId === player.id} />
           <span className="mp-seat-name">
             {player.name}
             {player.host && <i className="mp-tag" data-tone="gold">{copy.hostTag}</i>}
-            {player.id === youId && <i className="mp-tag">{copy.youTag}</i>}
+            {player.id === youId && <i className="mp-tag" data-tone="you">{copy.youTag}</i>}
             {!player.online && <i className="mp-tag" data-tone="red">{copy.offline}</i>}
             {player.jail !== null && <i className="mp-tag" data-tone="red">{copy.inJail}</i>}
             {player.bankrupt && <i className="mp-tag" data-tone="red">{copy.bankrupt}</i>}
@@ -53,7 +67,7 @@ export function SeatRail({
           </span>
           {showMoney ? (
             <span className="mp-money">
-              <b>{money(player.cash)}</b>
+              <Cash value={player.cash} />
               <small>
                 {copy.netWorth} {money(player.netWorth)}
               </small>
@@ -65,7 +79,7 @@ export function SeatRail({
           )}
         </div>
       ))}
-    </div>
+    </section>
   );
 }
 
@@ -73,17 +87,17 @@ export function SeatRail({
 
 export function LogFeed({ room, copy }: { room: RoomView; copy: Copy }) {
   return (
-    <div className="mp-panel">
+    <section className="mp-panel">
       <p className="mp-head">{copy.feedTitle}</p>
       <div className="mp-feed">
-        {room.log.length === 0 && <p className="mp-empty">—</p>}
+        {room.log.length === 0 && <p className="mp-empty">{copy.feedEmpty}</p>}
         {[...room.log].reverse().map((line) => (
           <p key={line.id} className="mp-line" data-tone={line.tone}>
             {logText(copy, line)}
           </p>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -123,7 +137,7 @@ export function SettingsPanel({
     send({ t: 'settings', patch: { [key]: value } as Partial<Settings> });
 
   return (
-    <div className="mp-panel">
+    <section className="mp-panel">
       <p className="mp-head">{copy.settingsTitle}</p>
       <div className="mp-settings">
         {NUMBERS.map((key) => (
@@ -152,7 +166,7 @@ export function SettingsPanel({
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -174,26 +188,31 @@ export function DeedManager({
   const mine = OWNABLE.filter((tile) => room.deeds[tile]?.owner === youId);
 
   return (
-    <div className="mp-panel">
+    <section className="mp-panel">
       <p className="mp-head">{copy.deedsTitle}</p>
       {mine.length === 0 && <p className="mp-empty">{copy.noDeeds}</p>}
       <div className="mp-deeds">
         {mine.map((index) => {
           const tile = TILES[index];
           const deed = room.deeds[index]!;
-          const band = GROUP_INK[tile.group ?? 'rail'];
+          const group = tile.group ?? 'rail';
           const canBuild = tile.kind === 'street' && deed.houses < 5 && !deed.mortgaged;
           return (
             <div
               className="mp-deed"
               key={index}
               data-mortgaged={deed.mortgaged}
-              style={{ ['--band']: band } as CSSProperties}
+              style={
+                {
+                  ['--band']: GROUP_INK[group],
+                  ['--band-2']: GROUP_SHADE[group],
+                } as CSSProperties
+              }
             >
               <div className="mp-deed-top">
-                <span onClick={() => onInspect(index)} style={{ cursor: 'pointer' }}>
+                <button type="button" className="mp-deed-open" onClick={() => onInspect(index)}>
                   {tile.name}
-                </span>
+                </button>
                 <span>
                   {deed.houses === 5
                     ? copy.hotelTag
@@ -260,7 +279,225 @@ export function DeedManager({
           );
         })}
       </div>
-    </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ trades */
+
+function bundleLine(bundle: TradeBundle, copy: Copy): string {
+  const parts = [
+    bundle.cash > 0 ? money(bundle.cash) : null,
+    ...bundle.tiles.map((tile) => TILES[tile].name),
+    bundle.jailCards > 0 ? `${bundle.jailCards} × ${copy.tradeJailCards}` : null,
+  ].filter(Boolean);
+  return parts.length > 0 ? parts.join(' · ') : copy.tradeNothing;
+}
+
+/**
+ * Permanent home for trading. The wire format carries at most one live offer, so this
+ * shows either the empty pitch or the single pending offer, always in the side rail.
+ */
+export function TradeRail({
+  room,
+  copy,
+  youId,
+  send,
+  onCreate,
+}: {
+  room: RoomView;
+  copy: Copy;
+  youId: string;
+  send: Send;
+  onCreate: () => void;
+}) {
+  const you = room.players.find((p) => p.id === youId) ?? null;
+  const rivals = room.players.filter((p) => p.id !== youId && !p.bankrupt);
+  const trade = room.trade;
+  const involved = trade && (trade.fromId === youId || trade.toId === youId);
+  const incoming = trade?.toId === youId;
+  const from = trade ? (room.players.find((p) => p.id === trade.fromId) ?? null) : null;
+  const to = trade ? (room.players.find((p) => p.id === trade.toId) ?? null) : null;
+  const canCreate = Boolean(you) && !you?.bankrupt && !trade && rivals.length > 0;
+
+  return (
+    <section className="mp-panel" data-accent={incoming ? 'live' : undefined}>
+      <p className="mp-head mp-head-row">
+        {copy.tradesTitle}
+        <button
+          type="button"
+          className="mp-btn"
+          data-size="sm"
+          data-tone="gold"
+          data-auto="true"
+          disabled={!canCreate}
+          onClick={onCreate}
+        >
+          {copy.tradeCreate}
+        </button>
+      </p>
+
+      {!trade && (
+        <div className="mp-pitch">
+          <span className="mp-pitch-mark" aria-hidden="true">
+            ⇄
+          </span>
+          <p className="mp-note">{copy.tradesEmpty}</p>
+          {rivals.length === 0 && <p className="mp-empty">{copy.tradeNoRivals}</p>}
+        </div>
+      )}
+
+      {trade && !involved && (
+        <p className="mp-empty">
+          {fill(copy.tradeElsewhere, { a: from?.name ?? '?', b: to?.name ?? '?' })}
+        </p>
+      )}
+
+      {trade && involved && from && to && (
+        <div className="mp-offer" data-incoming={incoming}>
+          <p className="mp-offer-head">
+            {incoming ? copy.tradeIncoming : copy.tradeOutgoing}
+          </p>
+          <div className="mp-offer-side">
+            <Pin player={from} />
+            <div>
+              <span className="mp-label">{fill(copy.tradeGives, { a: from.name })}</span>
+              <p className="mp-offer-line">{bundleLine(trade.give, copy)}</p>
+            </div>
+          </div>
+          <div className="mp-offer-side">
+            <Pin player={to} />
+            <div>
+              <span className="mp-label">{fill(copy.tradeGives, { a: to.name })}</span>
+              <p className="mp-offer-line">{bundleLine(trade.want, copy)}</p>
+            </div>
+          </div>
+
+          {incoming ? (
+            <div className="mp-row">
+              <button
+                type="button"
+                className="mp-btn"
+                data-size="sm"
+                data-tone="ghost"
+                onClick={() => send({ t: 'tradeRespond', accept: false })}
+              >
+                {copy.refuse}
+              </button>
+              <button
+                type="button"
+                className="mp-btn"
+                data-size="sm"
+                data-tone="green"
+                onClick={() => send({ t: 'tradeRespond', accept: true })}
+              >
+                {copy.accept}
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="mp-note">{copy.awaitingAnswer}</p>
+              <button
+                type="button"
+                className="mp-btn"
+                data-size="sm"
+                data-tone="ghost"
+                onClick={() => send({ t: 'tradeCancel' })}
+              >
+                {copy.tradeWithdraw}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------- bankruptcy */
+
+/** Two-step fold. The consequence is spelled out before the second press arms. */
+export function FoldPanel({
+  room,
+  copy,
+  youId,
+  send,
+}: {
+  room: RoomView;
+  copy: Copy;
+  youId: string;
+  send: Send;
+}) {
+  const you = room.players.find((p) => p.id === youId) ?? null;
+  const debt = room.debt && room.debt.playerId === youId ? room.debt : null;
+  const creditor = debt?.toId ? (room.players.find((p) => p.id === debt.toId) ?? null) : null;
+  const [arming, setArming] = useState(false);
+
+  useEffect(() => {
+    if (!debt) setArming(false);
+  }, [debt]);
+
+  if (!you || you.bankrupt) return null;
+
+  return (
+    <section className="mp-panel" data-accent={debt ? 'danger' : undefined}>
+      <p className="mp-head">{copy.foldTitle}</p>
+
+      {debt ? (
+        <p className="mp-note">
+          {creditor ? fill(copy.debtOwed, { a: creditor.name }) : copy.debtToBank} ·{' '}
+          <b className="mp-num">{money(debt.amount)}</b>
+        </p>
+      ) : (
+        !arming && <p className="mp-note">{copy.foldLocked}</p>
+      )}
+
+      {arming ? (
+        <div className="mp-confirm">
+          <p className="mp-confirm-body">
+            {!debt
+              ? copy.foldLocked
+              : creditor
+                ? fill(copy.foldConfirmTo, { a: creditor.name })
+                : copy.foldConfirmBank}
+          </p>
+          <div className="mp-row">
+            <button
+              type="button"
+              className="mp-btn"
+              data-size="sm"
+              data-tone="ghost"
+              onClick={() => setArming(false)}
+            >
+              {copy.foldKeepPlaying}
+            </button>
+            <button
+              type="button"
+              className="mp-btn"
+              data-size="sm"
+              data-tone="red"
+              disabled={!debt}
+              onClick={() => {
+                setArming(false);
+                send({ t: 'bankrupt' });
+              }}
+            >
+              {copy.foldConfirm}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="mp-btn"
+          data-tone="red"
+          style={{ marginTop: '0.6rem' }}
+          onClick={() => setArming(true)}
+        >
+          {copy.declareBankrupt}
+        </button>
+      )}
+    </section>
   );
 }
 
@@ -291,8 +528,18 @@ export function ActionPanel({
   const pct = Math.max(0, Math.min(100, (seconds / total) * 100));
 
   return (
-    <div className="mp-panel">
-      <p className="mp-head">{yours ? copy.yourTurn : fill(copy.turnOf, { a: active?.name ?? '—' })}</p>
+    <section className="mp-panel" data-accent={yours ? 'live' : undefined}>
+      <p className="mp-head mp-head-row">
+        <span className="mp-turnhead">
+          {active && <Pin player={active} turn />}
+          {yours ? copy.yourTurn : fill(copy.turnOf, { a: active?.name ?? '—' })}
+        </span>
+        {room.turnEndsAt !== null && (
+          <span className="mp-clock mp-num" data-low={seconds <= 10}>
+            {seconds}s
+          </span>
+        )}
+      </p>
 
       {room.turnEndsAt !== null && (
         <div className="mp-timer" data-low={seconds <= 10}>
@@ -305,7 +552,7 @@ export function ActionPanel({
       )}
 
       {you && !yours && !you.bankrupt && (
-        <div style={{ marginTop: '0.7rem', display: 'grid', gap: '0.45rem' }}>
+        <div className="mp-acts">
           <button type="button" className="mp-btn" data-tone="ghost" onClick={onTrade}>
             {copy.tradeOpen}
           </button>
@@ -313,7 +560,7 @@ export function ActionPanel({
       )}
 
       {yours && (
-        <div style={{ marginTop: '0.7rem', display: 'grid', gap: '0.45rem' }}>
+        <div className="mp-acts">
           {room.stage === 'roll' && (
             <button type="button" className="mp-btn" onClick={() => send({ t: 'roll' })}>
               {room.doubles > 0 ? copy.rollAgain : copy.roll}
@@ -387,39 +634,29 @@ export function ActionPanel({
           )}
 
           {room.stage === 'manage' && (
-            <>
-              <div className="mp-row">
-                <button type="button" className="mp-btn" data-tone="ghost" onClick={onTrade}>
-                  {copy.tradeOpen}
-                </button>
-                <button type="button" className="mp-btn" onClick={() => send({ t: 'endTurn' })}>
-                  {room.doubles > 0 ? copy.rollAgain : copy.endTurn}
-                </button>
-              </div>
-            </>
+            <div className="mp-row">
+              <button type="button" className="mp-btn" data-tone="ghost" onClick={onTrade}>
+                {copy.tradeOpen}
+              </button>
+              <button type="button" className="mp-btn" onClick={() => send({ t: 'endTurn' })}>
+                {room.doubles > 0 ? copy.rollAgain : copy.endTurn}
+              </button>
+            </div>
           )}
         </div>
       )}
 
       {debt && (
-        <div style={{ marginTop: '0.8rem', display: 'grid', gap: '0.45rem' }}>
-          <p className="mp-head" style={{ color: 'var(--red)', marginBottom: 0 }}>
-            {copy.debtTitle} — {money(debt.amount)}
+        <div className="mp-debt">
+          <p className="mp-debt-head">
+            {copy.debtTitle} — <span className="mp-num">{money(debt.amount)}</span>
           </p>
           <p className="mp-note">
             {creditor ? fill(copy.debtOwed, { a: creditor.name }) : copy.debtToBank}
           </p>
           <p className="mp-note">{copy.debtBody}</p>
-          <button
-            type="button"
-            className="mp-btn"
-            data-tone="red"
-            onClick={() => send({ t: 'bankrupt' })}
-          >
-            {copy.declareBankrupt}
-          </button>
         </div>
       )}
-    </div>
+    </section>
   );
 }

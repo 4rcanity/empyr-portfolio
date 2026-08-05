@@ -1,6 +1,6 @@
 /**
  * Captures the Empyr Ledger client at desktop and phone widths so the board,
- * lobby and in-game panels can be eyeballed without a browser in the loop.
+ * lobby, side rail and every modal can be eyeballed without a browser in the loop.
  *
  *   node tools/mono-capture.mjs [code]
  *
@@ -52,12 +52,57 @@ await capture('lobby');
 await page.click('ready');
 await sleep(1200);
 await page.click('open the books');
-await sleep(2500);
+await sleep(3000);
 await capture('table');
 
-await page.click('roll');
-await sleep(1800);
-await capture('rolled');
+// Play a few turns for real. The first roll gives us dice and a pawn move; the
+// first unowned square we decline sends the lot to auction, which is the only
+// honest way to get that modal on film.
+let rolled = false;
+let auctioned = false;
+for (let i = 0; i < 40 && !(rolled && auctioned); i++) {
+  if (!rolled && (await page.click('roll the dice')) === 'ok') {
+    rolled = true;
+    await sleep(1000);
+    await capture('rolled');
+    continue;
+  }
+  if (!auctioned && (await page.click('decline')) === 'ok') {
+    await sleep(900);
+    await capture('auction');
+    auctioned = true;
+    await page.click('pass');
+    await sleep(600);
+    continue;
+  }
+  await page.click('roll the dice');
+  await page.click('end turn');
+  await sleep(900);
+}
+if (!rolled) await capture('rolled');
+if (!auctioned) console.log('note: never reached an auction');
+
+// Title deed — click any square and read the card.
+await page.run(`document.querySelectorAll('.mp-tile')[3]?.click()`);
+await sleep(600);
+await capture('deed');
+await page.click('cancel');
+await sleep(400);
+
+// Trade builder.
+await page.click('new offer');
+await sleep(700);
+await capture('trade');
+await page.click('cancel');
+await sleep(400);
+
+// Bankruptcy confirmation. The button always opens the explainer; only the final
+// press is withheld until a bill is actually standing.
+await page.click('declare bankruptcy');
+await sleep(500);
+await capture('fold');
+await page.click('keep playing');
+await sleep(300);
 
 await page.send('Emulation.setDeviceMetricsOverride', {
   width: 390,

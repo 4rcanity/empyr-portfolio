@@ -1,7 +1,8 @@
-import type { CSSProperties } from 'react';
-import { GROUP_INK, TILES, TOKEN_GLYPH, TOKEN_INK, type TileMeta } from './board';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { GROUP_INK, GROUP_SHADE, TILES, TOKEN_INK, seatIndex, tileBox, type TileMeta } from './board';
+import { Seal } from './avatars';
 import { money, type Copy } from './copy';
-import type { RoomView } from './protocol';
+import type { PlayerView, RoomView } from './protocol';
 
 const CORNER_GLYPH: Record<string, string> = {
   go: '➜',
@@ -64,7 +65,7 @@ export function Die({ face, rolling }: { face: number; rolling: boolean }) {
 }
 
 function Buildings({ houses }: { houses: number }) {
-  if (houses === 5) return <i className="mp-hotel" />;
+  if (houses === 5) return <i className="mp-hotel" title="hotel" />;
   return (
     <>
       {Array.from({ length: houses }, (_, index) => (
@@ -84,17 +85,20 @@ interface TileProps {
 function Square({ tile, room, copy, onOpen }: TileProps) {
   const deed = room.deeds[tile.i] ?? null;
   const owner = deed?.owner ? room.players.find((p) => p.id === deed.owner) : null;
-  const here = room.players.filter((p) => !p.bankrupt && p.pos === tile.i);
   const corner = tile.side === 'corner';
+  const street = tile.kind === 'street';
 
   const style: CSSProperties & Record<string, string> = {
     gridRow: String(tile.row),
     gridColumn: String(tile.col),
-    ...(tile.group ? { ['--band']: GROUP_INK[tile.group] } : {}),
-    ...(owner ? { ['--own']: TOKEN_INK[owner.token % TOKEN_INK.length] } : {}),
+    ...(tile.group ? { ['--band']: GROUP_INK[tile.group], ['--band-2']: GROUP_SHADE[tile.group] } : {}),
+    ...(owner ? { ['--own']: TOKEN_INK[seatIndex(owner.token)] } : {}),
   } as CSSProperties & Record<string, string>;
 
-  const showBand = tile.kind === 'street';
+  // Fortune and Ledger squares repeat around the board, so their own name is noise —
+  // the kind reads better and is already translated.
+  const label = tile.kind === 'fortune' || tile.kind === 'ledger' ? copy.kind[tile.kind] : tile.name;
+  const amount = tile.price > 0 ? tile.price : tile.tax > 0 ? tile.tax : 0;
 
   return (
     <div
@@ -111,9 +115,11 @@ function Square({ tile, room, copy, onOpen }: TileProps) {
       tabIndex={-1}
       title={tile.name}
     >
-      {showBand && (
+      {street && (
         <div className="mp-band">
-          <Buildings houses={deed?.houses ?? 0} />
+          <span className="mp-builds">
+            <Buildings houses={deed?.houses ?? 0} />
+          </span>
         </div>
       )}
 
@@ -125,31 +131,107 @@ function Square({ tile, room, copy, onOpen }: TileProps) {
           </>
         ) : (
           <>
-            {!showBand && <span className="mp-glyph">{KIND_GLYPH[tile.kind] ?? '◆'}</span>}
-            <span className="mp-name">{tile.kind === 'fortune' || tile.kind === 'ledger' ? copy.kind[tile.kind] : tile.name}</span>
-            {tile.price > 0 && <span className="mp-price">{money(tile.price)}</span>}
-            {tile.tax > 0 && <span className="mp-price">{money(tile.tax)}</span>}
+            {!street && (
+              <span className="mp-seal-tile" aria-hidden="true">
+                {KIND_GLYPH[tile.kind] ?? '◆'}
+              </span>
+            )}
+            <span className="mp-name">{label}</span>
+            {amount > 0 && <span className="mp-price">{money(amount)}</span>}
           </>
         )}
       </div>
-
-      {here.length > 0 && (
-        <div className="mp-tokens">
-          {here.map((player) => (
-            <span
-              key={player.id}
-              className="mp-token"
-              data-turn={room.activeId === player.id}
-              style={{ ['--tok']: TOKEN_INK[player.token % TOKEN_INK.length] } as CSSProperties}
-            >
-              {TOKEN_GLYPH[player.token % TOKEN_GLYPH.length]}
-            </span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ pawns */
+
+/** Fans several pawns out inside one square without letting them leave it. */
+function fan(index: number, count: number): { dx: number; dy: number } {
+  if (count <= 1) return { dx: 0, dy: 0 };
+  const perRow = count <= 4 ? 2 : 3;
+  const rows = Math.ceil(count / perRow);
+  const row = Math.floor(index / perRow);
+  const col = index % perRow;
+  const inRow = Math.min(perRow, count - row * perRow);
+  return {
+    dx: (col - (inRow - 1) / 2) * 0.62,
+    dy: (row - (rows - 1) / 2) * 0.62,
+  };
+}
+
+interface Metrics {
+  /** Width of the grid's track space, gaps excluded. */
+  span: number;
+  gap: number;
+}
+
+function Pawns({ room, metrics }: { room: RoomView; metrics: Metrics }) {
+  const live = room.players.filter((p) => !p.bankrupt);
+  const byTile = new Map<number, PlayerView[]>();
+  for (const player of live) {
+    const list = byTile.get(player.pos) ?? [];
+    list.push(player);
+    byTile.set(player.pos, list);
+  }
+
+  const moved = useMoveFlags(live);
+
+  return (
+    <div className="mp-pawns" aria-hidden="true">
+      {live.map((player) => {
+        const here = byTile.get(player.pos)!;
+        const box = tileBox(player.pos);
+        const step = Math.min(box.w * metrics.span, box.h * metrics.span);
+        const { dx, dy } = fan(here.indexOf(player), here.length);
+        const x = box.cx * metrics.span + (box.col - 1) * metrics.gap + dx * step;
+        const y = box.cy * metrics.span + (box.row - 1) * metrics.gap + dy * step;
+
+        return (
+          <span
+            key={player.id}
+            className="mp-pawn"
+            data-turn={room.activeId === player.id}
+            data-moving={moved.has(player.id)}
+            style={{ transform: `translate3d(${x}px, ${y}px, 0)` }}
+          >
+            <Seal token={player.token} size="board" turn={room.activeId === player.id} />
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Marks a pawn as in-flight for the length of the travel tween. */
+function useMoveFlags(players: PlayerView[]): Set<string> {
+  const previous = useRef(new Map<string, number>());
+  const [moving, setMoving] = useState<Set<string>>(() => new Set());
+
+  useEffect(() => {
+    const started: string[] = [];
+    for (const player of players) {
+      const was = previous.current.get(player.id);
+      if (was !== undefined && was !== player.pos) started.push(player.id);
+      previous.current.set(player.id, player.pos);
+    }
+    if (started.length === 0) return;
+    setMoving((current) => new Set([...current, ...started]));
+    const timer = window.setTimeout(() => {
+      setMoving((current) => {
+        const next = new Set(current);
+        for (const id of started) next.delete(id);
+        return next;
+      });
+    }, 520);
+    return () => window.clearTimeout(timer);
+  }, [players]);
+
+  return moving;
+}
+
+/* ------------------------------------------------------------------ board */
 
 interface BoardProps {
   room: RoomView;
@@ -160,10 +242,25 @@ interface BoardProps {
 
 export default function BoardView({ room, copy, rolling, onOpen }: BoardProps) {
   const active = room.players.find((p) => p.id === room.activeId) ?? null;
+  const boardRef = useRef<HTMLDivElement | null>(null);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
+
+  useLayoutEffect(() => {
+    const node = boardRef.current;
+    if (!node) return;
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      if (width <= 0) return;
+      const gap = Number.parseFloat(getComputedStyle(node).columnGap) || 0;
+      setMetrics({ span: width - gap * 10, gap });
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="mp-boardwrap">
-      <div className="mp-board">
+      <div className="mp-board" ref={boardRef}>
         {TILES.map((tile) => (
           <Square key={tile.i} tile={tile} room={room} copy={copy} onOpen={onOpen} />
         ))}
@@ -185,7 +282,8 @@ export default function BoardView({ room, copy, rolling, onOpen }: BoardProps) {
           </div>
 
           {active && (
-            <p className="mp-turnline">
+            <p className="mp-turnline" key={active.id}>
+              <Seal token={active.token} size="board" turn />
               <span>{active.name}</span>
             </p>
           )}
@@ -204,6 +302,8 @@ export default function BoardView({ room, copy, rolling, onOpen }: BoardProps) {
             )}
           </div>
         </div>
+
+        {metrics && <Pawns room={room} metrics={metrics} />}
       </div>
     </div>
   );

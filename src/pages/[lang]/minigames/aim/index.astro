@@ -1,0 +1,372 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'RANGE-07 — VALORANT aim-trainer',
+        description:
+          'Browser-aimtrainer met echte VALORANT-gevoeligheid, pointer lock, zeven drills en een gedetailleerd runrapport.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Zeven drills.',
+        h1b: 'Eén crosshair.',
+        blurb:
+          'Een schietbaan in je browser. Voer je VALORANT-sensitivity en DPI in, en de trainer draait de camera met exact dezelfde 0,07° per muistelling als de game zelf. Alles blijft lokaal in je browser.',
+        ctaPlay: 'Naar de baan',
+        ctaSens: 'Gevoeligheid instellen',
+        drillsTitle: 'De drills',
+        drills: [
+          ['Gridshot', 'Een muur van stilstaande doelen. Puur kliksnelheid en efficiëntie tussen de doelen door.'],
+          ['Flick', 'Eén doel tegelijk op een onvoorspelbare hoek. Meet je overshoot en undershoot per schot.'],
+          ['Vloeiend tracken', 'Houd het vizier in een doel dat een gladde baan aflegt. Score is tijd op doel.'],
+          ['Strafe-ontwijking', 'Zelfde principe, maar het doel wisselt zonder waarschuwing van richting.'],
+          ['Microshot', 'Piepkleine doelen in een krap vak. Je eindscore wordt met je accuratesse vermenigvuldigd.'],
+          ['Doelwissel', 'Vijf doelen, één brandt er. Raak de verkeerde en het telt als misser.'],
+          ['Spraycontrole', 'Een patroon van 25 kogels duwt je omhoog en opzij. Trek ertegenin, bekijk de groepering.'],
+        ],
+        drillCta: ['Kies er een', 'Elke drill heeft een instelbare duur, doelgrootte, doelaantal en spawnvlak.'],
+        sensTitle: 'De gevoeligheid klopt',
+        sensBlurb:
+          'VALORANT draait 0,07° per muistelling bij sensitivity 1. Daaruit volgt alles: eDPI is sens × DPI, en cm/360 is 360 ÷ (0,07 × sens × DPI) × 2,54. De trainer laat de tussenstappen zien en rekent je instelling om naar CS2, Apex en Overwatch, zodat je hem meeneemt naar elke game.',
+        sensRows: [
+          ['eDPI', 'sens × DPI'],
+          ['°/telling', 'yaw × sens'],
+          ['cm/360', '360 ÷ (yaw × sens × DPI) × 2,54'],
+          ['Omrekenen', 'sens₂ = sens₁ × yaw₁ ÷ yaw₂'],
+        ],
+        statsTitle: 'Wat je na afloop ziet',
+        stats: [
+          ['Trefferspreiding', 'Elk schot uitgezet ten opzichte van het midden van het doel, geschaald op doelstralen.'],
+          ['TTK-verdeling', 'Hoe lang elk doel het volhield, als histogram met gemiddelde en mediaan.'],
+          ['Verloop van de run', 'Score en accuratesse over de hele run, elke 250 ms bemonsterd.'],
+          ['Tegen jezelf', 'Deze run naast je persoonlijk record en je gemiddelde van de laatste vijf.'],
+        ],
+        techTitle: 'Onder de motorkap',
+        tech: [
+          ['Pointer Lock', 'Je muis wordt gevangen zoals in een echte FPS. Verlies je de vergrendeling, dan pauzeert de klok en kun je hervatten — of doorgaan in cursormodus.'],
+          ['Canvas + delta-tijd', 'Alles wordt op één canvas getekend met een lus die niet van 60 fps uitgaat.'],
+          ['Lokaal', 'Instellingen, records en historie staan in localStorage. Geen account, geen server.'],
+        ],
+        back: '← Terug naar minigames',
+      }
+    : {
+        title: 'RANGE-07 — VALORANT aim trainer',
+        description:
+          'Browser aim trainer with real VALORANT sensitivity maths, pointer lock, seven drills and a detailed run report.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Seven drills.',
+        h1b: 'One crosshair.',
+        blurb:
+          'A firing range in your browser. Punch in your VALORANT sensitivity and DPI and the trainer turns the camera by exactly the same 0.07° per mouse count the game does. Everything stays on your machine.',
+        ctaPlay: 'Enter the range',
+        ctaSens: 'Set up sensitivity',
+        drillsTitle: 'The drills',
+        drills: [
+          ['Gridshot', 'A wall of static targets. Pure click speed and efficient travel between them.'],
+          ['Flick', 'One target at a time at an unpredictable angle. Measures overshoot and undershoot per shot.'],
+          ['Smooth tracking', 'Keep the crosshair buried in a target on a smooth path. Score is time on target.'],
+          ['Strafe dodge', 'Same idea, but the target snaps into a new direction without warning.'],
+          ['Microshot', 'Tiny targets in a tight box. Your final score is multiplied by your accuracy.'],
+          ['Target switch', 'Five targets, one lit. Hit a dark one and it counts against you.'],
+          ['Spray control', 'A 25-round pattern kicks you up and sideways. Pull against it, then read the grouping.'],
+        ],
+        drillCta: ['Pick one', 'Every drill has an adjustable duration, target size, target count and spawn area.'],
+        sensTitle: 'The sensitivity is real',
+        sensBlurb:
+          'VALORANT turns 0.07° per mouse count at sensitivity 1. Everything follows from that: eDPI is sens × DPI, and cm/360 is 360 ÷ (0.07 × sens × DPI) × 2.54. The trainer shows the working and converts your setting to CS2, Apex and Overwatch so you can carry it anywhere.',
+        sensRows: [
+          ['eDPI', 'sens × DPI'],
+          ['°/count', 'yaw × sens'],
+          ['cm/360', '360 ÷ (yaw × sens × DPI) × 2.54'],
+          ['Convert', 'sens₂ = sens₁ × yaw₁ ÷ yaw₂'],
+        ],
+        statsTitle: 'What the report shows',
+        stats: [
+          ['Shot placement', 'Every shot plotted against the target centre, scaled in target radii.'],
+          ['TTK distribution', 'How long each target survived, as a histogram with mean and median.'],
+          ['Run timeline', 'Score and accuracy across the whole run, sampled every 250 ms.'],
+          ['Against yourself', 'This run next to your personal best and your last-five average.'],
+        ],
+        techTitle: 'Under the hood',
+        tech: [
+          ['Pointer Lock', 'Your mouse is captured like a real FPS. Lose the lock and the clock stops so you can resume — or carry on in cursor mode.'],
+          ['Canvas + delta time', 'Everything is drawn on one canvas with a loop that never assumes 60fps.'],
+          ['Local only', 'Settings, bests and history live in localStorage. No account, no server.'],
+        ],
+        back: '← Back to minigames',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/aim" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <LocaleRedirect lang={lang} />
+    <style>
+      :root {
+        --void: #0a0d11;
+        --deck: #10151a;
+        --deck-2: #151b22;
+        --rule: #232c35;
+        --rule-hot: #33404c;
+        --ink: #e4ecf2;
+        --dim: #8b9aa8;
+        --faint: #5d6b78;
+        --hot: #ff4655;
+        --good: #00ff9c;
+        --mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: 'Outfit', system-ui, sans-serif;
+        font-variant-numeric: tabular-nums;
+        background:
+          linear-gradient(180deg, rgba(255, 70, 85, 0.06), transparent 26rem),
+          repeating-linear-gradient(90deg, rgba(140, 165, 185, 0.035) 0 1px, transparent 1px 96px),
+          var(--void);
+        overflow-x: hidden;
+      }
+
+      :focus-visible { outline: 2px solid var(--hot); outline-offset: 2px; }
+
+      .wrap { width: 100%; max-width: 74rem; margin: 0 auto; padding: 0 clamp(0.9rem, 3vw, 1.6rem); }
+
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 0;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .brand img { width: 1.9rem; height: 1.9rem; object-fit: cover; }
+      .grow { flex: 1; }
+
+      .lang { display: flex; border: 1px solid var(--rule-hot); }
+      .lang a {
+        padding: 0.3rem 0.7rem;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--dim);
+        text-decoration: none;
+      }
+      .lang a:hover { color: var(--ink); }
+      .lang a[aria-current='true'] { background: var(--hot); color: #12060a; }
+
+      .eyebrow {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--hot);
+      }
+
+      .hero { padding: clamp(2.5rem, 8vw, 5rem) 0 2.5rem; }
+      h1 {
+        margin: 1rem 0 0;
+        font-size: clamp(2.4rem, 8vw, 4.6rem);
+        font-weight: 900;
+        line-height: 0.94;
+        letter-spacing: -0.045em;
+      }
+      h1 span { color: var(--faint); }
+      .blurb { margin: 1.3rem 0 0; max-width: 38rem; font-size: 1.02rem; line-height: 1.65; color: var(--dim); }
+
+      .ctas { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.7rem 1.3rem;
+        border: 1px solid var(--rule-hot);
+        background: var(--deck-2);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .btn:hover { border-color: var(--hot); background: #1b232b; }
+      .btn.hot { background: var(--hot); border-color: var(--hot); color: #12060a; }
+      .btn.hot:hover { background: #ff5f6d; }
+
+      section.block { padding: clamp(2rem, 6vw, 3.5rem) 0; border-top: 1px solid var(--rule); }
+      section.block h2 {
+        margin: 0.7rem 0 0;
+        font-size: clamp(1.6rem, 4vw, 2.3rem);
+        font-weight: 900;
+        letter-spacing: -0.035em;
+      }
+      section.block > p { margin: 0.8rem 0 0; color: var(--dim); max-width: 40rem; line-height: 1.65; }
+
+      .grid { display: grid; gap: 1px; margin-top: 2rem; background: var(--rule); border: 1px solid var(--rule); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+      .cell { background: var(--deck); padding: 1.1rem 1.2rem; }
+      .cell b { display: block; font-size: 1rem; font-weight: 800; letter-spacing: -0.015em; }
+      .cell span { display: block; margin-top: 0.45rem; color: var(--dim); font-size: 0.86rem; line-height: 1.6; }
+      .cell-cta { display: block; text-decoration: none; color: var(--ink); background: #17191d; }
+      .cell-cta:hover { background: #1e2228; }
+      .cell-cta i { color: var(--good); font-size: 0.8rem; }
+      .cell i {
+        display: block;
+        font-family: var(--mono);
+        font-size: 0.62rem;
+        font-style: normal;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--hot);
+        margin-bottom: 0.35rem;
+      }
+
+      .formulas { margin-top: 2rem; border: 1px solid var(--rule); }
+      .formulas div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        justify-content: space-between;
+        padding: 0.65rem 1rem;
+        border-bottom: 1px solid var(--rule);
+        font-family: var(--mono);
+        font-size: 0.84rem;
+      }
+      .formulas div:last-child { border-bottom: 0; }
+      .formulas b { color: var(--faint); font-weight: 700; letter-spacing: 0.06em; }
+      .formulas code { color: var(--good); }
+
+      footer { padding: 2.5rem 0 3rem; border-top: 1px solid var(--rule); }
+      footer a { color: var(--dim); text-decoration: none; font-size: 0.88rem; font-weight: 600; }
+      footer a:hover { color: var(--ink); }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .btn, .lang a { transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="brand" href={`/${lang}`}>
+          <img src="/images/empyr-logo.png" alt="Empyr" width="30" height="30" />
+          Empyr
+        </a>
+        <span class="grow"></span>
+        <div class="lang">
+          {languages.map((l) => (
+            <a href={`/${l}/minigames/aim`} aria-current={l === lang ? 'true' : 'false'}>{l.toUpperCase()}</a>
+          ))}
+        </div>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>
+          {copy.h1a}<br /><span>{copy.h1b}</span>
+        </h1>
+        <p class="blurb">{copy.blurb}</p>
+        <div class="ctas">
+          <a class="btn hot" href={`/${lang}/minigames/aim/play`}>{copy.ctaPlay}</a>
+          <a class="btn" href={`/${lang}/minigames/aim/play?tab=sens`}>{copy.ctaSens}</a>
+        </div>
+      </div>
+
+      <section class="block">
+        <p class="eyebrow">{copy.drillsTitle}</p>
+        <h2>{copy.drillsTitle}</h2>
+        <div class="grid">
+          {copy.drills.map(([head, text], i) => (
+            <div class="cell">
+              <i>{String(i + 1).padStart(2, '0')}</i>
+              <b>{head}</b>
+              <span>{text}</span>
+            </div>
+          ))}
+          <a class="cell cell-cta" href={`/${lang}/minigames/aim/play`}>
+            <i>→</i>
+            <b>{copy.drillCta[0]}</b>
+            <span>{copy.drillCta[1]}</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">0.07°</p>
+        <h2>{copy.sensTitle}</h2>
+        <p>{copy.sensBlurb}</p>
+        <div class="formulas">
+          {copy.sensRows.map(([head, text]) => (
+            <div>
+              <b>{head}</b>
+              <code>{text}</code>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.statsTitle}</p>
+        <h2>{copy.statsTitle}</h2>
+        <div class="grid">
+          {copy.stats.map(([head, text]) => (
+            <div class="cell">
+              <b>{head}</b>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.techTitle}</p>
+        <h2>{copy.techTitle}</h2>
+        <div class="grid">
+          {copy.tech.map(([head, text]) => (
+            <div class="cell">
+              <b>{head}</b>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <a href={`/${lang}/minigames`}>{copy.back}</a>
+      </footer>
+    </div>
+  </body>
+</html>

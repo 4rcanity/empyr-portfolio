@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
-import { GROUP_INK, OWNABLE, TILES, rentPreview } from './board';
+import { GROUP_INK, GROUP_SHADE, OWNABLE, TILES, rentPreview } from './board';
+import { Seal } from './avatars';
 import { fill, money, type Copy } from './copy';
 import type { Inbound, RoomView, TradeBundle } from './protocol';
 
@@ -34,19 +35,21 @@ export function DeedModal({
   const meta = TILES[tile];
   const deed = room.deeds[tile] ?? null;
   const owner = deed?.owner ? room.players.find((p) => p.id === deed.owner) : null;
-  const band = meta.group ? GROUP_INK[meta.group] : 'var(--ink)';
+  const band = meta.group ? GROUP_INK[meta.group] : '#3d4a55';
+  const shade = meta.group ? GROUP_SHADE[meta.group] : '#1e262d';
 
   return (
     <Scrim onClose={onClose}>
       <div
         className="mp-deed"
-        style={{ ['--band']: band, border: '2px solid var(--ink)' } as CSSProperties}
+        data-big="true"
+        style={{ ['--band']: band, ['--band-2']: shade } as CSSProperties}
       >
-        <div className="mp-deed-top" style={{ fontSize: '1rem', padding: '0.6rem 0.8rem' }}>
+        <div className="mp-deed-top">
           <span>{meta.name}</span>
           <span>{meta.group ? copy.groupName[meta.group] : copy.kind[meta.kind]}</span>
         </div>
-        <div className="mp-deed-body" style={{ padding: '0.9rem 1rem 1rem' }}>
+        <div className="mp-deed-body">
           {meta.kind === 'street' && (
             <table className="mp-rent">
               <tbody>
@@ -116,7 +119,8 @@ export function DeedModal({
           {!meta.group && meta.kind !== 'tax' && <p className="mp-note">{copy.kind[meta.kind]}</p>}
 
           {meta.group && (
-            <p className="mp-note" style={{ marginTop: '0.5rem' }}>
+            <p className="mp-note mp-owned" style={{ marginTop: '0.5rem' }}>
+              {owner && <Seal token={owner.token} label={owner.name} />}
               {owner ? fill(copy.ownedBy, { a: owner.name }) : copy.unowned}
               {deed && !deed.mortgaged && owner
                 ? ` · ${copy.rentLabel} ${money(rentPreview(meta, room.deeds, room.settings.doubleRent))}`
@@ -188,7 +192,8 @@ export function AuctionModal({
           <p style={{ margin: 0, fontSize: '1.6rem', fontFamily: 'var(--serif)' }} className="mp-num">
             {auction.bid > 0 ? money(auction.bid) : copy.noBidYet}
             {leader && (
-              <span style={{ fontSize: '0.8rem', marginLeft: '0.6rem', color: 'var(--ink-2)' }}>
+              <span className="mp-leader">
+                <Seal token={leader.token} label={leader.name} turn />
                 {leader.name} {copy.leading}
               </span>
             )}
@@ -243,7 +248,7 @@ export function AuctionModal({
             <button
               type="button"
               className="mp-btn"
-              data-tone="red"
+              data-tone="ghost"
               style={{ marginTop: '0.4rem' }}
               onClick={() => send({ t: 'passBid' })}
             >
@@ -290,7 +295,12 @@ function DeedPicker({
           key={tile}
           className="mp-pick"
           data-on={chosen.includes(tile)}
-          style={{ ['--band']: GROUP_INK[TILES[tile].group ?? 'rail'] } as CSSProperties}
+          style={
+            {
+              ['--band']: GROUP_INK[TILES[tile].group ?? 'rail'],
+              ['--band-2']: GROUP_SHADE[TILES[tile].group ?? 'rail'],
+            } as CSSProperties
+          }
           onClick={() => onToggle(tile)}
         >
           {TILES[tile].name}
@@ -360,13 +370,23 @@ export function TradeModal({
 
       <div className="mp-field">
         <span className="mp-label">{copy.tradeWith}</span>
-        <select className="mp-input" value={withId} onChange={(event) => setWithId(event.target.value)}>
+        <div className="mp-partners" role="radiogroup" aria-label={copy.tradeWith}>
           {rivals.map((rival) => (
-            <option key={rival.id} value={rival.id}>
-              {rival.name} — {money(rival.cash)}
-            </option>
+            <button
+              type="button"
+              key={rival.id}
+              className="mp-partner"
+              role="radio"
+              aria-checked={rival.id === withId}
+              data-on={rival.id === withId}
+              onClick={() => setWithId(rival.id)}
+            >
+              <Seal token={rival.token} turn={rival.id === withId} />
+              <span>{rival.name}</span>
+              <b className="mp-num">{money(rival.cash)}</b>
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       <div className="mp-split">
@@ -516,7 +536,10 @@ export function OfferModal({
   return (
     <div className="mp-scrim">
       <div className="mp-modal" style={{ width: 'min(30rem, 100%)' }}>
-        <h2 className="mp-modal-title">{fill(copy.incomingTrade, { a: from?.name ?? '?' })}</h2>
+        <h2 className="mp-modal-title mp-title-row">
+          {from && <Seal token={from.token} label={from.name} turn />}
+          {fill(copy.incomingTrade, { a: from?.name ?? '?' })}
+        </h2>
         <p className="mp-modal-sub">{copy.tradeTitle}</p>
 
         <div className="mp-cardface" data-kicker={mine ? copy.youAskFor : copy.youOffer}>
@@ -584,6 +607,11 @@ export function WinnerOverlay({
     <div className="mp-winner">
       <div className="mp-winner-card">
         <p className="mp-label">{copy.brand}</p>
+        {winner && (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Seal token={winner.token} label={winner.name} turn />
+          </div>
+        )}
         <h2>{winner?.id === youId ? copy.youWin : fill(copy.winnerTitle, { a: winner?.name ?? '—' })}</h2>
         <p>
           {copy.netWorth} {money(winner?.netWorth ?? 0)}

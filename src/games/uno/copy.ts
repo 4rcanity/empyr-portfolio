@@ -83,6 +83,16 @@ export interface Copy {
   yourHand: string;
   emptyHand: string;
 
+  seatActive: string;
+  seatAway: string;
+  seatExposed: string;
+  seatYou: string;
+  seatCards: string;
+  hostTag: string;
+  notPlayable: string;
+  incoming: string;
+  tableLabel: string;
+
   roundTitle: string;
   roundSub: string;
   nextRound: string;
@@ -287,6 +297,16 @@ const en: Copy = {
   yourHand: 'Your hand',
   emptyHand: 'No cards',
 
+  seatActive: 'playing now',
+  seatAway: 'Away',
+  seatExposed: 'open to a catch',
+  seatYou: 'you',
+  seatCards: 'cards',
+  hostTag: 'Host',
+  notPlayable: 'not playable',
+  incoming: 'Incoming',
+  tableLabel: 'Table',
+
   roundTitle: 'Round over',
   roundSub: 'Scores are in. Next deal when the host is ready.',
   nextRound: 'Next round',
@@ -431,6 +451,16 @@ const nl: Copy = {
   knockedOut: 'Uitgeschakeld',
   yourHand: 'Jouw hand',
   emptyHand: 'Geen kaarten',
+
+  seatActive: 'is aan zet',
+  seatAway: 'Weg',
+  seatExposed: 'te betrappen',
+  seatYou: 'jij',
+  seatCards: 'kaarten',
+  hostTag: 'Host',
+  notPlayable: 'niet speelbaar',
+  incoming: 'Onderweg',
+  tableLabel: 'Tafel',
 
   roundTitle: 'Ronde voorbij',
   roundSub: 'De punten staan. De host deelt de volgende ronde.',
