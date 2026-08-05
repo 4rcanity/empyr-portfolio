@@ -1,0 +1,39 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import GanzenbordGame from '../../../../games/ganzenbord/GanzenbordGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const title = lang === 'nl' ? 'Ganzenbord — het bord' : 'Ganzenbord — the board';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        background: #dcc9a3;
+      }
+    </style>
+  </head>
+  <body>
+    <GanzenbordGame client:only="react" lang={lang} />
+  </body>
+</html>

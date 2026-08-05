@@ -1,0 +1,502 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+/* The hero board is the real geometry: the 40-square boundary of a plus shape,
+   rendered server-side so it needs no JavaScript. */
+const RING: [number, number][] = [
+  [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [4, 3], [4, 2], [4, 1], [4, 0],
+  [5, 0], [6, 0], [6, 1], [6, 2], [6, 3], [6, 4], [7, 4], [8, 4], [9, 4], [10, 4],
+  [10, 5], [10, 6], [9, 6], [8, 6], [7, 6], [6, 6], [6, 7], [6, 8], [6, 9], [6, 10],
+  [5, 10], [4, 10], [4, 9], [4, 8], [4, 7], [4, 6], [3, 6], [2, 6], [1, 6], [0, 6],
+  [0, 5],
+];
+const HOME: [number, number][][] = [
+  [[1, 5], [2, 5], [3, 5], [4, 5]],
+  [[5, 1], [5, 2], [5, 3], [5, 4]],
+  [[9, 5], [8, 5], [7, 5], [6, 5]],
+  [[5, 9], [5, 8], [5, 7], [5, 6]],
+];
+const YARDS: [number, number][][] = [
+  [[0.9, 0.9], [2.6, 0.9], [0.9, 2.6], [2.6, 2.6]],
+  [[8.4, 0.9], [10.1, 0.9], [8.4, 2.6], [10.1, 2.6]],
+  [[8.4, 8.4], [10.1, 8.4], [8.4, 10.1], [10.1, 10.1]],
+  [[0.9, 8.4], [2.6, 8.4], [0.9, 10.1], [2.6, 10.1]],
+];
+const COLORS = ['red', 'yellow', 'green', 'blue'] as const;
+const pc = (value: number) => `${(value / 11) * 100}%`;
+
+const trackCells = [
+  ...RING.map(([x, y], index) => ({
+    x: x + 0.5,
+    y: y + 0.5,
+    color: index % 10 === 0 ? COLORS[index / 10] : null,
+    faded: false,
+  })),
+  ...HOME.flatMap((cells, corner) =>
+    cells.map(([x, y]) => ({ x: x + 0.5, y: y + 0.5, color: COLORS[corner], faded: true })),
+  ),
+];
+
+/* A frozen mid-game snapshot: three pawns racing, one about to be knocked back. */
+const heroPawns = [
+  { corner: 0, square: 5, label: '1' },
+  { corner: 0, square: 21, label: '2' },
+  { corner: 1, square: 12, label: '1' },
+  { corner: 2, square: 24, label: '3' },
+  { corner: 3, square: 33, label: '2' },
+].map((pawn) => ({
+  color: COLORS[pawn.corner],
+  x: RING[pawn.square][0] + 0.5,
+  y: RING[pawn.square][1] + 0.5,
+  label: pawn.label,
+}));
+
+const yardPawns = [
+  { corner: 1, slot: 2 },
+  { corner: 1, slot: 3 },
+  { corner: 2, slot: 1 },
+  { corner: 3, slot: 0 },
+].map((pawn) => ({
+  color: COLORS[pawn.corner],
+  x: YARDS[pawn.corner][pawn.slot][0],
+  y: YARDS[pawn.corner][pawn.slot][1],
+}));
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'Mens erger je niet — online multiplayer',
+        description:
+          'Speel Mens erger je niet online met vrienden. Privékamers voor 2, 3 of 4 spelers, eigen huisregels en een bord dat je ook op je telefoon kunt spelen.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Precies erop.',
+        h1b: 'Erger je niet.',
+        blurb:
+          'Het kruisbord met veertig velden, vier pionnen per speler en die ene worp die alles verpest. Privékamers, 2 tot 4 spelers, beurtklok en huisregels die je vóór het spel beslecht.',
+        createTitle: 'Nieuw bord',
+        createSub: 'Open een kamer en deel de link.',
+        create: 'Bord openen',
+        joinTitle: 'Meedoen',
+        joinSub: 'Heb je een code van een vriend?',
+        joinPlaceholder: 'Kamercode',
+        join: 'Meedoen',
+        rulesTitle: 'De regels',
+        rules: [
+          ['Zes om te starten', 'Je pionnen staan in het hok. Alleen met een zes zet je er één op je startveld.'],
+          ['Zes gooit door', 'Elke zes geeft een extra worp. Staat alles nog in het hok, dan krijg je drie pogingen.'],
+          ['Precies erop', 'Land je exact op een tegenstander, dan gaat die pion helemaal terug naar zijn hok. Daar komt de naam vandaan.'],
+          ['Exact naar binnen', 'Het huis vraagt een exacte worp. Te veel gegooid is geen zet — dan gaat de beurt voorbij.'],
+          ['Alle vier binnen', 'Wie als eerste alle vier de pionnen in zijn huis heeft, wint.'],
+        ],
+        varTitle: 'Huisregels',
+        varSub: 'Iedereen speelt het thuis anders. In de lobby beslis je het, en tijdens het spel staat op het bord wat er geldt.',
+        vars: [
+          ['Zessen op rij', 'Twee, drie of geen limiet. De laatste zes van de reeks geeft geen extra worp.'],
+          ['Startveld bezet', 'Een pion op zijn eigen startveld mag niet gepasseerd of geslagen worden.'],
+          ['Slaan is verplicht', 'Kun je slaan, dan vervallen alle rustige zetten.'],
+          ['Gedwongen zet', 'Is er maar één legale zet, dan doet het bord hem voor je.'],
+        ],
+        chooseTitle: 'Jij kiest de pion',
+        chooseSub:
+          'De server rekent uit welke zetten mogen. Kan er meer dan één, dan licht elke optie op het bord op en kies jij — met de muis, met tab of met een knop onder het bord.',
+        back: '← Terug naar minigames',
+      }
+    : {
+        title: 'Mens erger je niet — online multiplayer',
+        description:
+          'Play the Dutch classic Mens erger je niet online with friends. Private rooms for 2, 3 or 4 players, your own house rules, and a board that works on a phone.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Land on them.',
+        h1b: "Don't get mad.",
+        blurb:
+          'The cross-shaped board: forty shared squares, four pawns each, and the one roll that ruins everything. Private rooms, 2 to 4 players, a turn clock, and the house rules settled before the first throw.',
+        createTitle: 'New board',
+        createSub: 'Open a room and share the link.',
+        create: 'Open a board',
+        joinTitle: 'Join',
+        joinSub: 'Got a code from a friend?',
+        joinPlaceholder: 'Room code',
+        join: 'Join',
+        rulesTitle: 'The rules',
+        rules: [
+          ['Six to start', 'Your pawns wait in the yard. Only a six puts one onto your start square.'],
+          ['Six rolls again', 'Every six earns another roll. With all four still in the yard you get three attempts.'],
+          ['Land on them', 'Land exactly on an opponent and that pawn goes all the way back. That is where the name comes from.'],
+          ['Exact entry', 'The home column takes an exact count. Overshoot and there is no move — the turn passes.'],
+          ['All four home', 'First player with all four pawns in their column takes the game.'],
+        ],
+        varTitle: 'House rules',
+        varSub: 'Every family plays it differently. Settle it in the lobby, and the board shows which variant is running.',
+        vars: [
+          ['Sixes in a row', 'Two, three, or no limit. The last six of the run buys no extra roll.'],
+          ['Guard the start', 'A pawn parked on its own start square cannot be passed or captured.'],
+          ['Must hit', 'If any move captures, the quiet moves are off the table.'],
+          ['Forced moves', 'When only one move is legal, the board plays it for you.'],
+        ],
+        chooseTitle: 'You pick the pawn',
+        chooseSub:
+          'The server works out which moves are legal. When more than one is, every option lights up on the board and the choice is yours — by mouse, by tab, or from a button under the board.',
+        back: '← Back to minigames',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO lang={lang} title={copy.title} description={copy.description} path="/minigames/mens" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <LocaleRedirect lang={lang} />
+    <style>
+      :root {
+        --ink: #eff6fb;
+        --dim: #a8c1d3;
+        --faint: #7794aa;
+        --edge: rgba(196, 222, 240, 0.16);
+        --panel: #21364a;
+        --shell: #1d3040;
+        --red: #e8402f;
+        --yellow: #f3b415;
+        --green: #22a457;
+        --blue: #2b72e6;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: Nunito, system-ui, sans-serif;
+        background:
+          radial-gradient(90% 60% at 50% -10%, rgba(43, 114, 230, 0.22), transparent 62%),
+          radial-gradient(70% 50% at 92% 108%, rgba(232, 64, 47, 0.14), transparent 68%),
+          linear-gradient(180deg, #1a2b38 0%, #15222d 58%, #111c25 100%);
+      }
+
+      .wrap { width: 100%; max-width: 72rem; margin: 0 auto; padding: 0 1.25rem; }
+      .num { font-variant-numeric: tabular-nums; }
+
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.1rem 0;
+        border-bottom: 1px solid var(--edge);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-weight: 900;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .brand img { width: 2rem; height: 2rem; border-radius: 0.6rem; object-fit: cover; }
+      .grow { flex: 1; }
+
+      .lang { display: flex; gap: 0.25rem; padding: 0.2rem; border: 1px solid var(--edge); border-radius: 999px; }
+      .lang a { padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 900; color: var(--dim); text-decoration: none; }
+      .lang a[aria-current='true'] { background: #fff; color: #16242f; }
+      .lang a:hover { color: var(--ink); }
+
+      .hero { padding: 3.5rem 0 2.5rem; display: grid; gap: 2rem; align-items: center; }
+      @media (min-width: 62rem) { .hero { grid-template-columns: 1.1fr 0.9fr; } }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 900;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--yellow);
+      }
+      h1 {
+        margin: 1rem 0 0;
+        font-size: clamp(2.4rem, 7.5vw, 4.6rem);
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.045em;
+      }
+      h1 span { color: var(--red); }
+      .blurb { margin: 1.3rem 0 0; max-width: 34rem; font-size: 1.05rem; line-height: 1.65; color: var(--dim); }
+
+      /* A miniature of the real board, drawn from the same primaries. */
+      .mini { width: min(100%, 22rem); margin: 0 auto; aspect-ratio: 1; position: relative; border-radius: 1.4rem;
+        background: linear-gradient(160deg, #f7fafc, #e6ecf1 42%, #c3d0da);
+        box-shadow: 0 1.4rem 2.6rem rgba(12, 26, 38, 0.5), inset 0 0.3rem 0.5rem rgba(255, 255, 255, 0.7); }
+      .mini i {
+        position: absolute;
+        width: 7.2%;
+        height: 7.2%;
+        border-radius: 32%;
+        background: radial-gradient(120% 120% at 30% 22%, #eef3f7, #d3dde5);
+        box-shadow: inset 0 1px 2px rgba(58, 88, 110, 0.35);
+        transform: translate(-50%, -50%);
+      }
+      .mini i[data-c='red'] { background: radial-gradient(120% 120% at 30% 22%, #ff7a6b, var(--red)); }
+      .mini i[data-c='yellow'] { background: radial-gradient(120% 120% at 30% 22%, #ffd766, var(--yellow)); }
+      .mini i[data-c='green'] { background: radial-gradient(120% 120% at 30% 22%, #63d894, var(--green)); }
+      .mini i[data-c='blue'] { background: radial-gradient(120% 120% at 30% 22%, #7aaaf5, var(--blue)); }
+      .mini i[data-faded='true'] { opacity: 0.6; }
+
+      .mini s {
+        position: absolute;
+        width: 31%;
+        height: 31%;
+        border-radius: 22%;
+        text-decoration: none;
+      }
+      .mini s[data-c='red'] { background: rgba(232, 64, 47, 0.18); box-shadow: inset 0 0 0 3px rgba(232, 64, 47, 0.55); }
+      .mini s[data-c='yellow'] { background: rgba(243, 180, 21, 0.2); box-shadow: inset 0 0 0 3px rgba(243, 180, 21, 0.6); }
+      .mini s[data-c='green'] { background: rgba(34, 164, 87, 0.18); box-shadow: inset 0 0 0 3px rgba(34, 164, 87, 0.55); }
+      .mini s[data-c='blue'] { background: rgba(43, 114, 230, 0.18); box-shadow: inset 0 0 0 3px rgba(43, 114, 230, 0.55); }
+
+      .mini b {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 9.5%;
+        height: 11%;
+        border-radius: 50% 50% 44% 44%;
+        transform: translate(-50%, -60%);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 0.62rem;
+        font-weight: 900;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+        box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.5), 0 2px 3px rgba(24, 47, 66, 0.5);
+      }
+      .mini b[data-yard='true'] { width: 8%; height: 9.2%; opacity: 0.95; }
+      .mini b[data-c='red'] { background: radial-gradient(120% 110% at 32% 22%, #ff8b7c, var(--red) 58%, #ab2418); }
+      .mini b[data-c='yellow'] { background: radial-gradient(120% 110% at 32% 22%, #ffe08a, var(--yellow) 58%, #b47c00); }
+      .mini b[data-c='green'] { background: radial-gradient(120% 110% at 32% 22%, #74e2a2, var(--green) 58%, #12713a); }
+      .mini b[data-c='blue'] { background: radial-gradient(120% 110% at 32% 22%, #8fb8ff, var(--blue) 58%, #17479c); }
+      .mini u {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 9%;
+        height: 9%;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: conic-gradient(var(--red) 0 25%, var(--yellow) 0 50%, var(--green) 0 75%, var(--blue) 0);
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
+      }
+
+      .cards { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: 2.2rem; }
+      .card {
+        border: 1px solid var(--edge);
+        border-radius: 1.4rem;
+        background: linear-gradient(180deg, var(--panel), var(--shell));
+        padding: 1.3rem;
+        box-shadow: 0 1rem 2rem rgba(12, 26, 38, 0.4);
+      }
+      .card h2 { margin: 0; font-size: 1.2rem; font-weight: 900; letter-spacing: -0.02em; }
+      .card p { margin: 0.45rem 0 0; color: var(--dim); font-size: 0.9rem; line-height: 1.55; }
+
+      .field {
+        width: 100%;
+        margin-top: 0.9rem;
+        padding: 0.75rem 0.95rem;
+        border-radius: 0.85rem;
+        border: 1px solid var(--edge);
+        background: rgba(9, 18, 26, 0.45);
+        color: var(--ink);
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .field:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+      .btn {
+        display: inline-block;
+        margin-top: 0.85rem;
+        padding: 0.72rem 1.3rem;
+        border: none;
+        border-radius: 0.85rem;
+        font-family: inherit;
+        font-size: 0.95rem;
+        font-weight: 900;
+        color: #06230f;
+        background: linear-gradient(180deg, #56d585, var(--green));
+        box-shadow: 0 0.28rem 0 #12713a, 0 0.7rem 1.2rem rgba(18, 113, 58, 0.42);
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.12s, box-shadow 0.12s, filter 0.15s;
+      }
+      .btn:hover { filter: brightness(1.05); }
+      .btn:active { transform: translateY(0.22rem); box-shadow: 0 0.06rem 0 #12713a; }
+      .btn:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+      .btn.alt { color: #2b0a06; background: linear-gradient(180deg, #ffd25c, var(--yellow)); box-shadow: 0 0.28rem 0 #b47c00, 0 0.7rem 1.2rem rgba(180, 124, 0, 0.4); }
+      .btn.alt:active { box-shadow: 0 0.06rem 0 #b47c00; }
+
+      section.block { padding: 3rem 0; border-top: 1px solid var(--edge); }
+      section.block h2 { margin: 0.7rem 0 0; font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 900; letter-spacing: -0.035em; }
+      section.block > p { margin: 0.6rem 0 0; color: var(--dim); max-width: 36rem; line-height: 1.6; }
+
+      .steps { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); margin-top: 1.8rem; list-style: none; padding: 0; }
+      .steps li { border-left: 3px solid var(--red); padding: 0.1rem 0 0.1rem 0.9rem; }
+      .steps li:nth-child(2) { border-color: var(--yellow); }
+      .steps li:nth-child(3) { border-color: var(--green); }
+      .steps li:nth-child(4) { border-color: var(--blue); }
+      .steps b { display: block; font-size: 1rem; font-weight: 900; }
+      .steps span { display: block; margin-top: 0.3rem; color: var(--dim); font-size: 0.88rem; line-height: 1.55; }
+
+      .vars { display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); margin-top: 1.8rem; }
+      .var { border: 1px solid var(--edge); border-radius: 1.1rem; background: rgba(255, 255, 255, 0.05); padding: 1rem 1.1rem; }
+      .var b { font-size: 0.98rem; font-weight: 900; }
+      .var p { margin: 0.4rem 0 0; color: var(--dim); font-size: 0.85rem; line-height: 1.5; }
+
+      footer { padding: 2.5rem 0 3rem; }
+      footer a { color: var(--dim); text-decoration: none; font-weight: 800; font-size: 0.9rem; }
+      footer a:hover { color: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="brand" href={`/${lang}`}>
+          <img src="/images/empyr-logo.png" alt="Empyr" width="32" height="32" />
+          Empyr
+        </a>
+        <span class="grow"></span>
+        <div class="lang">
+          {languages.map((l) => (
+            <a href={`/${l}/minigames/mens`} aria-current={l === lang ? 'true' : 'false'}>{l.toUpperCase()}</a>
+          ))}
+        </div>
+      </header>
+
+      <div class="hero">
+        <div>
+          <p class="eyebrow">{copy.eyebrow}</p>
+          <h1>
+            {copy.h1a}<br /><span>{copy.h1b}</span>
+          </h1>
+          <p class="blurb">{copy.blurb}</p>
+
+          <div class="cards">
+            <div class="card">
+              <h2>{copy.createTitle}</h2>
+              <p>{copy.createSub}</p>
+              <button class="btn" id="make">{copy.create}</button>
+            </div>
+
+            <div class="card">
+              <h2>{copy.joinTitle}</h2>
+              <p>{copy.joinSub}</p>
+              <form id="join">
+                <input class="field" id="code" maxlength="12" placeholder={copy.joinPlaceholder} required />
+                <button class="btn alt" type="submit">{copy.join}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini" aria-hidden="true">
+          {[0, 1, 2, 3].map((corner) => (
+            <s
+              class="plate"
+              data-c={COLORS[corner]}
+              style={`left:${pc([0.2, 7.3, 7.3, 0.2][corner])};top:${pc([0.2, 0.2, 7.3, 7.3][corner])}`}
+            />
+          ))}
+          {trackCells.map((cell) => (
+            <i
+              data-c={cell.color}
+              data-faded={cell.faded ? 'true' : 'false'}
+              style={`left:${pc(cell.x)};top:${pc(cell.y)}`}
+            />
+          ))}
+          <u />
+          {yardPawns.map((pawn) => (
+            <b data-c={pawn.color} data-yard="true" style={`left:${pc(pawn.x)};top:${pc(pawn.y)}`} />
+          ))}
+          {heroPawns.map((pawn) => (
+            <b data-c={pawn.color} style={`left:${pc(pawn.x)};top:${pc(pawn.y)}`}>
+              {pawn.label}
+            </b>
+          ))}
+        </div>
+      </div>
+
+      <section class="block">
+        <p class="eyebrow">{copy.rulesTitle}</p>
+        <h2>{copy.rulesTitle}</h2>
+        <ul class="steps">
+          {copy.rules.map(([head, text]) => (
+            <li>
+              <b>{head}</b>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.varTitle}</p>
+        <h2>{copy.varTitle}</h2>
+        <p>{copy.varSub}</p>
+        <div class="vars">
+          {copy.vars.map(([head, text]) => (
+            <div class="var">
+              <b>{head}</b>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.chooseTitle}</p>
+        <h2>{copy.chooseTitle}</h2>
+        <p>{copy.chooseSub}</p>
+      </section>
+
+      <footer>
+        <a href={`/${lang}/minigames`}>{copy.back}</a>
+      </footer>
+    </div>
+
+    <script is:inline define:vars={{ lang }}>
+      function freshCode() {
+        const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+        const bytes = new Uint8Array(5);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+      }
+
+      document.getElementById('make').addEventListener('click', () => {
+        window.location.href = `/${lang}/minigames/mens/play?code=${freshCode()}`;
+      });
+
+      document.getElementById('join').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const raw = document.getElementById('code').value.trim().toLowerCase();
+        const code = raw.replace(/[^a-z0-9-]/g, '').slice(0, 12);
+        if (code) window.location.href = `/${lang}/minigames/mens/play?code=${code}`;
+      });
+    </script>
+  </body>
+</html>

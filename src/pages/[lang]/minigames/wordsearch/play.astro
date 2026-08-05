@@ -1,0 +1,39 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import WordsearchGame from '../../../../games/wordsearch/WordsearchGame';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+const title = lang === 'nl' ? 'Woordjacht — raster' : 'Wordsearch — grid';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800&family=Karla:wght@400;500;700;800&family=Roboto+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #f2ebdd;
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <WordsearchGame client:only="react" lang={lang} />
+  </body>
+</html>

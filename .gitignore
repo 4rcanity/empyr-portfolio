@@ -1,6 +1,11 @@
 # build output
 dist/
+.git-commit-msg.txt
+
+# verification screenshots, wherever an agent parks them
 tools/**/*.png
+**/shots/
+.shots/
 .astro/
 .next/
 out/

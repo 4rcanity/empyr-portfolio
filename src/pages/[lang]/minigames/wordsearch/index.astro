@@ -1,0 +1,466 @@
+---
+import { languages, type Lang } from '../../../../i18n/ui';
+import PortfolioSEO from '../../../../components/shared/PortfolioSEO.astro';
+import LocaleRedirect from '../../../../components/shared/LocaleRedirect.astro';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+/** Decorative hero grid with one word already highlighted. */
+const mini =
+  lang === 'nl'
+    ? {
+        rows: ['STREEPTE', 'BLADWIJS', 'POTLOODR', 'PAPIEREN', 'RACENOGI'],
+        row: 2,
+        from: 0,
+        to: 6,
+        caption: 'POTLOOD — gevonden',
+      }
+    : {
+        rows: ['TRACEDSO', 'HIGHLITE', 'SPENCILR', 'PAPERMAD', 'RACESINK'],
+        row: 2,
+        from: 1,
+        to: 6,
+        caption: 'PENCIL — found',
+      };
+
+const copy =
+  lang === 'nl'
+    ? {
+        title: 'Woordjacht — multiplayer woordzoeker',
+        description:
+          'Woordzoeker als race. Twee tot acht spelers zoeken op hetzelfde raster; wie een woord het eerst wegstreept, pakt de punten.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Zelfde raster.',
+        h1b: 'Eén potlood wint.',
+        blurb:
+          'Een woordzoeker die tegen de klok én tegen elkaar gaat. Elke speler ziet hetzelfde blad. Streep je een woord het eerst weg, dan is het van jou — en hoe sneller, hoe meer punten.',
+        createTitle: 'Nieuw blad',
+        createSub: 'Open een kamer en deel de link.',
+        create: 'Kamer openen',
+        joinTitle: 'Meedoen',
+        joinSub: 'Heb je een code van een vriend?',
+        joinPlaceholder: 'Kamercode',
+        join: 'Meedoen',
+        rulesTitle: 'Hoe het werkt',
+        rules: [
+          ['Sleep of tik', 'Sleep van de eerste naar de laatste letter, of tik ze los aan. Horizontaal, verticaal, diagonaal — en achteruit.'],
+          ['Eerst is eerst', 'De server bewaakt het raster. Twee spelers op hetzelfde woord? Alleen de eerste krijgt het.'],
+          ['Snelheid telt', 'De lengte van het woord bepaalt de basis, de klok verdubbelt hem als je er vroeg bij bent.'],
+          ['Ronde uit', 'Klaar als alles gevonden is of als de tijd om is. Daarna een nieuw blad met nieuwe woorden.'],
+        ],
+        catTitle: 'Themarondes',
+        catSub: 'Honderden woorden per taal, verdeeld over acht thema’s. Kies er één of gooi alles door elkaar.',
+        cats: [
+          ['Dieren', 'Van egel tot struisvogel.'],
+          ['Eten', 'Boodschappenlijst als raster.'],
+          ['Landen', 'Atlas op één blad.'],
+          ['Sport', 'Velden, beslagen en buitenspel.'],
+          ['Natuur', 'Gletsjers, distels en onweer.'],
+          ['In huis', 'Alles van zolder tot deurmat.'],
+          ['Reizen', 'Perrons, paspoorten en omwegen.'],
+          ['Techniek', 'Kernels, kabels en wachtwoorden.'],
+        ],
+        back: '← Terug naar minigames',
+      }
+    : {
+        title: 'Wordsearch — multiplayer word hunt',
+        description:
+          'A word search built as a race. Two to eight players hunt the same grid; the first pencil on a word takes the points.',
+        eyebrow: 'Empyr / Minigames',
+        h1a: 'Same grid.',
+        h1b: 'One pencil wins.',
+        blurb:
+          'A word search that runs against the clock and against each other. Every player sees the same sheet. Trace a word first and it is yours — and the sooner you find it, the more it pays.',
+        createTitle: 'New sheet',
+        createSub: 'Open a room and share the link.',
+        create: 'Open a room',
+        joinTitle: 'Join',
+        joinSub: 'Got a code from a friend?',
+        joinPlaceholder: 'Room code',
+        join: 'Join',
+        rulesTitle: 'How it works',
+        rules: [
+          ['Drag or tap', 'Drag from the first letter to the last, or tap them one at a time. Across, down, diagonal — and backwards.'],
+          ['First pencil wins', 'The server owns the grid. Two players on one word? Only the first one gets it.'],
+          ['Speed pays', 'Word length sets the base and the clock can double it if you are early.'],
+          ['Round over', 'Done when every word is found or the clock runs out. Then a fresh sheet with fresh words.'],
+        ],
+        catTitle: 'Themed rounds',
+        catSub: 'Hundreds of words per language across eight themes. Pick one or throw them all in together.',
+        cats: [
+          ['Animals', 'Hedgehogs through to ostriches.'],
+          ['Food', 'The shopping list as a grid.'],
+          ['Countries', 'An atlas on one sheet.'],
+          ['Sport', 'Pitches, medals and offside.'],
+          ['Nature', 'Glaciers, thistles and thunder.'],
+          ['Around the house', 'Attic down to the doormat.'],
+          ['Travel', 'Platforms, passports and detours.'],
+          ['Tech', 'Kernels, cables and passwords.'],
+        ],
+        back: '← Back to minigames',
+      };
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.title}</title>
+    <meta name="description" content={copy.description} />
+    <PortfolioSEO
+      lang={lang}
+      title={copy.title}
+      description={copy.description}
+      path="/minigames/wordsearch"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800&family=Karla:wght@400;500;700;800&family=Roboto+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <LocaleRedirect lang={lang} />
+    <style>
+      :root {
+        --paper: #f2ebdd;
+        --sheet: #fbf7ed;
+        --card: #f7f1e4;
+        --rule: rgba(58, 46, 30, 0.16);
+        --ink: #2c2721;
+        --ink-2: #5f5546;
+        --ink-3: #8d8274;
+        --accent: #c2412a;
+        --grain: radial-gradient(rgba(122, 98, 62, 0.075) 1px, transparent 1.5px),
+          radial-gradient(rgba(122, 98, 62, 0.055) 1px, transparent 1.5px);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: Karla, 'Segoe UI', system-ui, sans-serif;
+        background-color: var(--paper);
+        background-image: var(--grain),
+          radial-gradient(120% 80% at 50% -10%, rgba(255, 252, 243, 0.9), transparent 60%),
+          linear-gradient(180deg, #f4eee1 0%, #ece2ce 100%);
+        background-size: 7px 7px, 11px 11px, auto, auto;
+        background-position: 0 0, 3px 5px, 0 0, 0 0;
+        background-attachment: fixed;
+      }
+
+      :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+      .wrap { width: 100%; max-width: 70rem; margin: 0 auto; padding: 0 1.25rem; }
+
+      header.bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.1rem 0;
+        border-bottom: 2px solid var(--rule);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: Bitter, Georgia, serif;
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .brand img { width: 2rem; height: 2rem; border-radius: 0.4rem; object-fit: cover; }
+      .grow { flex: 1; }
+
+      .lang { display: flex; gap: 0.25rem; padding: 0.2rem; border: 1px solid var(--rule); border-radius: 999px; background: var(--sheet); }
+      .lang a {
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--ink-3);
+        text-decoration: none;
+      }
+      .lang a[aria-current='true'] { background: var(--accent); color: #fff6f1; }
+      .lang a:hover:not([aria-current='true']) { color: var(--accent); }
+
+      .hero { padding: 3.5rem 0 2.5rem; }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      h1 {
+        margin: 1rem 0 0;
+        font-family: Bitter, Georgia, serif;
+        font-size: clamp(2.4rem, 7.5vw, 4.4rem);
+        font-weight: 800;
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+      }
+      h1 span { color: var(--ink-3); }
+
+      .blurb { margin: 1.3rem 0 0; max-width: 36rem; font-size: 1.05rem; line-height: 1.6; color: var(--ink-2); }
+
+      .cards {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+        margin-top: 2.4rem;
+      }
+
+      .card {
+        position: relative;
+        border: 1px solid var(--rule);
+        border-radius: 0.4rem;
+        background-color: var(--sheet);
+        background-image: var(--grain);
+        background-size: 7px 7px, 11px 11px;
+        box-shadow: 0 1px 0 rgba(255, 253, 246, 0.7), 0 10px 26px -12px rgba(74, 56, 32, 0.42);
+        padding: 1.4rem;
+      }
+
+      .card::before {
+        content: '';
+        position: absolute;
+        top: -0.5rem;
+        left: 1.4rem;
+        width: 4rem;
+        height: 1rem;
+        background: rgba(233, 221, 189, 0.75);
+        border-right: 1px solid rgba(120, 100, 62, 0.14);
+        box-shadow: 0 1px 3px rgba(74, 56, 32, 0.14);
+        transform: rotate(-4deg);
+      }
+
+      .card h2 { margin: 0; font-family: Bitter, Georgia, serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+      .card p { margin: 0.45rem 0 0; color: var(--ink-2); font-size: 0.9rem; line-height: 1.55; }
+
+      .field {
+        width: 100%;
+        margin-top: 0.9rem;
+        padding: 0.7rem 0.85rem;
+        border: 1px solid var(--rule);
+        border-bottom-width: 2px;
+        border-radius: 0.4rem;
+        background: #fffdf7;
+        color: var(--ink);
+        font-family: 'Roboto Mono', ui-monospace, monospace;
+        font-size: 1rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.8rem;
+        padding: 0.6rem 1.2rem;
+        border: 1px solid var(--rule);
+        border-radius: 0.55rem;
+        background: linear-gradient(180deg, var(--sheet), var(--card));
+        box-shadow: 0 1px 0 rgba(255, 253, 246, 0.7), 0 2px 6px rgba(74, 56, 32, 0.12);
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ink);
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 26px -12px rgba(74, 56, 32, 0.42); }
+      .btn:active { transform: translateY(1px); box-shadow: inset 0 2px 5px rgba(74, 56, 32, 0.18); }
+      .btn.hot {
+        border-color: #a5341f;
+        background: linear-gradient(180deg, #d5563c, var(--accent));
+        color: #fff6f1;
+        text-shadow: 0 1px 0 rgba(96, 26, 12, 0.5);
+      }
+
+      section.block { padding: 3rem 0; border-top: 2px solid var(--rule); }
+      section.block h2 {
+        margin: 0.7rem 0 0;
+        font-family: Bitter, Georgia, serif;
+        font-size: clamp(1.6rem, 4vw, 2.2rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      section.block > p { margin: 0.6rem 0 0; color: var(--ink-2); max-width: 36rem; line-height: 1.6; }
+
+      .steps {
+        display: grid;
+        gap: 0.9rem;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        margin-top: 1.8rem;
+        list-style: none;
+        padding: 0;
+      }
+      .steps li { border-left: 3px solid var(--accent); padding: 0.1rem 0 0.1rem 0.9rem; }
+      .steps b { display: block; font-size: 1rem; font-weight: 800; }
+      .steps span { display: block; margin-top: 0.3rem; color: var(--ink-2); font-size: 0.88rem; line-height: 1.55; }
+
+      .cats { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); margin-top: 1.8rem; }
+      .cat {
+        border: 1px solid var(--rule);
+        border-radius: 0.4rem;
+        background: var(--card);
+        padding: 0.9rem 1rem;
+      }
+      .cat b { font-size: 0.95rem; font-weight: 800; }
+      .cat p { margin: 0.3rem 0 0; color: var(--ink-2); font-size: 0.82rem; line-height: 1.5; }
+
+      .mini { display: grid; grid-template-columns: repeat(8, 1fr); margin-top: 0.9rem; border-top: 1px solid rgba(58, 46, 30, 0.13); border-left: 1px solid rgba(58, 46, 30, 0.13); }
+      .mini i {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border-right: 1px solid rgba(58, 46, 30, 0.13);
+        border-bottom: 1px solid rgba(58, 46, 30, 0.13);
+        font-family: 'Roboto Mono', ui-monospace, monospace;
+        font-size: 0.85rem;
+        font-style: normal;
+        font-weight: 500;
+      }
+      .mini i[data-mark] { font-weight: 700; }
+      .mini i[data-mark]::before {
+        content: '';
+        position: absolute;
+        inset: -1px 0;
+        background: #f2c53d;
+        opacity: 0.5;
+      }
+      .mini i span { position: relative; }
+      .caption { margin: 0.6rem 0 0; font-family: 'Roboto Mono', ui-monospace, monospace; font-size: 0.68rem; letter-spacing: 0.08em; color: var(--ink-3); }
+
+      footer { padding: 2.5rem 0 3rem; }
+      footer a { color: var(--ink-3); text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+      footer a:hover { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="brand" href={`/${lang}`}>
+          <img src="/images/empyr-logo.png" alt="Empyr" width="32" height="32" />
+          Empyr
+        </a>
+        <span class="grow"></span>
+        <div class="lang">
+          {languages.map((l) => (
+            <a href={`/${l}/minigames/wordsearch`} aria-current={l === lang ? 'true' : 'false'}>
+              {l.toUpperCase()}
+            </a>
+          ))}
+        </div>
+      </header>
+
+      <div class="hero">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1>
+          {copy.h1a}<br /><span>{copy.h1b}</span>
+        </h1>
+        <p class="blurb">{copy.blurb}</p>
+
+        <div class="cards">
+          <div class="card">
+            <h2>{copy.createTitle}</h2>
+            <p>{copy.createSub}</p>
+            <button class="btn hot" id="make">{copy.create}</button>
+          </div>
+
+          <div class="card">
+            <h2>{copy.joinTitle}</h2>
+            <p>{copy.joinSub}</p>
+            <form id="join">
+              <input class="field" id="code" maxlength="12" placeholder={copy.joinPlaceholder} required />
+              <button class="btn" type="submit">{copy.join}</button>
+            </form>
+          </div>
+
+          <div class="card" aria-hidden="true">
+            <div class="mini">
+              {mini.rows.map((row, r) =>
+                [...row].map((letter, c) => (
+                  <i data-mark={r === mini.row && c >= mini.from && c <= mini.to ? 'true' : undefined}>
+                    <span>{letter}</span>
+                  </i>
+                )),
+              )}
+            </div>
+            <p class="caption">{mini.caption}</p>
+          </div>
+        </div>
+      </div>
+
+      <section class="block">
+        <p class="eyebrow">{copy.rulesTitle}</p>
+        <h2>{copy.rulesTitle}</h2>
+        <ul class="steps">
+          {copy.rules.map(([head, text]) => (
+            <li>
+              <b>{head}</b>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="block">
+        <p class="eyebrow">{copy.catTitle}</p>
+        <h2>{copy.catTitle}</h2>
+        <p>{copy.catSub}</p>
+        <div class="cats">
+          {copy.cats.map(([head, text]) => (
+            <div class="cat">
+              <b>{head}</b>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer>
+        <a href={`/${lang}/minigames`}>{copy.back}</a>
+      </footer>
+    </div>
+
+    <script is:inline define:vars={{ lang }}>
+      function freshCode() {
+        const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789';
+        const bytes = new Uint8Array(5);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+      }
+
+      document.getElementById('make').addEventListener('click', () => {
+        window.location.href = `/${lang}/minigames/wordsearch/play?code=${freshCode()}`;
+      });
+
+      document.getElementById('join').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const raw = document.getElementById('code').value.trim().toLowerCase();
+        const code = raw.replace(/[^a-z0-9-]/g, '').slice(0, 12);
+        if (code) window.location.href = `/${lang}/minigames/wordsearch/play?code=${code}`;
+      });
+    </script>
+  </body>
+</html>
