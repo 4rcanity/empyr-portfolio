@@ -1,0 +1,620 @@
+---
+import type { Lang } from '../../i18n/ui';
+import PricingComparison from './PricingComparison.astro';
+import PricingAside from './PricingAside.astro';
+import {
+  APP_BASE,
+  APP_FEATURES,
+  APP_QUOTE_CAP,
+  COVER_USD,
+  ORIGINAL_USD,
+  SCRIPTED_UI_USD,
+  STUDIO_FEE_USD,
+  UI_USD,
+  VFX_TIERS,
+  WEBSITE_BUILDS,
+  eur,
+  usd,
+} from '../../data/pricing';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const nl = lang === 'nl';
+const locale = nl ? 'nl-NL' : 'en-US';
+
+const DISCORD_URL = 'https://discord.gg/sfnQdNPNg2';
+
+/** Cheapest way into each category, shown on its tab. */
+const websiteFrom = eur(Math.min(...WEBSITE_BUILDS.map((b) => b.price)), locale);
+const robloxFrom = usd(Math.min(...VFX_TIERS.map((t) => t.price)));
+const musicFrom = usd(COVER_USD);
+const appsFrom = usd(APP_BASE);
+
+const appFeatureCopy = nl
+  ? {
+      accounts: { name: 'Accounts & login', desc: 'Registreren, inloggen, profielen' },
+      push: { name: 'Pushmeldingen', desc: 'Berichten sturen naar gebruikers' },
+      payments: { name: 'In-app betalingen', desc: 'Abonnementen of eenmalige aankopen' },
+      admin: { name: 'Beheerpaneel', desc: 'Content en gebruikers beheren' },
+      offline: { name: 'Offline-modus', desc: 'Werkt zonder internetverbinding' },
+      design: { name: 'Custom UI/UX design', desc: 'Volledig maatwerk interface' },
+      multiplatform: { name: 'iOS + Android', desc: 'Eén app, twee platforms' },
+      analytics: { name: 'Analytics & crash reports', desc: 'Gebruik en fouten monitoren' },
+      integrations: { name: 'Externe koppelingen', desc: "API's van derden aansluiten" },
+    }
+  : {
+      accounts: { name: 'Accounts & login', desc: 'Sign-up, sign-in, profiles' },
+      push: { name: 'Push notifications', desc: 'Message users directly' },
+      payments: { name: 'In-app payments', desc: 'Subscriptions or one-off purchases' },
+      admin: { name: 'Admin dashboard', desc: 'Manage content and users' },
+      offline: { name: 'Offline mode', desc: 'Works without a connection' },
+      design: { name: 'Custom UI/UX design', desc: 'Fully bespoke interface' },
+      multiplatform: { name: 'iOS + Android', desc: 'One app, two platforms' },
+      analytics: { name: 'Analytics & crash reports', desc: 'Track usage and failures' },
+      integrations: { name: 'Third-party integrations', desc: 'Wire up outside APIs' },
+    };
+
+const vfxCopy = nl
+  ? {
+      small: { name: 'Klein / basis', desc: 'Slashes en alles wat weinig werk kost.' },
+      mid: { name: 'Gemiddeld', desc: 'Kleine explosies, map-effecten, lichtinval.' },
+      large: { name: 'Groot / moeilijk', desc: 'Beams, trails, movesets, grote explosies.' },
+    }
+  : {
+      small: { name: 'Small / basic', desc: 'Slashes and anything that takes little effort.' },
+      mid: { name: 'Intermediate', desc: 'Small explosions, map effects, lighting.' },
+      large: { name: 'Large / hard', desc: 'Beams, trails, movesets, large explosions.' },
+    };
+
+const copy = nl
+  ? {
+      eyebrow: 'Alle tarieven',
+      title: 'Elke dienst, één prijslijst.',
+      body: 'Vaste tarieven per categorie, met een rekenmachine voor werk dat per project verschilt. Geen verrassingen achteraf.',
+      viewProjects: 'Bekijk projecten',
+      viewProjectsHint: 'Het meeste werk staat in mijn Discord',
+      categoryLabel: 'Categorie',
+      from: 'vanaf',
+      tabWebsite: 'Websites',
+      tabRoblox: 'Roblox development',
+      tabMusic: 'Muziek',
+      tabApps: 'Apps',
+
+      // Roblox
+      robloxVfx: 'VFX',
+      robloxVfxBody: 'Effecten los af te nemen, of goedkoper per stuk in een bulkorder.',
+      robloxInterface: 'Interface',
+      robloxInterfaceBody: 'Losse UI-schermen, of volledig aangesloten en scripted.',
+      bulkNote: (n: number) => `Vanaf ${n}+ effecten goedkoper per stuk`,
+      uiName: 'UI',
+      uiDesc: 'Ontwerp en opbouw van één scherm.',
+      uiUnit: 'per UI',
+      scriptedUiName: 'Scripted UI',
+      scriptedUiDesc: 'Volledig werkende interface, aangesloten op je game.',
+      complexityNote: 'afhankelijk van complexiteit',
+      robloxAsideTitle: 'Roblox development',
+      robloxNote1: 'Vaste prijzen — ik neem geen percentage van je game.',
+      robloxNote2: 'Betaald in echt geld, geen Robux.',
+      robloxNote3: 'Bulkorders krijgen een lagere prijs per effect.',
+
+      // Music
+      musicTitle: 'Muziek',
+      musicGroup: 'Type nummer',
+      musicBody: 'Losstaand van Roblox development — voor elk project, op elk platform.',
+      coversTitle: 'Covers',
+      coversDesc: 'Een bestaand nummer opnieuw opgenomen en gemixt.',
+      originalsTitle: 'Originele soundtracks',
+      originalsDesc: 'Volledig nieuwe compositie, geschreven voor jouw project.',
+      musicNote1: `Toeslag van ${usd(STUDIO_FEE_USD)} voor het huren van een opnamestudio.`,
+      musicNote2: 'Volledig vooraf te betalen.',
+
+      // Apps
+      appsBase: 'Basisprijs',
+      appsBaseDesc: 'Een app op één platform met een simpele flow: schermen, navigatie en een basisontwerp.',
+      addFeatures: 'Voeg toe wat je nodig hebt',
+      summary: 'Jouw samenstelling',
+      oneTimeTotal: 'Eenmalig totaal (indicatie)',
+      quoteCap: `${usd(APP_QUOTE_CAP)}+`,
+      quoteNote: 'Grotere apps krijgen een offerte op maat.',
+
+      cta: 'Vraag offerte aan',
+      disclaimer: 'Prijzen zijn indicatief. Definitieve offerte na een korte intake.',
+    }
+  : {
+      eyebrow: 'All pricing',
+      title: 'Every service, one price list.',
+      body: 'Flat rates per category, with a calculator for the work that varies by project. No surprises at the end.',
+      viewProjects: 'View projects',
+      viewProjectsHint: 'Most of my work is posted in my Discord',
+      categoryLabel: 'Category',
+      from: 'from',
+      tabWebsite: 'Websites',
+      tabRoblox: 'Roblox development',
+      tabMusic: 'Music',
+      tabApps: 'Apps',
+
+      // Roblox
+      robloxVfx: 'VFX',
+      robloxVfxBody: 'Order effects one at a time, or cheaper per effect in bulk.',
+      robloxInterface: 'Interface',
+      robloxInterfaceBody: 'Standalone UI screens, or fully wired up and scripted.',
+      bulkNote: (n: number) => `Cheaper per effect from ${n}+ up`,
+      uiName: 'UI',
+      uiDesc: 'Design and build of a single screen.',
+      uiUnit: 'per UI',
+      scriptedUiName: 'Scripted UI',
+      scriptedUiDesc: 'Fully working interface, wired into your game.',
+      complexityNote: 'depending on complexity',
+      robloxAsideTitle: 'Roblox development',
+      robloxNote1: "Flat rates — I don't take a percentage of your game.",
+      robloxNote2: 'Paid in real cash, not Robux.',
+      robloxNote3: 'Bulk orders drop the price per effect.',
+
+      // Music
+      musicTitle: 'Music',
+      musicGroup: 'Track type',
+      musicBody: 'Separate from Roblox development — for any project, on any platform.',
+      coversTitle: 'Covers',
+      coversDesc: 'An existing track re-recorded and mixed.',
+      originalsTitle: 'Original soundtracks',
+      originalsDesc: 'A brand new composition, written for your project.',
+      musicNote1: `${usd(STUDIO_FEE_USD)} fee to rent a recording studio.`,
+      musicNote2: 'Fully upfront payment.',
+
+      // Apps
+      appsBase: 'Base price',
+      appsBaseDesc: 'A single-platform app with a simple flow: screens, navigation and a basic design.',
+      addFeatures: 'Add what you need',
+      summary: 'Your build',
+      oneTimeTotal: 'One-time total (estimate)',
+      quoteCap: `${usd(APP_QUOTE_CAP)}+`,
+      quoteNote: 'Larger apps get a scoped custom quote.',
+
+      cta: 'Request a quote',
+      disclaimer: 'Prices are indicative. Final quote after a short intake.',
+    };
+
+const tabs = [
+  { id: 'website', label: copy.tabWebsite, from: websiteFrom },
+  { id: 'roblox', label: copy.tabRoblox, from: robloxFrom },
+  { id: 'music', label: copy.tabMusic, from: musicFrom },
+  { id: 'apps', label: copy.tabApps, from: appsFrom },
+];
+---
+
+<section id="pricing" class="scroll-mt-20 border-t border-stone-200 bg-stone-50 py-24 text-stone-950 sm:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <!-- Header, matching the rhythm of the work section above it -->
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,36rem)_1fr] lg:items-end lg:gap-16">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-600">{copy.eyebrow}</p>
+        <h2 class="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{copy.title}</h2>
+        <p class="mt-5 text-base leading-7 text-stone-600">{copy.body}</p>
+      </div>
+
+      <div class="flex flex-col gap-2 lg:items-end">
+        <a
+          href={DISCORD_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-[#5865F2] hover:text-[#5865F2] lg:self-auto"
+        >
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.358-.43.84-.59 1.222a18.27 18.27 0 0 0-3.936 0A11.68 11.68 0 0 0 11.442 3a19.73 19.73 0 0 0-3.762 1.372C4.9 8.257 4.077 12.03 4.462 15.751a19.9 19.9 0 0 0 5.993 3.03c.483-.66.913-1.36 1.284-2.098a12.9 12.9 0 0 1-2.023-.973c.17-.124.336-.253.497-.386 3.902 1.804 8.13 1.804 11.986 0 .162.14.328.269.497.386-.645.385-1.322.71-2.027.976.372.738.8 1.438 1.284 2.098a19.83 19.83 0 0 0 6.002-3.033c.457-4.318-.674-8.055-2.638-11.382ZM10.02 13.49c-1.171 0-2.133-1.077-2.133-2.4 0-1.322.94-2.4 2.133-2.4 1.204 0 2.155 1.089 2.134 2.4 0 1.323-.94 2.4-2.134 2.4Zm5.96 0c-1.17 0-2.132-1.077-2.132-2.4 0-1.322.94-2.4 2.132-2.4 1.205 0 2.156 1.089 2.135 2.4 0 1.323-.93 2.4-2.135 2.4Z"/>
+          </svg>
+          {copy.viewProjects}
+        </a>
+        <p class="text-xs text-stone-400 lg:text-right">{copy.viewProjectsHint}</p>
+      </div>
+    </div>
+
+    <div class="mt-14" data-pricing-hub>
+      <input type="radio" name="pricing-tab" id="tab-website" class="sr-only" checked />
+      <input type="radio" name="pricing-tab" id="tab-roblox" class="sr-only" />
+      <input type="radio" name="pricing-tab" id="tab-music" class="sr-only" />
+      <input type="radio" name="pricing-tab" id="tab-apps" class="sr-only" />
+
+      <!-- Category switcher -->
+      <div class="flex flex-wrap items-center gap-2 border-y border-stone-200 py-4">
+        <span class="mr-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">
+          {copy.categoryLabel}
+        </span>
+        {
+          tabs.map((tab) => (
+            <label for={`tab-${tab.id}`} class="pricing-tab-pill" data-tab-pill={tab.id}>
+              {tab.label}
+              <span class="pricing-tab-from">{copy.from} {tab.from}</span>
+            </label>
+          ))
+        }
+      </div>
+
+      <!-- Panels. The min-height keeps the page from lurching when the fixed-rate
+           tabs (much shorter than the calculators) are selected. -->
+      <div class="pt-12 lg:min-h-[38rem]">
+        <!-- ── Websites ── -->
+        <div data-panel="website">
+          <PricingComparison lang={lang} bare />
+        </div>
+
+        <!-- ── Roblox development ── -->
+        <div data-panel="roblox">
+          <div class="grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start">
+            <div class="space-y-10">
+              <div>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.robloxVfx}</h3>
+                <p class="mt-1.5 text-sm text-stone-500">{copy.robloxVfxBody}</p>
+                <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                  {
+                    VFX_TIERS.map((tier) => {
+                      const vc = vfxCopy[tier.id as keyof typeof vfxCopy];
+                      return (
+                        <div class="flex flex-col rounded-2xl border border-stone-200 bg-white p-5">
+                          <span class="text-sm font-bold text-stone-900">{vc.name}</span>
+                          <span class="mt-1.5 flex-1 text-xs leading-relaxed text-stone-500">{vc.desc}</span>
+                          <span class="mt-5 text-xl font-bold tracking-tight text-orange-600">
+                            {usd(tier.price)}+
+                          </span>
+                          <span class="mt-2 text-[11px] font-semibold uppercase tracking-wide text-stone-400">
+                            {copy.bulkNote(tier.bulk)}
+                          </span>
+                        </div>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.robloxInterface}</h3>
+                <p class="mt-1.5 text-sm text-stone-500">{copy.robloxInterfaceBody}</p>
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div class="flex flex-col rounded-2xl border border-stone-200 bg-white p-5">
+                    <span class="text-sm font-bold text-stone-900">{copy.uiName}</span>
+                    <span class="mt-1.5 flex-1 text-xs leading-relaxed text-stone-500">{copy.uiDesc}</span>
+                    <span class="mt-5 flex flex-wrap items-baseline gap-x-2">
+                      <span class="text-xl font-bold tracking-tight text-orange-600">{usd(UI_USD)}</span>
+                      <span class="text-xs font-semibold text-stone-400">{copy.uiUnit}</span>
+                    </span>
+                  </div>
+                  <div class="flex flex-col rounded-2xl border border-stone-200 bg-white p-5">
+                    <span class="text-sm font-bold text-stone-900">{copy.scriptedUiName}</span>
+                    <span class="mt-1.5 flex-1 text-xs leading-relaxed text-stone-500">{copy.scriptedUiDesc}</span>
+                    <span class="mt-5 text-xl font-bold tracking-tight text-orange-600">{usd(SCRIPTED_UI_USD)}+</span>
+                    <span class="mt-2 text-[11px] font-semibold uppercase tracking-wide text-stone-400">
+                      {copy.complexityNote}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <PricingAside
+              title={copy.robloxAsideTitle}
+              fromLabel={copy.from}
+              fromValue={robloxFrom}
+              notes={[copy.robloxNote1, copy.robloxNote3, copy.robloxNote2]}
+              ctaLabel={copy.cta}
+              disclaimer={copy.disclaimer}
+            />
+          </div>
+        </div>
+
+        <!-- ── Music ── -->
+        <div data-panel="music">
+          <div class="grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start">
+            <div>
+              <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.musicGroup}</h3>
+              <p class="mt-1.5 text-sm text-stone-500">{copy.musicBody}</p>
+              <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="flex flex-col rounded-2xl border border-stone-200 bg-white p-5">
+                  <span class="text-sm font-bold text-stone-900">{copy.coversTitle}</span>
+                  <span class="mt-1.5 flex-1 text-xs leading-relaxed text-stone-500">{copy.coversDesc}</span>
+                  <span class="mt-5 text-xl font-bold tracking-tight text-orange-600">{usd(COVER_USD)}</span>
+                </div>
+                <div class="flex flex-col rounded-2xl border border-stone-200 bg-white p-5">
+                  <span class="text-sm font-bold text-stone-900">{copy.originalsTitle}</span>
+                  <span class="mt-1.5 flex-1 text-xs leading-relaxed text-stone-500">{copy.originalsDesc}</span>
+                  <span class="mt-5 text-xl font-bold tracking-tight text-orange-600">{usd(ORIGINAL_USD)}</span>
+                </div>
+              </div>
+            </div>
+
+            <PricingAside
+              title={copy.musicTitle}
+              fromLabel={copy.from}
+              fromValue={musicFrom}
+              notes={[copy.musicNote1, copy.musicNote2]}
+              ctaLabel={copy.cta}
+              disclaimer={copy.disclaimer}
+            />
+          </div>
+        </div>
+
+        <!-- ── Apps ── -->
+        <div data-panel="apps">
+          <div
+            class="grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start"
+            data-app-pricing-calculator
+            data-app-locale={locale}
+            data-app-quote-cap={APP_QUOTE_CAP}
+            data-app-quote-cap-display={copy.quoteCap}
+            data-app-base={APP_BASE}
+          >
+            <div class="space-y-8">
+              <div class="rounded-2xl border border-stone-200 bg-white p-5">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 class="text-sm font-bold text-stone-900">{copy.appsBase}</h3>
+                    <p class="mt-1.5 text-xs leading-relaxed text-stone-500">{copy.appsBaseDesc}</p>
+                  </div>
+                  <span class="shrink-0 text-xl font-bold tracking-tight text-orange-600">{usd(APP_BASE)}+</span>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.addFeatures}</h3>
+                <div class="mt-4 grid gap-2 sm:grid-cols-2" data-app-feature-list>
+                  {
+                    APP_FEATURES.map((feat) => {
+                      const fc = appFeatureCopy[feat.id as keyof typeof appFeatureCopy];
+                      const inputId = `app-feat-${feat.id}`;
+                      return (
+                        <label
+                          for={inputId}
+                          class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 transition-colors has-[:checked]:border-orange-400 has-[:checked]:bg-orange-50/50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-orange-500 has-[:focus-visible]:ring-offset-2"
+                          data-app-feature-row={feat.id}
+                        >
+                          <input
+                            type="checkbox"
+                            id={inputId}
+                            value={feat.id}
+                            data-app-feature-price={feat.price}
+                            data-app-feature-label={fc.name}
+                            class="peer sr-only"
+                          />
+                          <span class="min-w-0 flex-1">
+                            <span class="block text-sm font-semibold text-stone-900">{fc.name}</span>
+                            <span class="block text-xs text-stone-500">{fc.desc}</span>
+                          </span>
+                          <span class="shrink-0 text-sm font-semibold text-stone-600 group-has-[:checked]:text-orange-600">
+                            +{usd(feat.price)}
+                          </span>
+                          <span
+                            class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-stone-300 bg-stone-100 transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-500"
+                            role="presentation"
+                            aria-hidden="true"
+                          >
+                            <span class="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"></span>
+                          </span>
+                        </label>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+            </div>
+
+            <aside class="lg:sticky lg:top-24">
+              <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+                <h3 class="text-lg font-bold text-stone-900">{copy.summary}</h3>
+
+                <ul class="mt-6 space-y-2 text-sm" data-app-summary-lines>
+                  <li class="flex items-baseline justify-between gap-4" data-line="base">
+                    <span class="text-stone-600">{copy.appsBase}</span>
+                    <span class="shrink-0 font-semibold text-stone-900">{usd(APP_BASE)}</span>
+                  </li>
+                </ul>
+
+                <div class="my-6 border-t border-stone-200"></div>
+
+                <div class="flex items-baseline justify-between gap-4">
+                  <span class="text-sm font-semibold text-stone-500">{copy.oneTimeTotal}</span>
+                  <span
+                    class="text-4xl font-bold tracking-tight text-stone-900"
+                    data-app-total-display
+                    data-exact-total={APP_BASE}
+                  >
+                    {usd(APP_BASE)}
+                  </span>
+                </div>
+
+                <p class="mt-2 hidden text-xs text-stone-500" data-app-quote-note>{copy.quoteNote}</p>
+
+                <a
+                  href="#contact"
+                  class="mt-8 inline-flex w-full items-center justify-center rounded-full bg-orange-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
+                >
+                  {copy.cta}
+                </a>
+
+                <p class="mt-4 text-center text-xs text-stone-400">{copy.disclaimer}</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function initAppPricingCalculator() {
+    const root = document.querySelector<HTMLElement>('[data-app-pricing-calculator]');
+    if (!root || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+
+    const locale = root.dataset.appLocale ?? 'en-US';
+    const base = Number(root.dataset.appBase ?? '3000');
+    const quoteCap = Number(root.dataset.appQuoteCap ?? '10000');
+    const quoteCapDisplay = root.dataset.appQuoteCapDisplay ?? '$10,000+';
+
+    const featureInputs = root.querySelectorAll<HTMLInputElement>('[data-app-feature-price]');
+    const summaryLines = root.querySelector<HTMLElement>('[data-app-summary-lines]');
+    const totalDisplay = root.querySelector<HTMLElement>('[data-app-total-display]');
+    const quoteNote = root.querySelector<HTMLElement>('[data-app-quote-note]');
+
+    let animFrame = 0;
+    let displayedTotal = base;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function formatMoney(n: number) {
+      return `$${Math.round(n).toLocaleString(locale)}`;
+    }
+
+    function computeTotal() {
+      let total = base;
+      featureInputs.forEach((el) => {
+        if (el.checked) total += Number(el.dataset.appFeaturePrice ?? 0);
+      });
+      return total;
+    }
+
+    function renderFeatureLines() {
+      if (!summaryLines) return;
+      summaryLines.querySelectorAll('[data-line="feature"]').forEach((el) => el.remove());
+      featureInputs.forEach((el) => {
+        if (!el.checked) return;
+        const li = document.createElement('li');
+        li.className = 'flex items-baseline justify-between gap-4';
+        li.dataset.line = 'feature';
+        li.innerHTML = `<span class="text-stone-600">${el.dataset.appFeatureLabel ?? ''}</span><span class="shrink-0 font-semibold text-stone-900">${formatMoney(Number(el.dataset.appFeaturePrice ?? 0))}</span>`;
+        summaryLines.appendChild(li);
+      });
+    }
+
+    function animateTotal(target: number) {
+      if (!totalDisplay) return;
+      cancelAnimationFrame(animFrame);
+      const capped = target > quoteCap;
+
+      if (reducedMotion) {
+        displayedTotal = target;
+        totalDisplay.textContent = capped ? quoteCapDisplay : formatMoney(target);
+        if (quoteNote) quoteNote.classList.toggle('hidden', !capped);
+        return;
+      }
+
+      const start = displayedTotal;
+      const duration = 350;
+      const startTime = performance.now();
+
+      function tick(now: number) {
+        if (!totalDisplay) return;
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        displayedTotal = start + (target - start) * eased;
+        const shown = capped ? target : displayedTotal;
+        totalDisplay.textContent = capped ? quoteCapDisplay : formatMoney(shown);
+        if (quoteNote) quoteNote.classList.toggle('hidden', !capped);
+        if (t < 1) animFrame = requestAnimationFrame(tick);
+        else displayedTotal = target;
+      }
+
+      animFrame = requestAnimationFrame(tick);
+    }
+
+    function update() {
+      renderFeatureLines();
+      animateTotal(computeTotal());
+    }
+
+    featureInputs.forEach((el) => el.addEventListener('change', update));
+    displayedTotal = computeTotal();
+    update();
+  }
+
+  function resetAppPricingCalculator() {
+    document.querySelectorAll<HTMLElement>('[data-app-pricing-calculator]').forEach((el) => {
+      delete el.dataset.initialized;
+    });
+  }
+
+  initAppPricingCalculator();
+  document.addEventListener('astro:page-load', () => {
+    resetAppPricingCalculator();
+    initAppPricingCalculator();
+  });
+</script>
+
+<style>
+  [data-pricing-hub] [data-panel] {
+    display: none;
+  }
+  [data-pricing-hub]:has(#tab-website:checked) [data-panel='website'],
+  [data-pricing-hub]:has(#tab-roblox:checked) [data-panel='roblox'],
+  [data-pricing-hub]:has(#tab-music:checked) [data-panel='music'],
+  [data-pricing-hub]:has(#tab-apps:checked) [data-panel='apps'] {
+    display: block;
+  }
+
+  /* Category pills. Selected reads as solid ink so orange stays reserved for
+     money and calls to action. */
+  .pricing-tab-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    cursor: pointer;
+    border-radius: 9999px;
+    border: 1px solid #e7e5e4;
+    background: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #44403c;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .pricing-tab-pill:hover {
+    border-color: #1c1917;
+    color: #1c1917;
+  }
+
+  .pricing-tab-from {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a8a29e;
+    transition: color 0.15s ease;
+  }
+
+  #tab-website:checked ~ div [data-tab-pill='website'],
+  #tab-roblox:checked ~ div [data-tab-pill='roblox'],
+  #tab-music:checked ~ div [data-tab-pill='music'],
+  #tab-apps:checked ~ div [data-tab-pill='apps'] {
+    border-color: #1c1917;
+    background: #1c1917;
+    color: #ffffff;
+  }
+
+  #tab-website:checked ~ div [data-tab-pill='website'] .pricing-tab-from,
+  #tab-roblox:checked ~ div [data-tab-pill='roblox'] .pricing-tab-from,
+  #tab-music:checked ~ div [data-tab-pill='music'] .pricing-tab-from,
+  #tab-apps:checked ~ div [data-tab-pill='apps'] .pricing-tab-from {
+    color: #d6d3d1;
+  }
+
+  #tab-website:focus-visible ~ div [data-tab-pill='website'],
+  #tab-roblox:focus-visible ~ div [data-tab-pill='roblox'],
+  #tab-music:focus-visible ~ div [data-tab-pill='music'],
+  #tab-apps:focus-visible ~ div [data-tab-pill='apps'] {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+  }
+
+  [data-app-pricing-calculator] [data-app-feature-row]:has(input:checked) span[role='presentation'] span {
+    transform: translateX(1.25rem);
+  }
+
+  [data-app-pricing-calculator] [data-app-feature-row]:has(input:checked) span[role='presentation'] {
+    border-color: #f97316;
+    background-color: #f97316;
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+description: Split planning/design to high-end models and long code fill to mid/fast models
+alwaysApply: true
+---
+
+# Model orchestration (API cost)
+
+Use a two-tier agent split. Do not burn a high-end model on bulk implementation.
+
+## High-end (structuring / planning / design)
+
+Use `claude-sonnet-5-thinking-medium` (or the strongest available thinking model) for:
+
+- Architecture, file layout, protocol/schema design
+- UX/visual direction and layout composition
+- Game rules, state machines, and acceptance criteria
+- Deploy/publish plans and sequencing
+- Reviewing worker output for quality before merge
+
+High-end agents should return **briefs**: structure, interfaces, TODOs, acceptance checks — not thousand-line dumps.
+
+## Mid / fast (long code fill)
+
+Use `composer-2.5-fast` (or the cheapest capable coder available) for:
+
+- Implementing from an approved brief
+- Boilerplate, CSS volume, protocol stubs, smoke scripts
+- Mechanical refactors and wiring pages/hubs
+- Deploy commands and test runs when the plan is already fixed
+
+## Parent agent duties
+
+1. Plan first with a high-end subagent (or do a tight plan yourself if scope is tiny).
+2. Spawn mid/fast workers with a **complete brief** (paths, APIs, copy, constraints, done-when).
+3. Parallelize independent games/features; never let two workers edit the same files.
+4. After workers land, spot-check with high-end only on design/protocol risk — not every line.

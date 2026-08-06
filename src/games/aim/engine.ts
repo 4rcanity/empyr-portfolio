@@ -74,7 +74,7 @@ export const DEFAULT_TARGET_STYLE: TargetStyle = {
 /** Fired at the exact instant of a shot outcome. The engine stays audio-free
     and fully headless-testable; callers (the React layer) hang sound effects
     off this instead. */
-export type EngineEvent = 'shot' | 'hit' | 'miss' | 'kill';
+export type EngineEvent = 'shot' | 'hit' | 'miss' | 'kill' | 'fireStart' | 'fireStop';
 
 export interface EngineSens {
   /** Degrees of yaw per mouse count at sensitivity 1 (engine constant). */
@@ -361,6 +361,7 @@ export class AimEngine {
   }
 
   stop() {
+    if (this.firing) this.onEvent?.('fireStop');
     this.running = false;
     this.firing = false;
   }
@@ -419,7 +420,9 @@ export class AimEngine {
 
   down() {
     if (!this.running) return;
+    const wasFiring = this.firing;
     this.firing = true;
+    if (!wasFiring) this.onEvent?.('fireStart');
     if (this.mode === 'click') this.fire();
     else if (this.mode === 'spray') {
       this.sprayClock = 0;
@@ -428,6 +431,7 @@ export class AimEngine {
   }
 
   up() {
+    if (this.firing) this.onEvent?.('fireStop');
     this.firing = false;
     if (this.mode === 'spray' && this.sprayIndex > 0) this.resetSpray();
   }

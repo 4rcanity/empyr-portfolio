@@ -81,13 +81,24 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   // is not a reliable guard: a stale 'live' read in that handler would flip
   // a finished run's 'result' phase back to 'paused'. This ref can't race.
   const endedRef = useRef(false);
+  const holdModeRef = useRef(false);
 
   phaseRef.current = phase;
   cursorRef.current = cursorMode;
 
   if (engineRef.current === null) {
     engineRef.current = new AimEngine();
-    engineRef.current.onEvent = (type) => sfx.play(type);
+    engineRef.current.onEvent = (type) => {
+      if (type === 'fireStart') {
+        if (holdModeRef.current) sfx.startHold();
+        return;
+      }
+      if (type === 'fireStop') {
+        sfx.stopHold();
+        return;
+      }
+      sfx.play(type);
+    };
   }
   const engine = engineRef.current;
 
@@ -179,6 +190,7 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
 
   const finish = useCallback(() => {
     endedRef.current = true;
+    sfx.stopHold();
     engine.stop();
     const raw = engine.result();
     const custom = activeCustomRef.current;
@@ -200,8 +212,11 @@ export default function AimTrainer({ lang }: { lang: Lang }) {
   const beginRun = useCallback(() => {
     const custom = activeCustomRef.current;
     if (custom) {
+      holdModeRef.current = custom.mode === 'track' || custom.mode === 'spray';
       engine.start('custom', custom.config, engineSens, undefined, custom.mode);
     } else {
+      const mode = SCENARIOS[scenario].mode;
+      holdModeRef.current = mode === 'track' || mode === 'spray';
       engine.start(scenario, config, engineSens);
     }
     setStats(engine.stats());

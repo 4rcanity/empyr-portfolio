@@ -49,6 +49,11 @@ export interface Env {
 
 const GRACE_MS = 60_000;
 
+/** Hard cap on concurrent sockets per room so a single DO can't be flooded. */
+const MAX_SOCKETS_PER_ROOM = 64;
+/** Reject oversized inbound frames before they ever reach JSON.parse. */
+const MAX_MESSAGE_CHARS = 4000;
+
 export class HiloRoom extends DurableObject<Env> {
   private code = 'room';
   private phase: Phase = 'lobby';
@@ -75,6 +80,10 @@ export class HiloRoom extends DurableObject<Env> {
 
     if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
       return new Response('Expected WebSocket', { status: 426 });
+    }
+
+    if (this.sockets.size >= MAX_SOCKETS_PER_ROOM) {
+      return new Response('Room is at capacity', { status: 429 });
     }
 
     const pair = new WebSocketPair();
@@ -137,7 +146,7 @@ export class HiloRoom extends DurableObject<Env> {
   // ---------------------------------------------------------------- messaging
 
   private receive(socket: WebSocket, raw: unknown) {
-    if (typeof raw !== 'string') return;
+    if (typeof raw !== 'string' || raw.length > MAX_MESSAGE_CHARS) return;
     let msg: Inbound;
     try {
       msg = JSON.parse(raw) as Inbound;

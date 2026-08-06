@@ -1,40 +1,26 @@
 ---
 import type { Lang } from '../../i18n/ui';
+import {
+  CARE_COM,
+  CARE_NL,
+  WEBSITE_BUILDS as BUILDS,
+  WEBSITE_FEATURES as FEATURES,
+  WEBSITE_QUOTE_CAP as QUOTE_CAP,
+  eur,
+} from '../../data/pricing';
 
 interface Props {
   lang: Lang;
+  /** Skip the outer section/heading so this can sit inside a tab panel. */
+  bare?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, bare = false } = Astro.props;
 const nl = lang === 'nl';
 const locale = nl ? 'nl-NL' : 'en-US';
 
-// ── Pricing config (edit numbers here) ──────────────────────────────────────
-const BUILDS = [
-  { id: 'static', price: 1200 },
-  { id: 'animated', price: 2200 },
-  { id: 'platform', price: 3200 },
-];
-
-const FEATURES = [
-  { id: 'language', price: 350 },
-  { id: 'booking', price: 500 },
-  { id: 'ordering', price: 600 },
-  { id: 'payments', price: 550 },
-  { id: 'cms', price: 450 },
-  { id: 'blog', price: 300 },
-  { id: 'seo', price: 250 },
-  { id: 'brand', price: 400 },
-  { id: 'gallery', price: 200 },
-];
-
-const CARE_NL = 150;
-const CARE_COM = 170;
-const QUOTE_CAP = 5000;
-// ── End pricing config ──────────────────────────────────────────────────────
-
 function fmt(n: number) {
-  return `€${n.toLocaleString(locale)}`;
+  return eur(n, locale);
 }
 
 const buildCopy = nl
@@ -130,15 +116,20 @@ const copy = nl
     };
 ---
 
-<section id="pricing" class="border-t border-stone-200 bg-gradient-to-b from-white to-stone-50 py-24">
-  <div class="mx-auto max-w-6xl px-4 sm:px-6">
-    <div class="text-center">
-      <p class="text-sm font-semibold uppercase tracking-widest text-orange-600">{copy.title}</p>
-      <h2 class="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">{copy.subtitle}</h2>
-    </div>
+<section
+  id={bare ? undefined : 'pricing'}
+  class={bare ? undefined : 'border-t border-stone-200 bg-gradient-to-b from-white to-stone-50 py-24'}
+>
+  <div class={bare ? undefined : 'mx-auto max-w-6xl px-4 sm:px-6'}>
+    {!bare && (
+      <div class="text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-orange-600">{copy.title}</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">{copy.subtitle}</h2>
+      </div>
+    )}
 
     <div
-      class="mt-14 grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start"
+      class:list={['grid gap-8 lg:grid-cols-[1.15fr_.85fr] lg:items-start', !bare && 'mt-14']}
       data-pricing-calculator
       data-locale={locale}
       data-quote-cap={QUOTE_CAP}

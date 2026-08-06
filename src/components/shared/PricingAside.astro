@@ -1,0 +1,58 @@
+---
+/**
+ * The sticky card that closes out a pricing tab.
+ *
+ * The website and app tabs end in a live calculator summary; the fixed-rate
+ * tabs have nothing to total up, so they get this instead. Same position, same
+ * shape, same call to action — switching category shouldn't change the shape of
+ * the page or hide the way to get in touch.
+ */
+interface Props {
+  title: string;
+  /** Headline figure, e.g. the entry rate for the category. */
+  fromLabel: string;
+  fromValue: string;
+  /** Terms and caveats, one line each. */
+  notes?: string[];
+  ctaLabel: string;
+  ctaHref?: string;
+  disclaimer: string;
+}
+
+const { title, fromLabel, fromValue, notes = [], ctaLabel, ctaHref = '#contact', disclaimer } = Astro.props;
+---
+
+<aside class="lg:sticky lg:top-24">
+  <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+    <h3 class="text-lg font-bold text-stone-900">{title}</h3>
+
+    <div class="mt-6 flex items-baseline justify-between gap-4">
+      <span class="text-sm font-semibold text-stone-500">{fromLabel}</span>
+      <span class="text-3xl font-bold tracking-tight text-stone-900">{fromValue}</span>
+    </div>
+
+    {
+      notes.length > 0 && (
+        <ul class="mt-6 space-y-3 border-t border-stone-200 pt-6">
+          {notes.map((note) => (
+            <li class="flex gap-2.5 text-xs leading-5 text-stone-500">
+              <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>{note}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <a
+      href={ctaHref}
+      class="mt-8 inline-flex w-full items-center justify-center rounded-full bg-orange-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-orange-200 transition-colors hover:bg-orange-600"
+    >
+      {ctaLabel}
+    </a>
+
+    <p class="mt-4 text-center text-xs text-stone-400">{disclaimer}</p>
+  </div>
+</aside>

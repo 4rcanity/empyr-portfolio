@@ -11,7 +11,7 @@ import {
   parseImport,
   slugify,
 } from './customDrills';
-import { estimateRank } from './ranks';
+import { difficultyOf, estimateRank, RANKS } from './ranks';
 import {
   GAMES,
   conversionTable,
@@ -161,6 +161,16 @@ export function SetupPanel({
   const heading = title ?? scenario?.name ?? copy.customDrillFallback;
   const subtitle = desc ?? scenario?.desc ?? '';
   const hintText = hint ?? scenario?.hint ?? '';
+  const difficulty = difficultyOf(config, scoreMode);
+  const difficultyLabel =
+    difficulty.id === 'easy'
+      ? copy.difficultyEasy
+      : difficulty.id === 'normal'
+        ? copy.difficultyNormal
+        : difficulty.id === 'hard'
+          ? copy.difficultyHard
+          : copy.difficultyExtreme;
+  const maxRankName = RANKS[difficulty.maxTierIndex]!.name;
 
   const reset = onReset ?? (id ? () => onChange(defaultConfig(id)) : undefined);
 
@@ -257,6 +267,9 @@ export function SetupPanel({
           {copy.start}
         </button>
       </div>
+      <p className="ar-tiny ar-muted">
+        {copy.difficulty}: {difficultyLabel} · {copy.difficultyCap.replace('{name}', maxRankName)}
+      </p>
     </div>
   );
 }
@@ -1041,10 +1054,20 @@ export function RankBadge({ copy, lang, result }: { copy: Copy; lang: Lang; resu
   const rank = useMemo(() => estimateRank(result), [result]);
   const suffix = rank.tierIndex === 8 ? '' : ` ${RANK_SUB[rank.sub - 1]}`;
 
+  const difficultyLabel =
+    rank.difficulty.id === 'easy'
+      ? copy.difficultyEasy
+      : rank.difficulty.id === 'normal'
+        ? copy.difficultyNormal
+        : rank.difficulty.id === 'hard'
+          ? copy.difficultyHard
+          : copy.difficultyExtreme;
+
+  const maxName = RANKS[rank.difficulty.maxTierIndex]!.name;
+  const capLine = copy.difficultyCap.replace('{name}', maxName);
+
   const toNextFormatted =
-    result.mode === 'track'
-      ? pct(lang, rank.toNext, 0)
-      : num(lang, rank.toNext, 0);
+    result.mode === 'track' ? pct(lang, rank.toNext, 0) : num(lang, rank.toNext, 0);
 
   const progressText = rank.nextTier
     ? copy.rankToNext.replace('{n}', toNextFormatted).replace('{name}', rank.nextTier.name)
@@ -1064,7 +1087,10 @@ export function RankBadge({ copy, lang, result }: { copy: Copy; lang: Lang; resu
         {rank.tier.name}
         {suffix}
       </span>
-      <p className="ar-tiny ar-muted">{progressText}</p>
+      <p className="ar-tiny ar-muted">
+        {copy.difficulty}: {difficultyLabel} · {capLine}
+      </p>
+      <p className="ar-tiny ar-muted">{rank.capped ? copy.rankCapped : progressText}</p>
       <p className="ar-tiny ar-muted">{copy.rankDisclaimer}</p>
     </div>
   );

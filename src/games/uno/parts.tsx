@@ -101,19 +101,39 @@ export interface SeatSlot {
   /** Percent of the arena box. */
   x: number;
   y: number;
-  /** Signed offset from the bottom of the ring, -180..180. */
-  lean: number;
+  /** Which side of the felt the seat sits on — decides plate/fan stacking. */
+  half: 'top' | 'bottom';
   me: boolean;
   /** Turn distance from you: 0 = you, 1 = acts next. */
   step: number;
 }
 
+/*
+ * The felt is a rounded rect tipped by rotateX under perspective, which
+ * projects to an ellipse on screen. These are that ellipse, measured off the
+ * rendered table in percent of the seat container (.un-ring): centre (50,
+ * 59.7) with radii 48 x 43.3. If .un-table's insets, rotateX or the zone's
+ * perspective change, these have to be re-measured or the seats will drift off
+ * the table again.
+ */
+const RIM_CX = 50;
+const RIM_CY = 59.7;
+const RIM_RX = 48;
+const RIM_RY = 43.3;
+
+/** Seats ride just inside the rim so plates sit on the edge and cards on felt. */
+const SEAT_INSET = 0.85;
+
+/** Bottom-left of the rim, clear of the pile band and your own tray. */
+const YOU_DEG = 145;
+
 /**
- * Seats everybody around an ellipse with you pinned to the bottom-left plate
- * and the remaining players laid out in true turn order.
+ * Seats everybody around the felt with you pinned to the bottom-left rim and
+ * the remaining players laid out in true turn order across the far side.
  *
- * The arc deliberately narrows for small tables so three players read as a
- * triangle rather than two lonely chairs at the far ends of a ten-seat ring.
+ * The arc widens as the table fills but stays centred on the far edge, so a
+ * three-hander reads as a triangle rather than two lonely chairs, and nobody
+ * is ever seated down in the near zone where your own tray lives.
  */
 export function ringSeats(
   players: PlayerView[],
@@ -132,22 +152,20 @@ export function ringSeats(
   }
 
   const k = others.length;
-  // Widen the arc as the table fills; never wrap into the bottom hand zone.
-  const span = Math.min(300, k * 70 + 60);
-  const stepDeg = k > 0 ? span / k : 0;
-
-  const RX = 41;
-  const RY = 33;
-  const CY = 45;
+  // 270deg is the far edge of the felt, straight across from you.
+  const span = k <= 1 ? 0 : Math.min(190, 60 + (k - 1) * 45);
+  const stepDeg = k > 1 ? span / (k - 1) : 0;
 
   const slots: SeatSlot[] = others.map((player, i) => {
-    const lean = 180 - span / 2 + (i + 0.5) * stepDeg;
-    const screen = ((90 + direction * lean) * Math.PI) / 180;
+    // Turn order runs round the felt the way the arrows point, so the player
+    // who acts next is always the neighbour on the side play is heading.
+    const index = direction === 1 ? i : k - 1 - i;
+    const deg = 270 - span / 2 + index * stepDeg;
     return {
       player,
-      x: Math.max(10, Math.min(90, 50 + RX * Math.cos(screen))),
-      y: CY + RY * Math.sin(screen),
-      lean: direction * (lean > 180 ? lean - 360 : lean),
+      ...seatPoint(deg),
+      // Opponents always show the plate above their cards, like the real game.
+      half: 'top' as const,
       me: false,
       step: i + 1,
     };
@@ -155,9 +173,22 @@ export function ringSeats(
 
   const you = ordered[mine];
   if (you) {
-    slots.unshift({ player: you, x: 11, y: 84, lean: 0, me: true, step: 0 });
+    slots.unshift({ player: you, ...seatPoint(YOU_DEG), half: 'bottom', me: true, step: 0 });
   }
   return slots;
+}
+
+/** A point on the seating ellipse, kept far enough in that plates stay onscreen. */
+function seatPoint(deg: number): { x: number; y: number } {
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: clamp(RIM_CX + RIM_RX * SEAT_INSET * Math.cos(rad), 9, 91),
+    y: clamp(RIM_CY + RIM_RY * SEAT_INSET * Math.sin(rad), 10, 88),
+  };
+}
+
+function clamp(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
 }
 
 /** How many backs we actually draw for a hand of `n` — No Mercy hands get huge. */
@@ -192,7 +223,7 @@ export function Seat({
   const player = slot.player;
   const active = player.id === activeId && !player.out;
   const hue = hueFor(player.seat);
-  const half = slot.y < 46 ? 'top' : 'bottom';
+  const half = slot.half;
   const backs = fanCount(player.cards);
 
   const state = [
@@ -220,7 +251,6 @@ export function Seat({
           '--xn': slot.x.toFixed(2),
           '--yn': slot.y.toFixed(2),
           '--hue': String(hue),
-          '--lean': `${Math.max(-26, Math.min(26, slot.lean * 0.22))}deg`,
         } as CSSProperties
       }
       aria-label={`${player.name}, ${player.cards} ${copy.seatCards}${state ? `, ${state}` : ''}`}

@@ -3,7 +3,7 @@ import '../../styles/global.css';
 import { configs } from '../../data/configs';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
-import PricingComparison from '../../components/shared/PricingComparison.astro';
+import AllPricing from '../../components/shared/AllPricing.astro';
 import PortfolioSEO from '../../components/shared/PortfolioSEO.astro';
 import PortfolioChooser from '../../components/shared/PortfolioChooser.astro';
 import LocaleRedirect from '../../components/shared/LocaleRedirect.astro';
@@ -230,9 +230,11 @@ const copy =
         projectsLabel: 'projecten',
         projectLabel: 'project',
         games: 'Game development',
+        pricingNav: 'Tarieven',
         explore: 'Alles ontdekken',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
+        contactDiscord: 'Discord server',
         whatsAppMessage:
           'Hoi Empyr! Ik ben geïnteresseerd in een website/webapp. Kunnen we even praten over mijn project?',
       }
@@ -252,9 +254,11 @@ const copy =
         projectsLabel: 'projects',
         projectLabel: 'project',
         games: 'Game development',
+        pricingNav: 'Pricing',
         explore: 'Explore all',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
+        contactDiscord: 'Discord server',
         whatsAppMessage:
           'Hi Empyr! I am interested in a website/web app. Can we talk about my project?',
       };
@@ -266,6 +270,7 @@ const pageDescription =
     : 'Empyr Portfolio — professional websites and web apps for local businesses. Fast, mobile-first, and built with Astro.';
 
 const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.whatsAppMessage)}`;
+const discordUrl = 'https://discord.gg/sfnQdNPNg2';
 ---
 
 <!doctype html>
@@ -313,6 +318,9 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
           </button>
           <a href={`/${lang}/games`} class="hidden text-sm font-medium text-stone-400 transition hover:text-white md:block">
             {copy.games}
+          </a>
+          <a href="#pricing" class="hidden text-sm font-medium text-stone-400 transition hover:text-white md:block">
+            {copy.pricingNav}
           </a>
           <div class="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-1 py-1 text-xs font-semibold">
             {languages.map((l) => (
@@ -482,7 +490,7 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
       </div>
     </section>
 
-    <PricingComparison lang={lang} />
+    <AllPricing lang={lang} />
 
     <section id="contact" class="bg-stone-900 py-24 text-center">
       <div class="mx-auto max-w-2xl px-4 sm:px-6">
@@ -506,6 +514,17 @@ const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.wh
             class="inline-flex items-center justify-center rounded-full border border-stone-600 bg-transparent px-8 py-3.5 text-base font-semibold text-white transition-colors hover:border-stone-400 hover:bg-stone-800"
           >
             {t('portfolio.contactEmail')}
+          </a>
+          <a
+            href={discordUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-[#5865F2] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#5865F2]/30 transition-colors hover:bg-[#4752c4]"
+          >
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
+              <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.358-.43.84-.59 1.222a18.27 18.27 0 0 0-3.936 0A11.68 11.68 0 0 0 11.442 3a19.73 19.73 0 0 0-3.762 1.372C4.9 8.257 4.077 12.03 4.462 15.751a19.9 19.9 0 0 0 5.993 3.03c.483-.66.913-1.36 1.284-2.098a12.9 12.9 0 0 1-2.023-.973c.17-.124.336-.253.497-.386 3.902 1.804 8.13 1.804 11.986 0 .162.14.328.269.497.386-.645.385-1.322.71-2.027.976.372.738.8 1.438 1.284 2.098a19.83 19.83 0 0 0 6.002-3.033c.457-4.318-.674-8.055-2.638-11.382ZM10.02 13.49c-1.171 0-2.133-1.077-2.133-2.4 0-1.322.94-2.4 2.133-2.4 1.204 0 2.155 1.089 2.134 2.4 0 1.323-.94 2.4-2.134 2.4Zm5.96 0c-1.17 0-2.132-1.077-2.132-2.4 0-1.322.94-2.4 2.132-2.4 1.205 0 2.156 1.089 2.135 2.4 0 1.323-.93 2.4-2.135 2.4Z"/>
+            </svg>
+            {copy.contactDiscord}
           </a>
         </div>
       </div>

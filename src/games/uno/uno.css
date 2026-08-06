@@ -377,6 +377,10 @@
   flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 17rem;
+  /* A definite, shrinkable row: without this the row auto-sizes to content
+     and nothing downstream ever gets to shrink, so the hand tray gets
+     squeezed against the bottom of the viewport instead of the ring. */
+  grid-template-rows: minmax(0, 1fr);
   gap: 1rem;
   min-height: 0;
   /* clip, not hidden: keeps stray seat plates from ever making the page scroll */
@@ -385,6 +389,7 @@
 
 .un-arena {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -528,9 +533,12 @@
 .un-ring {
   --tint: #9b4dff;
   position: relative;
-  height: clamp(20rem, 54vh, 38rem);
+  height: clamp(16rem, 46vh, 34rem);
   flex: 1 1 auto;
-  max-height: 40rem;
+  /* The ring is the one that yields space on short viewports — the tray
+     below it (.un-tray, flex-shrink: 0) always keeps its full card size. */
+  min-height: 12rem;
+  max-height: 34rem;
   /* Definite size, so cqw/cqh below are stable units for seat placement. */
   container-type: size;
   isolation: isolate;
@@ -916,13 +924,22 @@
   filter: grayscale(0.85);
 }
 
-/* opponents' fans, angled to their seat */
+/* Opponents' fans stay upright, like the real game — a hand reads as "around
+   the table" from where its plate sits on the ring, not from tilting it. Only
+   the table's own foreshortening is applied. */
 .un-fan3d {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   height: clamp(1.9rem, 6.2cqh, 3.2rem);
-  transform: rotate(var(--lean)) rotateX(30deg);
+  transform-origin: 50% 100%;
+  transform: rotateX(30deg);
+}
+
+/* Top-half seats reverse the stack (plate above, fan below, toward table
+   centre) so the fan's *top* edge is the one touching the plate. */
+.un-seat[data-half='top'] .un-fan3d {
+  transform-origin: 50% 0%;
 }
 
 .un-fan3d i {
@@ -1428,6 +1445,9 @@
 /* -------------------------------------------------------------------- hand */
 
 .un-tray {
+  /* Your hand is never the thing that shrinks — the ring above it gives up
+     space first, so cards stay full size and fully visible. */
+  flex: 0 0 auto;
   border-radius: 1.6rem 1.6rem 1.2rem 1.2rem;
   border: 1px solid var(--edge);
   background:
@@ -1454,8 +1474,11 @@
   justify-content: center;
   align-items: flex-end;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2rem 0.6rem 0.3rem;
+  /* Visible, not hidden: the hover lift (translateY(-1.7rem)) must never be
+     clipped, and .un-tray no longer shrinks so there's no runaway squeeze
+     to guard against here. */
+  overflow-y: visible;
+  padding: 2.2rem 0.6rem 0.4rem;
   scrollbar-width: thin;
   scroll-padding-inline: 1rem;
   perspective: 900px;
@@ -1950,11 +1973,12 @@
     max-width: none;
   }
 
-  /* A tiny angled stub still reads as "a hand", without eating the row. */
+  /* A tiny stub still reads as "a hand", without eating the row. */
   .un-fan3d {
     height: 1.3rem;
     flex: 0 0 auto;
-    transform: rotate(var(--lean)) rotateX(24deg);
+    transform-origin: 50% 100%;
+    transform: rotateX(24deg);
   }
 
   .un-fan3d i {

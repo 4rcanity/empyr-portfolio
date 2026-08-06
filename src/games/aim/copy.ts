@@ -103,6 +103,13 @@ export interface Copy {
   rankDisclaimer: string;
   rankToNext: string;
   rankMaxed: string;
+  rankCapped: string;
+  difficulty: string;
+  difficultyEasy: string;
+  difficultyNormal: string;
+  difficultyHard: string;
+  difficultyExtreme: string;
+  difficultyCap: string;
 
   historyTitle: string;
   historySub: string;
@@ -345,9 +352,16 @@ const en: Copy = {
   shapeHexagon: 'Hexagon',
 
   rankTitle: 'Estimated rank',
-  rankDisclaimer: 'A rough VALORANT-style estimate from this run only — not a real rank.',
+  rankDisclaimer: 'A rough VALORANT-style estimate from this run — weighted by how hard your settings were, not a real rank.',
   rankToNext: '+{n} to {name}',
-  rankMaxed: 'Radiant — as good as this estimate gets.',
+  rankMaxed: 'Top of what this drill difficulty allows.',
+  rankCapped: 'Capped by drill difficulty — harden the settings to unlock higher ranks.',
+  difficulty: 'Difficulty',
+  difficultyEasy: 'Easy',
+  difficultyNormal: 'Normal',
+  difficultyHard: 'Hard',
+  difficultyExtreme: 'Extreme',
+  difficultyCap: 'Max rank {name}',
 
   historyTitle: 'Run history',
   historySub: 'Stored in this browser only. Nothing leaves your machine.',
@@ -501,9 +515,16 @@ const nl: Copy = {
   shapeHexagon: 'Hexagon',
 
   rankTitle: 'Geschatte rank',
-  rankDisclaimer: 'Een ruwe VALORANT-achtige schatting op basis van alleen deze run — geen echte rank.',
+  rankDisclaimer: 'Een ruwe VALORANT-achtige schatting van deze run — gewogen naar hoe zwaar je instellingen waren, geen echte rank.',
   rankToNext: '+{n} naar {name}',
-  rankMaxed: 'Radiant — zo goed als deze schatting wordt.',
+  rankMaxed: 'Het maximum voor deze drill-moeilijkheid.',
+  rankCapped: 'Beperkt door de moeilijkheid — maak de instellingen zwaarder om hogere ranks vrij te spelen.',
+  difficulty: 'Moeilijkheid',
+  difficultyEasy: 'Makkelijk',
+  difficultyNormal: 'Normaal',
+  difficultyHard: 'Moeilijk',
+  difficultyExtreme: 'Extreem',
+  difficultyCap: 'Max rank {name}',
 
   historyTitle: 'Historie',
   historySub: 'Alleen in deze browser opgeslagen. Er gaat niets van je apparaat af.',
