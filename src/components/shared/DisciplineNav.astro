@@ -1,0 +1,37 @@
+---
+/**
+ * The header's discipline switcher — Websites / Minigames / Game development /
+ * Apps, all shown together rather than one random link next to a separate
+ * "explore all" button. Whichever page you're on is highlighted; the rest are
+ * one click away.
+ */
+import type { Lang } from '../../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  current: 'websites' | 'games' | 'minigames' | 'apps';
+}
+
+const { lang, current } = Astro.props;
+
+const items = [
+  { id: 'websites', label: 'Websites', href: `/${lang}/#work` },
+  { id: 'minigames', label: 'Minigames', href: `/${lang}/minigames` },
+  { id: 'games', label: 'Game development', href: `/${lang}/games` },
+  { id: 'apps', label: 'Apps', href: `/${lang}/#tab-apps` },
+] as const;
+---
+
+<nav class="hidden items-center gap-5 md:flex">
+  {
+    items.map((item) => (
+      <a
+        href={item.href}
+        class={`text-sm font-medium transition hover:text-white ${current === item.id ? 'text-white' : 'text-zinc-400'}`}
+        aria-current={current === item.id ? 'page' : undefined}
+      >
+        {item.label}
+      </a>
+    ))
+  }
+</nav>

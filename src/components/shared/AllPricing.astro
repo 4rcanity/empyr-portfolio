@@ -3,8 +3,8 @@ import type { Lang } from '../../i18n/ui';
 import PricingComparison from './PricingComparison.astro';
 import PricingAside from './PricingAside.astro';
 import {
-  APP_BASE,
   APP_FEATURES,
+  APP_PLATFORMS,
   APP_QUOTE_CAP,
   COVER_USD,
   ORIGINAL_USD,
@@ -31,7 +31,7 @@ const DISCORD_URL = 'https://discord.gg/sfnQdNPNg2';
 const websiteFrom = eur(Math.min(...WEBSITE_BUILDS.map((b) => b.price)), locale);
 const robloxFrom = usd(Math.min(...VFX_TIERS.map((t) => t.price)));
 const musicFrom = usd(COVER_USD);
-const appsFrom = usd(APP_BASE);
+const appsFrom = usd(Math.min(...APP_PLATFORMS.map((p) => p.price)));
 
 const appFeatureCopy = nl
   ? {
@@ -41,7 +41,6 @@ const appFeatureCopy = nl
       admin: { name: 'Beheerpaneel', desc: 'Content en gebruikers beheren' },
       offline: { name: 'Offline-modus', desc: 'Werkt zonder internetverbinding' },
       design: { name: 'Custom UI/UX design', desc: 'Volledig maatwerk interface' },
-      multiplatform: { name: 'iOS + Android', desc: 'Eén app, twee platforms' },
       analytics: { name: 'Analytics & crash reports', desc: 'Gebruik en fouten monitoren' },
       integrations: { name: 'Externe koppelingen', desc: "API's van derden aansluiten" },
     }
@@ -52,9 +51,20 @@ const appFeatureCopy = nl
       admin: { name: 'Admin dashboard', desc: 'Manage content and users' },
       offline: { name: 'Offline mode', desc: 'Works without a connection' },
       design: { name: 'Custom UI/UX design', desc: 'Fully bespoke interface' },
-      multiplatform: { name: 'iOS + Android', desc: 'One app, two platforms' },
       analytics: { name: 'Analytics & crash reports', desc: 'Track usage and failures' },
       integrations: { name: 'Third-party integrations', desc: 'Wire up outside APIs' },
+    };
+
+const appPlatformCopy = nl
+  ? {
+      ios: { name: 'iOS app', desc: 'iPhone/iPad, Swift of cross-platform, App Store review.' },
+      android: { name: 'Android app', desc: 'Telefoon & tablet, Play Store review.' },
+      windows: { name: 'Windows app', desc: 'Desktop-app, geen store-verplichting.' },
+    }
+  : {
+      ios: { name: 'iOS app', desc: 'iPhone/iPad, Swift or cross-platform, App Store review.' },
+      android: { name: 'Android app', desc: 'Phone & tablet, Play Store review.' },
+      windows: { name: 'Windows app', desc: 'Desktop app, no store requirement.' },
     };
 
 const vfxCopy = nl
@@ -73,7 +83,7 @@ const copy = nl
   ? {
       eyebrow: 'Alle tarieven',
       title: 'Elke dienst, één prijslijst.',
-      body: 'Vaste tarieven per categorie, met een rekenmachine voor werk dat per project verschilt. Geen verrassingen achteraf.',
+      body: 'Vaste tarieven per categorie, met een rekenmachine voor werk dat per project verschilt. Prijzen zijn excl. btw.',
       viewProjects: 'Bekijk projecten',
       viewProjectsHint: 'Het meeste werk staat in mijn Discord',
       categoryLabel: 'Categorie',
@@ -112,8 +122,9 @@ const copy = nl
       musicNote2: 'Volledig vooraf te betalen.',
 
       // Apps
-      appsBase: 'Basisprijs',
-      appsBaseDesc: 'Een app op één platform met een simpele flow: schermen, navigatie en een basisontwerp.',
+      platformsTitle: 'Platform(s)',
+      platformsBody: 'Kies waar de app moet draaien. Elk extra platform is goedkoper dan het eerste — het ontwerp en de logica worden hergebruikt.',
+      extraNote: '+ extra platform',
       addFeatures: 'Voeg toe wat je nodig hebt',
       summary: 'Jouw samenstelling',
       oneTimeTotal: 'Eenmalig totaal (indicatie)',
@@ -121,12 +132,12 @@ const copy = nl
       quoteNote: 'Grotere apps krijgen een offerte op maat.',
 
       cta: 'Vraag offerte aan',
-      disclaimer: 'Prijzen zijn indicatief. Definitieve offerte na een korte intake.',
+      disclaimer: 'Prijzen zijn indicatief en excl. btw/omzetbelasting. Definitieve offerte na een korte intake.',
     }
   : {
       eyebrow: 'All pricing',
       title: 'Every service, one price list.',
-      body: 'Flat rates per category, with a calculator for the work that varies by project. No surprises at the end.',
+      body: 'Flat rates per category, with a calculator for the work that varies by project. Prices shown are excl. tax.',
       viewProjects: 'View projects',
       viewProjectsHint: 'Most of my work is posted in my Discord',
       categoryLabel: 'Category',
@@ -165,8 +176,9 @@ const copy = nl
       musicNote2: 'Fully upfront payment.',
 
       // Apps
-      appsBase: 'Base price',
-      appsBaseDesc: 'A single-platform app with a simple flow: screens, navigation and a basic design.',
+      platformsTitle: 'Platform(s)',
+      platformsBody: 'Pick where the app needs to run. Every extra platform costs less than the first — design and logic carry over.',
+      extraNote: '+ extra platform',
       addFeatures: 'Add what you need',
       summary: 'Your build',
       oneTimeTotal: 'One-time total (estimate)',
@@ -174,7 +186,7 @@ const copy = nl
       quoteNote: 'Larger apps get a scoped custom quote.',
 
       cta: 'Request a quote',
-      disclaimer: 'Prices are indicative. Final quote after a short intake.',
+      disclaimer: 'Prices are indicative and exclude applicable tax (VAT/sales tax). Final quote after a short intake.',
     };
 
 const tabs = [
@@ -186,7 +198,7 @@ const tabs = [
 ---
 
 <section id="pricing" class="scroll-mt-20 border-t border-stone-200 bg-stone-50 py-24 text-stone-950 sm:py-32">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" data-pricing-root>
     <!-- Header, matching the rhythm of the work section above it -->
     <div class="grid gap-10 lg:grid-cols-[minmax(0,36rem)_1fr] lg:items-end lg:gap-16">
       <div>
@@ -195,7 +207,7 @@ const tabs = [
         <p class="mt-5 text-base leading-7 text-stone-600">{copy.body}</p>
       </div>
 
-      <div class="flex flex-col gap-2 lg:items-end">
+      <div class="flex flex-col gap-2 lg:items-end" data-discord-cta>
         <a
           href={DISCORD_URL}
           target="_blank"
@@ -203,7 +215,7 @@ const tabs = [
           class="inline-flex items-center gap-2 self-start rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-semibold text-stone-700 shadow-sm transition hover:border-[#5865F2] hover:text-[#5865F2] lg:self-auto"
         >
           <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
-            <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3c-.2.358-.43.84-.59 1.222a18.27 18.27 0 0 0-3.936 0A11.68 11.68 0 0 0 11.442 3a19.73 19.73 0 0 0-3.762 1.372C4.9 8.257 4.077 12.03 4.462 15.751a19.9 19.9 0 0 0 5.993 3.03c.483-.66.913-1.36 1.284-2.098a12.9 12.9 0 0 1-2.023-.973c.17-.124.336-.253.497-.386 3.902 1.804 8.13 1.804 11.986 0 .162.14.328.269.497.386-.645.385-1.322.71-2.027.976.372.738.8 1.438 1.284 2.098a19.83 19.83 0 0 0 6.002-3.033c.457-4.318-.674-8.055-2.638-11.382ZM10.02 13.49c-1.171 0-2.133-1.077-2.133-2.4 0-1.322.94-2.4 2.133-2.4 1.204 0 2.155 1.089 2.134 2.4 0 1.323-.94 2.4-2.134 2.4Zm5.96 0c-1.17 0-2.132-1.077-2.132-2.4 0-1.322.94-2.4 2.132-2.4 1.205 0 2.156 1.089 2.135 2.4 0 1.323-.93 2.4-2.135 2.4Z"/>
+            <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c1.9938 1.4738 3.9256 2.3567 5.8306 2.9358a.0774.0774 0 0 0 .0842-.0276c.4535-.6193.8571-1.2721 1.204-1.9578a.0764.0764 0 0 0-.0417-.1057c-.6408-.2428-1.2504-.5406-1.8341-.8794a.0763.0763 0 0 1-.0076-.1267c.1235-.0926.247-.1888.3644-.2861a.0763.0763 0 0 1 .0785-.0104c3.8483 1.7595 8.0193 1.7595 11.8324 0a.0763.0763 0 0 1 .0788.0095c.1174.0973.2409.1945.3652.2861a.0763.0763 0 0 1-.0067.1268 12.299 12.299 0 0 1-1.8342.8788.0764.0764 0 0 0-.0416.1064c.3549.6853.7583 1.3376 1.203 1.9569a.0771.0771 0 0 0 .0842.0286c1.9109-.5788 3.8427-1.4617 5.8367-2.9364a.078.078 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286ZM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189Zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
           </svg>
           {copy.viewProjects}
         </a>
@@ -342,16 +354,52 @@ const tabs = [
             data-app-locale={locale}
             data-app-quote-cap={APP_QUOTE_CAP}
             data-app-quote-cap-display={copy.quoteCap}
-            data-app-base={APP_BASE}
+            data-app-extra-note={copy.extraNote}
           >
             <div class="space-y-8">
-              <div class="rounded-2xl border border-stone-200 bg-white p-5">
-                <div class="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 class="text-sm font-bold text-stone-900">{copy.appsBase}</h3>
-                    <p class="mt-1.5 text-xs leading-relaxed text-stone-500">{copy.appsBaseDesc}</p>
-                  </div>
-                  <span class="shrink-0 text-xl font-bold tracking-tight text-orange-600">{usd(APP_BASE)}+</span>
+              <div>
+                <h3 class="text-sm font-semibold uppercase tracking-wide text-stone-500">{copy.platformsTitle}</h3>
+                <p class="mt-1.5 text-sm text-stone-500">{copy.platformsBody}</p>
+                <div class="mt-4 grid gap-3 sm:grid-cols-3" data-app-platform-list>
+                  {
+                    APP_PLATFORMS.map((platform, i) => {
+                      const pc = appPlatformCopy[platform.id as keyof typeof appPlatformCopy];
+                      const inputId = `app-platform-${platform.id}`;
+                      return (
+                        <label
+                          for={inputId}
+                          class="group flex h-full cursor-pointer flex-col rounded-2xl border-2 border-stone-200 bg-white p-4 transition-colors has-[:checked]:border-orange-500 has-[:checked]:bg-orange-50/60 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-orange-500 has-[:focus-visible]:ring-offset-2"
+                          data-app-platform-row={platform.id}
+                        >
+                          <span class="flex items-start justify-between gap-2">
+                            <span class="text-sm font-bold text-stone-900">{pc.name}</span>
+                            <input
+                              type="checkbox"
+                              id={inputId}
+                              value={platform.id}
+                              data-app-platform-price={platform.price}
+                              data-app-platform-extra={platform.extra}
+                              data-app-platform-label={pc.name}
+                              class="peer sr-only"
+                              checked={i === 0}
+                            />
+                            <span
+                              class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-stone-300 bg-white text-transparent transition-colors peer-checked:border-orange-500 peer-checked:bg-orange-500 peer-checked:text-white"
+                              aria-hidden="true"
+                            >
+                              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          </span>
+                          <span class="mt-2 flex-1 text-xs leading-relaxed text-stone-500">{pc.desc}</span>
+                          <span class="mt-3 text-sm font-semibold text-orange-600" data-app-platform-price-display={platform.id}>
+                            {usd(platform.price)}
+                          </span>
+                        </label>
+                      );
+                    })
+                  }
                 </div>
               </div>
 
@@ -402,24 +450,13 @@ const tabs = [
               <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
                 <h3 class="text-lg font-bold text-stone-900">{copy.summary}</h3>
 
-                <ul class="mt-6 space-y-2 text-sm" data-app-summary-lines>
-                  <li class="flex items-baseline justify-between gap-4" data-line="base">
-                    <span class="text-stone-600">{copy.appsBase}</span>
-                    <span class="shrink-0 font-semibold text-stone-900">{usd(APP_BASE)}</span>
-                  </li>
-                </ul>
+                <ul class="mt-6 space-y-2 text-sm" data-app-summary-lines></ul>
 
                 <div class="my-6 border-t border-stone-200"></div>
 
                 <div class="flex items-baseline justify-between gap-4">
                   <span class="text-sm font-semibold text-stone-500">{copy.oneTimeTotal}</span>
-                  <span
-                    class="text-4xl font-bold tracking-tight text-stone-900"
-                    data-app-total-display
-                    data-exact-total={APP_BASE}
-                  >
-                    {usd(APP_BASE)}
-                  </span>
+                  <span class="text-4xl font-bold tracking-tight text-stone-900" data-app-total-display></span>
                 </div>
 
                 <p class="mt-2 hidden text-xs text-stone-500" data-app-quote-note>{copy.quoteNote}</p>
@@ -443,34 +480,74 @@ const tabs = [
 
 <script>
   function initAppPricingCalculator() {
-    const root = document.querySelector<HTMLElement>('[data-app-pricing-calculator]');
-    if (!root || root.dataset.initialized === 'true') return;
+    const rootEl = document.querySelector<HTMLElement>('[data-app-pricing-calculator]');
+    if (!rootEl || rootEl.dataset.initialized === 'true') return;
+    const root = rootEl;
     root.dataset.initialized = 'true';
 
     const locale = root.dataset.appLocale ?? 'en-US';
-    const base = Number(root.dataset.appBase ?? '3000');
     const quoteCap = Number(root.dataset.appQuoteCap ?? '10000');
     const quoteCapDisplay = root.dataset.appQuoteCapDisplay ?? '$10,000+';
+    const extraNote = root.dataset.appExtraNote ?? '+ extra platform';
 
+    const platformInputs = root.querySelectorAll<HTMLInputElement>('[data-app-platform-price]');
     const featureInputs = root.querySelectorAll<HTMLInputElement>('[data-app-feature-price]');
     const summaryLines = root.querySelector<HTMLElement>('[data-app-summary-lines]');
     const totalDisplay = root.querySelector<HTMLElement>('[data-app-total-display]');
     const quoteNote = root.querySelector<HTMLElement>('[data-app-quote-note]');
 
     let animFrame = 0;
-    let displayedTotal = base;
+    let displayedTotal = 0;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function formatMoney(n: number) {
       return `$${Math.round(n).toLocaleString(locale)}`;
     }
 
+    /** Highest-priced selected platform is billed in full; every other
+     *  selected platform only costs its (cheaper) "extra" add-on rate. */
+    function selectedPlatforms() {
+      return Array.from(platformInputs)
+        .filter((el) => el.checked)
+        .sort((a, b) => Number(b.dataset.appPlatformPrice) - Number(a.dataset.appPlatformPrice));
+    }
+
+    function platformsTotal(list: HTMLInputElement[]) {
+      return list.reduce((sum, el, i) => sum + Number((i === 0 ? el.dataset.appPlatformPrice : el.dataset.appPlatformExtra) ?? 0), 0);
+    }
+
     function computeTotal() {
-      let total = base;
+      let total = platformsTotal(selectedPlatforms());
       featureInputs.forEach((el) => {
         if (el.checked) total += Number(el.dataset.appFeaturePrice ?? 0);
       });
       return total;
+    }
+
+    function renderPlatformCardPrices() {
+      const selected = selectedPlatforms();
+      platformInputs.forEach((el) => {
+        const display = root.querySelector<HTMLElement>(`[data-app-platform-price-display="${el.value}"]`);
+        if (!display) return;
+        const isPrimary = selected[0] === el;
+        const price = el.checked && !isPrimary ? Number(el.dataset.appPlatformExtra ?? 0) : Number(el.dataset.appPlatformPrice ?? 0);
+        display.textContent = el.checked && !isPrimary ? `+${formatMoney(price)}` : formatMoney(price);
+      });
+    }
+
+    function renderPlatformLines() {
+      if (!summaryLines) return;
+      summaryLines.querySelectorAll('[data-line="platform"]').forEach((el) => el.remove());
+      const selected = selectedPlatforms();
+      selected.forEach((el, i) => {
+        const price = i === 0 ? Number(el.dataset.appPlatformPrice ?? 0) : Number(el.dataset.appPlatformExtra ?? 0);
+        const li = document.createElement('li');
+        li.className = 'flex items-baseline justify-between gap-4';
+        li.dataset.line = 'platform';
+        const label = i === 0 ? el.dataset.appPlatformLabel ?? '' : `${el.dataset.appPlatformLabel ?? ''} (${extraNote})`;
+        li.innerHTML = `<span class="text-stone-600">${label}</span><span class="shrink-0 font-semibold text-stone-900">${formatMoney(price)}</span>`;
+        summaryLines.insertBefore(li, summaryLines.firstChild);
+      });
     }
 
     function renderFeatureLines() {
@@ -518,10 +595,19 @@ const tabs = [
     }
 
     function update() {
+      renderPlatformCardPrices();
+      renderPlatformLines();
       renderFeatureLines();
       animateTotal(computeTotal());
     }
 
+    platformInputs.forEach((el) => {
+      el.addEventListener('change', () => {
+        // Always keep at least one platform selected — an app has to run somewhere.
+        if (selectedPlatforms().length === 0) el.checked = true;
+        update();
+      });
+    });
     featureInputs.forEach((el) => el.addEventListener('change', update));
     displayedTotal = computeTotal();
     update();
@@ -538,9 +624,31 @@ const tabs = [
     resetAppPricingCalculator();
     initAppPricingCalculator();
   });
+
+  // Deep-links like /#tab-apps (used by the header's "Apps" nav item) should
+  // land straight on that tab, not on whichever one is checked by default.
+  function selectTabFromHash() {
+    const id = location.hash.slice(1);
+    if (!id) return;
+    const input = document.getElementById(id);
+    if (input instanceof HTMLInputElement && input.name === 'pricing-tab') input.checked = true;
+  }
+
+  selectTabFromHash();
+  window.addEventListener('hashchange', selectTabFromHash);
+  document.addEventListener('astro:page-load', selectTabFromHash);
 </script>
 
 <style>
+  /* The Discord CTA only makes sense for game (Roblox) work — that's where
+     projects actually get posted. Hidden everywhere else. */
+  [data-discord-cta] {
+    display: none;
+  }
+  [data-pricing-root]:has(#tab-roblox:checked) [data-discord-cta] {
+    display: flex;
+  }
+
   [data-pricing-hub] [data-panel] {
     display: none;
   }

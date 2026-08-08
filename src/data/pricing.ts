@@ -38,7 +38,28 @@ export const WEBSITE_QUOTE_CAP = 5000;
 
 /* ── Apps (USD) ──────────────────────────────────────────────────────────── */
 
-export const APP_BASE = 3000;
+/**
+ * Platform pricing is realistic, not flat: each platform has its own build cost
+ * as the *first* platform (native tooling, store setup, review process), and a
+ * lower "extra" cost when it's added alongside a platform you're already
+ * paying full price for (shared logic/design carries over, native adaptation
+ * still doesn't).
+ */
+export interface AppPlatform {
+  id: string;
+  /** Cost if this is the only platform. */
+  price: number;
+  /** Cost to add this platform on top of another one already selected. */
+  extra: number;
+}
+
+export const APP_PLATFORMS: AppPlatform[] = [
+  { id: 'ios', price: 3200, extra: 1400 },
+  { id: 'android', price: 3000, extra: 1300 },
+  { id: 'windows', price: 2600, extra: 1600 },
+];
+
+export const APP_BASE = Math.min(...APP_PLATFORMS.map((p) => p.price));
 export const APP_QUOTE_CAP = 10000;
 
 export const APP_FEATURES: PricedItem[] = [
@@ -48,7 +69,6 @@ export const APP_FEATURES: PricedItem[] = [
   { id: 'admin', price: 900 },
   { id: 'offline', price: 600 },
   { id: 'design', price: 800 },
-  { id: 'multiplatform', price: 1200 },
   { id: 'analytics', price: 300 },
   { id: 'integrations', price: 500 },
 ];
