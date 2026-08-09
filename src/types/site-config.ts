@@ -8,7 +8,10 @@ export type TemplateVariant =
   | 'corner'
   | 'ocakbasi'
   | 'barberhouse'
-  | 'garage';
+  | 'garage'
+  | 'charlois'
+  | 'spangen-banden'
+  | 'maashaven-schade';
 
 /** Drives schema.org type + light copy differences; the visual design is controlled by `TemplateVariant`/theme */
 export type BusinessType = 'restaurant' | 'cafe' | 'barbershop' | 'garage';

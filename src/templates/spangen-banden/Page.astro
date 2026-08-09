@@ -1,0 +1,456 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const services = content.menu.flatMap((cat) => cat.items);
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="sp">
+    <header class="sp-top">
+      <a href={`/${lang}/${config.slug}`} class="sp-wordmark">{config.name}</a>
+      <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+    </header>
+
+    <section class="sp-hero">
+      <div class="sp-hero-copy">
+        <p class="sp-hero-loc">{config.address.city} · Spangen</p>
+        <h1 class="sp-hero-title">{config.name}</h1>
+        <p class="sp-hero-tag">{content.tagline}</p>
+        <p class="sp-hero-about">{content.about.content}</p>
+        {config.rating && (
+          <p class="sp-hero-rating">
+            {config.rating.value} · {config.rating.count} {config.rating.source}
+          </p>
+        )}
+      </div>
+      <div class="sp-hero-photo">
+        <img src={config.heroImage} alt="" width="800" height="600" />
+      </div>
+    </section>
+
+    <section class="sp-cta" aria-label={content.ctaLabel}>
+      <p class="sp-cta-text">{content.ctaLabel}</p>
+      <a href={telHref} class="sp-cta-phone">{config.phone}</a>
+    </section>
+
+    <section class="sp-services" id="services">
+      <header class="sp-services-head">
+        <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+        <p>{content.description}</p>
+      </header>
+      <div class="sp-services-grid">
+        {services.map((item) => (
+          <article class="sp-service-card">
+            <div class="sp-service-head">
+              <h3>{item.name}</h3>
+              <span class="sp-service-price">{item.price}</span>
+            </div>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="sp-contact" id="contact">
+      <div class="sp-contact-info">
+        <h2>{t('contact.visitUs')}</h2>
+        <address class="sp-contact-address">
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </address>
+        <ul class="sp-contact-hours">
+          {content.openingHours.map((hour) => {
+            const row = formatOpeningHours(t, hour);
+            return (
+              <li>
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <div class="sp-contact-links">
+          <a href={telHref}>{config.phone}</a>
+          <a href={`mailto:${config.email}`}>{config.email}</a>
+        </div>
+      </div>
+      <div class="sp-contact-map">
+        <iframe
+          title={`${config.name} map`}
+          src={config.googleMapsEmbed}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        />
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+</style>
+
+<style>
+  .sp {
+    min-height: 100svh;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  .sp-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--color-accent);
+    background: var(--color-background);
+  }
+
+  .sp-wordmark {
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .sp-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: min(72vh, 640px);
+  }
+
+  @media (min-width: 768px) {
+    .sp-hero {
+      grid-template-columns: 1fr 1fr;
+      min-height: min(80vh, 720px);
+    }
+  }
+
+  .sp-hero-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.5rem 1.25rem;
+    border-bottom: 2px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .sp-hero-copy {
+      padding: 3rem 2.5rem;
+      border-bottom: none;
+      border-right: 2px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    }
+  }
+
+  .sp-hero-loc {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .sp-hero-title {
+    margin: 0.75rem 0 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .sp-hero-tag {
+    margin: 1rem 0 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .sp-hero-about {
+    margin: 1.25rem 0 0;
+    max-width: 28rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+
+  .sp-hero-rating {
+    margin: 1rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .sp-hero-photo {
+    position: relative;
+    min-height: 280px;
+    background: var(--color-primary);
+  }
+
+  .sp-hero-photo img {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .sp-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+  }
+
+  @media (min-width: 768px) {
+    .sp-cta {
+      padding: 1.25rem 2.5rem;
+    }
+  }
+
+  .sp-cta-text {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+    letter-spacing: 0.01em;
+  }
+
+  .sp-cta-phone {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.25rem;
+    border: 2px solid var(--color-on-accent-text);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .sp-cta-phone:hover {
+    background: var(--color-on-accent-text);
+    color: var(--color-accent);
+  }
+
+  .sp-services {
+    padding: 3rem 1.25rem 4rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .sp-services {
+      padding: 4rem 2.5rem 5rem;
+    }
+  }
+
+  .sp-services-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    letter-spacing: -0.02em;
+  }
+
+  .sp-services-head p {
+    margin: 0.85rem 0 0;
+    max-width: 36rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+
+  .sp-services-grid {
+    display: grid;
+    gap: 0;
+    margin-top: 2rem;
+    border: 2px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+  }
+
+  @media (min-width: 640px) {
+    .sp-services-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .sp-service-card {
+    padding: 1.35rem 1.25rem;
+    border-bottom: 2px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+    background: var(--color-background);
+  }
+
+  @media (min-width: 640px) {
+    .sp-service-card {
+      border-right: 2px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+    }
+
+    .sp-service-card:nth-child(2n) {
+      border-right: none;
+    }
+
+    .sp-service-card:nth-last-child(-n + 2) {
+      border-bottom: none;
+    }
+  }
+
+  .sp-service-card:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 639px) {
+    .sp-service-card:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .sp-service-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .sp-service-head h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+  }
+
+  .sp-service-price {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  .sp-service-card > p {
+    margin: 0.55rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  .sp-contact {
+    display: grid;
+    gap: 0;
+    border-top: 4px solid var(--color-accent);
+    background: var(--color-primary);
+    color: var(--color-on-primary-text);
+  }
+
+  @media (min-width: 768px) {
+    .sp-contact {
+      grid-template-columns: 1fr 1.2fr;
+    }
+  }
+
+  .sp-contact-info {
+    padding: 2.5rem 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .sp-contact-info {
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  .sp-contact-info h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.01em;
+  }
+
+  .sp-contact-address {
+    margin: 1rem 0 0;
+    font-style: normal;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-on-primary-muted);
+  }
+
+  .sp-contact-hours {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    max-width: 20rem;
+  }
+
+  .sp-contact-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-on-primary-text) 15%, transparent);
+    font-size: 0.9rem;
+  }
+
+  .sp-contact-hours li span:last-child {
+    font-weight: 600;
+  }
+
+  .sp-contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 1.5rem;
+  }
+
+  .sp-contact-links a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .sp-contact-links a:hover {
+    text-decoration: underline;
+  }
+
+  .sp-contact-map {
+    min-height: 280px;
+    background: var(--color-secondary);
+  }
+
+  .sp-contact-map iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    border: 0;
+    display: block;
+    filter: grayscale(30%) contrast(1.05);
+  }
+</style>

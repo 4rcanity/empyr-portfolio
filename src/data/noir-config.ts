@@ -42,10 +42,9 @@ export const noirConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80&sat=-50',
     'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&q=80&sat=-50',
   ],
-  halal: true,
   content: {
     nl: {
-      tagline: 'Halal fine dining · alcoholvrij',
+      tagline: 'Fine dining · alcoholvrij',
       description:
         'Twaalf tafels. Seizoensmenu met optionele botanical pairing (thee, gefermenteerde sappen, cordials).',
       bookingNote: 'Reserveren per e-mail, 28 dagen vooruit.',
@@ -65,14 +64,14 @@ export const noirConfig: SiteConfig = {
             {
               name: 'Negen Gangen — Nocturne',
               description: 'Seizoensritme met optionele botanical pairing. Dieetwensen 72u van tevoren.',
-              price: '€118',
-              tags: ['halal'],
+              price: '€118'
+              ,
             },
             {
               name: 'Zes Gangen — Première',
               description: 'Kortere midweekboog: dezelfde keuken, minder uur aan tafel.',
-              price: '€84',
-              tags: ['halal'],
+              price: '€84'
+              ,
             },
           ],
         },
@@ -82,20 +81,20 @@ export const noirConfig: SiteConfig = {
             {
               name: 'Gerookte eendenborst',
               description: 'Kweepeer, zwarte knoflook, briochekruim',
-              price: '€28',
-              tags: ['halal'],
+              price: '€28'
+              ,
             },
             {
               name: 'Heek met yuzu-beurre',
               description: 'Venkelconfit, zeekraal, kaviaar-olie',
               price: '€41',
-              tags: ['halal', 'gluten-free'],
+              tags: ['gluten-free'],
             },
             {
               name: 'Dry-aged ribeye',
               description: 'Beenmergjus zonder alcohol, knoflookasch, soufflé-aardappel',
-              price: '€58',
-              tags: ['halal'],
+              price: '€58'
+              ,
             },
             {
               name: 'Cacao & bergamot',
@@ -109,11 +108,11 @@ export const noirConfig: SiteConfig = {
       about: {
         heading: 'Atelier Nocturne',
         content:
-          'Halal avondrestaurant met alcoholvrij pairingprogramma. Reserveren via e-mail. Demoadres — ter illustratie van de template.',
+          'Avondrestaurant met alcoholvrij pairingprogramma. Reserveren via e-mail. Demoadres — ter illustratie van de template.',
       },
     },
     en: {
-      tagline: 'Halal fine dining · alcohol-free',
+      tagline: 'Fine dining · alcohol-free',
       description:
         'Twelve tables. Seasonal menu with optional botanical pairing (tea, fermented juices, cordials).',
       bookingNote: 'Reserve by email, 28 days ahead.',
@@ -133,14 +132,14 @@ export const noirConfig: SiteConfig = {
             {
               name: 'Nine Courses — Nocturne',
               description: 'Seasonal arc with optional botanical pairing. Dietary notes 72h ahead.',
-              price: '€118',
-              tags: ['halal'],
+              price: '€118'
+              ,
             },
             {
               name: 'Six Courses — Première',
               description: 'Shorter midweek arc: same kitchen, fewer hours at the table.',
-              price: '€84',
-              tags: ['halal'],
+              price: '€84'
+              ,
             },
           ],
         },
@@ -150,20 +149,20 @@ export const noirConfig: SiteConfig = {
             {
               name: 'Smoked duck breast',
               description: 'Quince, black garlic, brioche crumb',
-              price: '€28',
-              tags: ['halal'],
+              price: '€28'
+              ,
             },
             {
               name: 'Hake with yuzu beurre',
               description: 'Fennel confit, sea beans, caviar oil',
               price: '€41',
-              tags: ['halal', 'gluten-free'],
+              tags: ['gluten-free'],
             },
             {
               name: 'Dry-aged ribeye',
               description: 'Alcohol-free marrow jus, garlic ash, soufflé potato',
-              price: '€58',
-              tags: ['halal'],
+              price: '€58'
+              ,
             },
             {
               name: 'Cacao & bergamot',
@@ -177,7 +176,7 @@ export const noirConfig: SiteConfig = {
       about: {
         heading: 'Atelier Nocturne',
         content:
-          'Halal evening restaurant with an alcohol-free pairing program. Reserve by email. Demo address — for template illustration.',
+          'Evening restaurant with an alcohol-free pairing program. Reserve by email. Demo address — for template illustration.',
       },
     },
   },

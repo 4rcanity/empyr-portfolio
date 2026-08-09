@@ -12,6 +12,9 @@ const palettes: Record<string, { background: string; tile: string; line: string 
   noir: { background: '#E8E2D6', tile: '#25231F', line: '#E8C978' },
   corner: { background: '#E4EFF0', tile: '#126477', line: '#FFF4C5' },
   ocakbasi: { background: '#F2E4D6', tile: '#873229', line: '#F3CB67' },
+  charlois: { background: '#1A2438', tile: '#E85D04', line: '#0F1729' },
+  'spangen-banden': { background: '#F5C400', tile: '#111111', line: '#F5C400' },
+  'maashaven-schade': { background: '#E8EEF2', tile: '#1B6B8A', line: '#F4F6F8' },
   barberhouse: { background: '#E8E5DE', tile: '#171717', line: '#D8B65A' },
   medrese: { background: '#DFEEE7', tile: '#0F5B49', line: '#F4E5B5' },
 };
@@ -61,6 +64,25 @@ const palette = palettes[slug] ?? palettes.medrese;
       <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
         <path d="M17 4c1 5-3.5 6.5-1.3 11 1.3-2.3 3.4-3.1 4.4-6.2 3.4 3 5.4 6.4 5.4 10A9.5 9.5 0 0 1 6.5 19c0-4.1 2.6-8 6.6-11.2-.4 4.4 1.1 5.8 2.6 7.2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 24c1.6 2.4 6.4 2.4 8 0" stroke-linecap="round"/>
+      </svg>
+    )}
+    {slug === 'charlois' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M6 22h20M8 22V12l4-4h8l4 4v10M12 22v-5h8v5M11 12h10" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="11" cy="22" r="2"/><circle cx="21" cy="22" r="2"/>
+      </svg>
+    )}
+    {slug === 'spangen-banden' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="16" cy="16" r="10"/>
+        <circle cx="16" cy="16" r="4"/>
+        <path d="M16 6v4M16 22v4M6 16h4M22 16h4M9.5 9.5l2.5 2.5M20 20l2.5 2.5M9.5 22.5 12 20M20 12l2.5-2.5" stroke-linecap="round"/>
+      </svg>
+    )}
+    {slug === 'maashaven-schade' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M7 20c2-6 5-9 9-9s7 3 9 9" stroke-linecap="round"/>
+        <path d="M5 20h22M10 14l2 3M20 14l-2 3M12 24h8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     )}
     {slug === 'barberhouse' && (

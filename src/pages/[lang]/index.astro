@@ -1,6 +1,7 @@
 ---
 import '../../styles/global.css';
 import { configs } from '../../data/configs';
+import { DEMO_QUOTES, formatDemoQuote } from '../../data/demo-quotes';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
 import AllPricing from '../../components/shared/AllPricing.astro';
@@ -54,26 +55,44 @@ const templateMeta: Record<
   }
 > = {
   trattoria: {
-    bestFor: ['Italian restaurants', 'Family dining', '100% Halal'],
-    nlBestFor: ['Italiaanse restaurants', 'Familierestaurants', '100% halal'],
+    bestFor: ['Italian restaurants', 'Family dining', 'Alcohol-free'],
+    nlBestFor: ['Italiaanse restaurants', 'Familierestaurants', 'Alcoholvrij'],
     status: 'for-sale',
     kind: 'demo',
   },
   noir: {
-    bestFor: ['Fine dining', 'Alcohol-free', '100% Halal'],
-    nlBestFor: ['Fine dining', 'Alcoholvrij', '100% halal'],
+    bestFor: ['Fine dining', 'Alcohol-free', 'Tasting menus'],
+    nlBestFor: ['Fine dining', 'Alcoholvrij', 'Proeverijen'],
     status: 'for-sale',
     kind: 'demo',
   },
   corner: {
-    bestFor: ['Cafés', 'Brunch spots', '100% Halal'],
-    nlBestFor: ['Cafés', 'Brunchzaken', '100% halal'],
+    bestFor: ['Cafés', 'Brunch spots', 'All-day plates'],
+    nlBestFor: ['Cafés', 'Brunchzaken', 'All-day dishes'],
     status: 'for-sale',
     kind: 'demo',
   },
   ocakbasi: {
     bestFor: ['Turkish grill', 'Kebab & döner', '100% Halal'],
     nlBestFor: ['Turkse grill', 'Kebab & döner', '100% halal'],
+    status: 'for-sale',
+    kind: 'demo',
+  },
+  charlois: {
+    bestFor: ['APK', 'Maintenance', 'Rotterdam Charlois'],
+    nlBestFor: ['APK', 'Onderhoud', 'Rotterdam Charlois'],
+    status: 'for-sale',
+    kind: 'demo',
+  },
+  'spangen-banden': {
+    bestFor: ['Tires', 'Alignment', 'Rotterdam Spangen'],
+    nlBestFor: ['Banden', 'Uitlijnen', 'Rotterdam Spangen'],
+    status: 'for-sale',
+    kind: 'demo',
+  },
+  'maashaven-schade': {
+    bestFor: ['Body repair', 'Insurance claims', 'Rotterdam Maashaven'],
+    nlBestFor: ['Schadeherstel', 'Verzekeringsschade', 'Rotterdam Maashaven'],
     status: 'for-sale',
     kind: 'demo',
   },
@@ -103,6 +122,7 @@ type TemplateCard = {
   statusLabel: string;
   kindLabel: string;
   statusClass: string;
+  quoteLabel: string | null;
 };
 
 function buildCard(
@@ -116,6 +136,7 @@ function buildCard(
   const meta = templateMeta[slug];
   const status = meta.status;
   const statusMeta = statusLabels[status];
+  const quote = status === 'for-sale' ? DEMO_QUOTES[slug] : undefined;
   return {
     slug,
     name,
@@ -135,6 +156,7 @@ function buildCard(
           ? 'Demo'
           : 'Demo',
     statusClass: statusMeta.className,
+    quoteLabel: quote ? formatDemoQuote(quote.total, lang) : null,
   };
 }
 
@@ -177,6 +199,12 @@ const workCategories =
           slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
         },
         {
+          id: 'garages',
+          title: 'Garages & autoservice',
+          body: 'Drie Rotterdamse concepten — onderhoud, banden en schadeherstel.',
+          slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
+        },
+        {
           id: 'barbers',
           title: 'Barbershops',
           body: 'Strak merkwerk voor kappers en grooming studio\'s.',
@@ -195,6 +223,12 @@ const workCategories =
           title: 'Restaurants & cafés',
           body: 'Four concepts for hospitality — from family dining to fine dining.',
           slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
+        },
+        {
+          id: 'garages',
+          title: 'Garages & auto service',
+          body: 'Three Rotterdam concepts — maintenance, tires and body repair.',
+          slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
         },
         {
           id: 'barbers',
@@ -446,6 +480,11 @@ const discordUrl = 'https://discord.gg/sfnQdNPNg2';
                         >
                           {tpl.kindLabel}
                         </span>
+                        {tpl.quoteLabel && (
+                          <span class="rounded-full border border-white/30 bg-stone-950/55 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
+                            {tpl.quoteLabel}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div class="flex flex-1 flex-col p-7">

@@ -4,6 +4,9 @@ import { noirConfig } from './noir-config';
 import { cornerConfig } from './corner-config';
 import { ocakbasiConfig } from './ocakbasi-config';
 import { barberhouseConfig } from './barberhouse-config';
+import { charloisConfig } from './charlois-config';
+import { spangenBandenConfig } from './spangen-banden-config';
+import { maashavenSchadeConfig } from './maashaven-schade-config';
 
 export const configs: SiteConfig[] = [
   trattoriaConfig,
@@ -11,6 +14,9 @@ export const configs: SiteConfig[] = [
   cornerConfig,
   ocakbasiConfig,
   barberhouseConfig,
+  charloisConfig,
+  spangenBandenConfig,
+  maashavenSchadeConfig,
 ];
 
 export function getConfigBySlug(slug: string): SiteConfig | undefined {

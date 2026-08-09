@@ -1,0 +1,538 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const bookHref = config.reservationUrl ?? telHref;
+const rating = config.rating;
+
+const processCopy = {
+  nl: {
+    title: 'Hoe het werkt',
+    steps: [
+      {
+        title: 'Melden',
+        text: 'Bel of kom langs met schade. Noteer datum, tegenpartij en verzekeraar indien van toepassing.',
+      },
+      {
+        title: 'Taxatie',
+        text: 'Gratis inspectie in de werkplaats. U ontvangt een schriftelijke offerte binnen 24 uur.',
+      },
+      {
+        title: 'Herstel',
+        text: 'Vakkundig carrosserieherstel. Bij verzekeringsschade factureren wij rechtstreeks aan uw maatschappij.',
+      },
+    ],
+  },
+  en: {
+    title: 'How it works',
+    steps: [
+      {
+        title: 'Report',
+        text: 'Call or visit with the damage. Note date, other party and insurer if applicable.',
+      },
+      {
+        title: 'Assessment',
+        text: 'Free inspection at the workshop. Written quote within 24 hours.',
+      },
+      {
+        title: 'Repair',
+        text: 'Professional body repair. For insurance claims we bill your provider directly.',
+      },
+    ],
+  },
+}[lang];
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="mh">
+    <header class="mh-header">
+      <a class="mh-logo" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <div class="mh-header-actions">
+        <LanguageSwitcher lang={lang} slug={config.slug} />
+        <a class="mh-btn mh-btn-sm" href={bookHref}>{lang === 'nl' ? 'Bel' : 'Call'}</a>
+      </div>
+    </header>
+
+    <main class="mh-main">
+      <section class="mh-hero">
+        <div class="mh-hero-copy">
+          <h1 class="mh-title">{config.name}</h1>
+          <p class="mh-tagline">{content.tagline}</p>
+          {rating && (
+            <p class="mh-rating">
+              <span class="mh-rating-star" aria-hidden="true">★</span>
+              <strong>{rating.value.toFixed(1)}</strong>
+              <span class="mh-rating-sep">·</span>
+              <span>{rating.count} {content.ratingNote ?? t('badge.reviews')}</span>
+            </p>
+          )}
+          <p class="mh-lead">{content.description}</p>
+          <a class="mh-btn" href={bookHref}>{content.ctaLabel ?? t('cta.callNow')}</a>
+        </div>
+        <figure class="mh-hero-media">
+          <img src={config.heroImage} alt={config.name} width="800" height="540" />
+        </figure>
+      </section>
+
+      <section class="mh-process" aria-labelledby="mh-process-title">
+        <h2 id="mh-process-title" class="mh-section-title">{processCopy.title}</h2>
+        <ol class="mh-steps">
+          {processCopy.steps.map((step, i) => (
+            <li class="mh-step">
+              <span class="mh-step-num">{i + 1}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section class="mh-services" id="services" aria-labelledby="mh-services-title">
+        <h2 id="mh-services-title" class="mh-section-title">
+          {content.menuSectionLabel ?? t('menu.title')}
+        </h2>
+        <ul class="mh-service-list">
+          {content.menu.flatMap((cat) =>
+            cat.items.map((item) => (
+              <li class="mh-service">
+                <div class="mh-service-head">
+                  <h3>{item.name}</h3>
+                  <span class="mh-service-price">{item.price}</span>
+                </div>
+                <p>{item.description}</p>
+              </li>
+            ))
+          )}
+        </ul>
+      </section>
+
+      {config.gallery.length > 0 && (
+        <section class="mh-gallery" aria-label={t('gallery.title')}>
+          <div class="mh-gallery-grid">
+            {config.gallery.slice(0, 4).map((src) => (
+              <img src={src} alt="" loading="lazy" width="400" height="300" />
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="mh-contact" id="contact" aria-labelledby="mh-contact-title">
+        <article class="mh-contact-card">
+          <h2 id="mh-contact-title" class="mh-section-title">{t('contact.visitUs')}</h2>
+          <address class="mh-address">
+            {config.address.street}<br />
+            {config.address.postalCode} {config.address.city}
+          </address>
+          <p class="mh-contact-line">
+            <a href={telHref}>{config.phone}</a>
+            ·
+            <a href={`mailto:${config.email}`}>{config.email}</a>
+          </p>
+          <div class="mh-hours">
+            <h3>{t('hours.title')}</h3>
+            <ul>
+              {content.openingHours.map((hour) => {
+                const row = formatOpeningHours(t, hour);
+                return (
+                  <li>
+                    <span>{row.label}</span>
+                    <span>{row.value}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <iframe
+            class="mh-map"
+            title={`${config.name} map`}
+            src={config.googleMapsEmbed}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        </article>
+      </section>
+    </main>
+
+    <Footer config={config} lang={lang} />
+  </div>
+</BaseLayout>
+
+<style>
+  .mh {
+    min-height: 100vh;
+    background: var(--color-background);
+    color: var(--color-text);
+  }
+
+  .mh-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.15rem;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
+  }
+
+  .mh-logo {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .mh-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .mh-main {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.15rem 3rem;
+  }
+
+  .mh-hero {
+    display: grid;
+    gap: 1.75rem;
+    align-items: center;
+    padding-bottom: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .mh-hero {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 2.5rem;
+    }
+  }
+
+  .mh-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--color-primary);
+  }
+
+  .mh-tagline {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .mh-rating {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0.85rem 0 0;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 22%, transparent);
+    font-size: 0.88rem;
+    color: var(--color-muted);
+  }
+
+  .mh-rating-star {
+    color: var(--color-accent);
+    font-size: 0.95rem;
+  }
+
+  .mh-rating strong {
+    color: var(--color-text);
+    font-weight: 700;
+  }
+
+  .mh-rating-sep {
+    opacity: 0.5;
+  }
+
+  .mh-lead {
+    margin: 1rem 0 0;
+    max-width: 36rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+
+  .mh-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    margin-top: 1.25rem;
+    padding: 0 1.35rem;
+    border-radius: 0.5rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .mh-btn-sm {
+    min-height: 2.25rem;
+    margin-top: 0;
+    padding: 0 0.9rem;
+    font-size: 0.82rem;
+    border-radius: 999px;
+  }
+
+  .mh-hero-media {
+    margin: 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--color-surface);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--color-primary) 12%, transparent);
+  }
+
+  .mh-hero-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .mh-section-title {
+    margin: 0 0 1.15rem;
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .mh-process {
+    padding: 2rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
+  }
+
+  .mh-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .mh-steps {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+  }
+
+  .mh-step {
+    display: flex;
+    gap: 0.85rem;
+    padding: 1.15rem;
+    border-radius: 0.65rem;
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 14%, transparent);
+  }
+
+  .mh-step-num {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-accent) 14%, white);
+    color: var(--color-accent);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .mh-step h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .mh-step p {
+    margin: 0.35rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  .mh-services {
+    padding: 2rem 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-muted) 18%, transparent);
+  }
+
+  .mh-service-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  @media (min-width: 640px) {
+    .mh-service-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .mh-service {
+    padding: 1rem 1.1rem;
+    border-radius: 0.65rem;
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 14%, transparent);
+  }
+
+  .mh-service-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .mh-service h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 0.98rem;
+    font-weight: 700;
+  }
+
+  .mh-service-price {
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--color-accent);
+  }
+
+  .mh-service p {
+    margin: 0.35rem 0 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+
+  .mh-gallery {
+    padding: 1.5rem 0 2rem;
+  }
+
+  .mh-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+
+  @media (min-width: 640px) {
+    .mh-gallery-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .mh-gallery-grid img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    display: block;
+  }
+
+  .mh-contact {
+    padding-top: 1rem;
+  }
+
+  .mh-contact-card {
+    padding: 1.35rem;
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 16%, transparent);
+    box-shadow: 0 4px 18px color-mix(in srgb, var(--color-primary) 8%, transparent);
+  }
+
+  .mh-address {
+    font-style: normal;
+    line-height: 1.55;
+    color: var(--color-text);
+  }
+
+  .mh-contact-line {
+    margin: 0.65rem 0 0;
+    font-size: 0.92rem;
+  }
+
+  .mh-contact-line a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .mh-contact-line a:hover {
+    text-decoration: underline;
+  }
+
+  .mh-hours {
+    margin-top: 1.15rem;
+  }
+
+  .mh-hours h3 {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .mh-hours ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mh-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+    font-size: 0.88rem;
+    color: var(--color-muted);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 12%, transparent);
+  }
+
+  .mh-hours li:last-child {
+    border-bottom: 0;
+  }
+
+  .mh-map {
+    width: 100%;
+    min-height: 200px;
+    margin-top: 1.15rem;
+    border: 0;
+    border-radius: 0.5rem;
+  }
+</style>

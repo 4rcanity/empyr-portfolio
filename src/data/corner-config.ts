@@ -56,10 +56,9 @@ export const cornerConfig: SiteConfig = {
     { name: 'Thuisbezorgd', url: 'https://thuisbezorgd.nl' },
   ],
   reservationUrl: 'tel:+31200000003',
-  halal: true,
   content: {
     nl: {
-      tagline: 'Specialty koffie · all-day plates · 100% halal',
+      tagline: 'Specialty koffie · all-day plates',
       description: 'Espresso, dayboard en bezorging. Geen alcoholkaart.',
       dailySpecial: 'Vandaag: kimchi-scramble bowl + oat cortado — €13,90',
       ctaLabel: 'Bel ons',
@@ -84,13 +83,13 @@ export const cornerConfig: SiteConfig = {
           items: [
             { name: 'Kimchi scramble bowl', description: 'Kimchi, soft scramble, sesam, zuurdesem', price: '€13,90', tags: ['vegetarian', 'spicy'] },
             { name: 'Labneh toast stack', description: 'Chili-olie, komkommer, zaatar, gepocheerd ei', price: '€12,80', tags: ['vegetarian'] },
-            { name: 'Halal smash double', description: 'Twee patties, pickles, secret sauce, brioche', price: '€14,50', tags: ['halal'] },
+            { name: 'Smash double', description: 'Twee patties, pickles, secret sauce, brioche', price: '€14,50' },
           ],
         },
         {
           name: 'Late lunch bites',
           items: [
-            { name: 'Hot-honey chicken bun', description: 'Krokante kip, koolsalade, sesambun', price: '€13,20', tags: ['halal', 'spicy'] },
+            { name: 'Hot-honey chicken bun', description: 'Krokante kip, koolsalade, sesambun', price: '€13,20', tags: ['spicy'] },
             { name: 'Misofriet', description: 'Nori-zout, mayo dip', price: '€6,80', tags: ['vegan'] },
             { name: 'Cookie flight', description: 'Drie warme koeken — wisselende batch', price: '€5,50', tags: ['vegetarian'] },
           ],
@@ -99,11 +98,11 @@ export const cornerConfig: SiteConfig = {
       about: {
         heading: 'Pixel & Pour Café',
         content:
-          'Café met specialty espresso, all-day dayboard en bezorgpartners. 100% halal, geen alcohol. Demoadres voor de template.',
+          'Café met specialty espresso, all-day dayboard en bezorgpartners. Geen alcohol. Demoadres voor de template.',
       },
     },
     en: {
-      tagline: 'Specialty coffee · all-day plates · 100% halal',
+      tagline: 'Specialty coffee · all-day plates',
       description: 'Espresso, dayboard, and delivery. No alcohol list.',
       dailySpecial: 'Today: kimchi scramble bowl + oat cortado — €13.90',
       ctaLabel: 'Call us',
@@ -128,13 +127,13 @@ export const cornerConfig: SiteConfig = {
           items: [
             { name: 'Kimchi scramble bowl', description: 'Kimchi, soft scramble, sesame, sourdough', price: '€13.90', tags: ['vegetarian', 'spicy'] },
             { name: 'Labneh toast stack', description: 'Chili oil, cucumber, zaatar, poached egg', price: '€12.80', tags: ['vegetarian'] },
-            { name: 'Halal smash double', description: 'Two patties, pickles, secret sauce, brioche', price: '€14.50', tags: ['halal'] },
+            { name: 'Smash double', description: 'Two patties, pickles, secret sauce, brioche', price: '€14.50' },
           ],
         },
         {
           name: 'Late lunch bites',
           items: [
-            { name: 'Hot-honey chicken bun', description: 'Crispy chicken, slaw, sesame bun', price: '€13.20', tags: ['halal', 'spicy'] },
+            { name: 'Hot-honey chicken bun', description: 'Crispy chicken, slaw, sesame bun', price: '€13.20', tags: ['spicy'] },
             { name: 'Miso fries', description: 'Nori salt, mayo dip', price: '€6.80', tags: ['vegan'] },
             { name: 'Cookie flight', description: 'Three warm cookies — rotating batch', price: '€5.50', tags: ['vegetarian'] },
           ],
@@ -143,7 +142,7 @@ export const cornerConfig: SiteConfig = {
       about: {
         heading: 'Pixel & Pour Café',
         content:
-          'Café with specialty espresso, all-day dayboard, and delivery partners. 100% halal, no alcohol. Demo address for the template.',
+          'Café with specialty espresso, all-day dayboard, and delivery partners. No alcohol. Demo address for the template.',
       },
     },
   },

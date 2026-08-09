@@ -1,0 +1,451 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import LanguageSwitcher from '../../components/shared/LanguageSwitcher.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const ctaHref = config.reservationUrl ?? telHref;
+const year = new Date().getFullYear();
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="ch">
+    <header class="ch-top">
+      <a class="ch-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <div class="ch-top-actions">
+        <LanguageSwitcher lang={lang} slug={config.slug} variant="dark" />
+        <a class="ch-top-phone" href={telHref}>{config.phone}</a>
+      </div>
+    </header>
+
+    <section class="ch-hero">
+      <img src={config.heroImage} alt="" class="ch-hero-img" />
+      <div class="ch-hero-overlay" />
+      <div class="ch-hero-inner">
+        <p class="ch-hero-kicker">{content.tagline}</p>
+        <h1>{config.name}</h1>
+        <p class="ch-hero-line">{content.description}</p>
+        <a class="ch-hero-cta" href={ctaHref}>{content.ctaLabel ?? t('cta.callNow')}</a>
+      </div>
+    </section>
+
+    <section class="ch-services" id="services">
+      <div class="ch-services-head">
+        <h2>{content.menuSectionLabel ?? t('menu.title')}</h2>
+        {content.bookingNote && <p>{content.bookingNote}</p>}
+      </div>
+
+      {content.menu.map((cat) => (
+        <div class="ch-cat">
+          <h3>{cat.name}</h3>
+          <div class="ch-rows">
+            {cat.items.map((item) => (
+              <article class="ch-row">
+                <div class="ch-row-main">
+                  <h4>{item.name}</h4>
+                  <p>{item.description}</p>
+                </div>
+                <span class="ch-row-price">{item.price}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <p class="ch-about">{content.about.content}</p>
+    </section>
+
+    <section class="ch-contact" id="contact">
+      <div class="ch-contact-info">
+        <h2>{t('contact.visitUs')}</h2>
+        <address>
+          {config.address.street}<br />
+          {config.address.postalCode} {config.address.city}
+        </address>
+        <p><a href={`mailto:${config.email}`}>{config.email}</a></p>
+        <h3>{t('hours.title')}</h3>
+        <ul class="ch-hours">
+          {content.openingHours.map((hour) => {
+            const row = formatOpeningHours(t, hour);
+            return (
+              <li>
+                <span>{row.label}</span>
+                <span>{row.value}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+      <iframe
+        class="ch-map"
+        title={`${config.name} map`}
+        src={config.googleMapsEmbed}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      />
+    </section>
+
+    <footer class="ch-foot">
+      <p>&copy; {year} {config.name}. {t('footer.rights')}</p>
+    </footer>
+
+    <div class="ch-phone-bar">
+      <a href={telHref}>
+        <span>{content.ctaLabel ?? t('cta.callNow')}</span>
+        <strong>{config.phone}</strong>
+      </a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .ch {
+    padding-bottom: 4.5rem;
+  }
+
+  .ch-top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    background: color-mix(in srgb, var(--color-primary) 92%, transparent);
+    border-bottom: 2px solid var(--color-accent);
+    backdrop-filter: blur(10px);
+  }
+
+  .ch-brand {
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .ch-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .ch-top-phone {
+    display: none;
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .ch-top-phone {
+      display: inline-flex;
+    }
+  }
+
+  .ch-hero {
+    position: relative;
+    min-height: min(88svh, 720px);
+    display: grid;
+    align-items: end;
+    overflow: hidden;
+  }
+
+  .ch-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ch-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(15, 23, 41, 0.55) 0%, rgba(15, 23, 41, 0.88) 65%, var(--color-background) 100%),
+      linear-gradient(90deg, rgba(232, 93, 4, 0.12) 0%, transparent 40%);
+  }
+
+  .ch-hero-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3.5rem;
+  }
+
+  .ch-hero-kicker {
+    margin: 0;
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .ch-hero h1 {
+    margin: 0.65rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.6rem, 9vw, 5.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    max-width: 14ch;
+  }
+
+  .ch-hero-line {
+    margin: 1rem 0 0;
+    max-width: 36rem;
+    color: var(--color-muted);
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+
+  .ch-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.5rem;
+    min-height: 2.75rem;
+    padding: 0.65rem 1.35rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .ch-services {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 3rem 1.25rem 2.5rem;
+  }
+
+  .ch-services-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ch-services-head p {
+    margin: 0.65rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+  }
+
+  .ch-cat {
+    margin-top: 2.25rem;
+  }
+
+  .ch-cat h3 {
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+    color: var(--color-accent);
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .ch-rows {
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+
+  .ch-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem 1.5rem;
+    align-items: start;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  }
+
+  .ch-row-main h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ch-row-main p {
+    margin: 0.3rem 0 0;
+    color: var(--color-muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .ch-row-price {
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  .ch-about {
+    margin: 2.5rem 0 0;
+    padding-top: 1rem;
+    border-top: 2px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+
+  .ch-contact {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .ch-contact {
+      grid-template-columns: 0.9fr 1.1fr;
+      align-items: start;
+    }
+  }
+
+  .ch-contact-info h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .ch-contact-info h3 {
+    margin: 1.5rem 0 0.65rem;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .ch-contact address,
+  .ch-contact p {
+    margin: 0.75rem 0 0;
+    color: var(--color-muted);
+    font-style: normal;
+    line-height: 1.55;
+  }
+
+  .ch-contact a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ch-hours {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ch-hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    font-size: 0.9rem;
+  }
+
+  .ch-hours li span:last-child {
+    color: var(--color-muted);
+  }
+
+  .ch-map {
+    width: 100%;
+    min-height: 280px;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+  }
+
+  .ch-foot {
+    padding: 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    text-align: center;
+  }
+
+  .ch-foot p {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .ch-phone-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom, 0px));
+    background: var(--color-primary);
+    border-top: 2px solid var(--color-accent);
+  }
+
+  .ch-phone-bar a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ch-phone-bar span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .ch-phone-bar strong {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  @media (min-width: 640px) {
+    .ch {
+      padding-bottom: 0;
+    }
+
+    .ch-phone-bar {
+      display: none;
+    }
+  }
+</style>
