@@ -15,6 +15,11 @@ const palettes: Record<string, { background: string; tile: string; line: string 
   charlois: { background: '#1A2438', tile: '#E85D04', line: '#0F1729' },
   'spangen-banden': { background: '#F5C400', tile: '#111111', line: '#F5C400' },
   'maashaven-schade': { background: '#E8EEF2', tile: '#1B6B8A', line: '#F4F6F8' },
+  goldpoint: { background: '#EDE7D9', tile: '#141414', line: '#C8A94B' },
+  astex: { background: '#F3EDE4', tile: '#B33A2B', line: '#F7F3ED' },
+  'esila-zorg': { background: '#E4F0EA', tile: '#2E7D6B', line: '#F4F7F5' },
+  'kapsalon-can': { background: '#F4F1EA', tile: '#1E4FD8', line: '#F4F1EA' },
+  hammam: { background: '#F2E6DC', tile: '#1F4E4A', line: '#E0A583' },
   barberhouse: { background: '#E8E5DE', tile: '#171717', line: '#D8B65A' },
   medrese: { background: '#DFEEE7', tile: '#0F5B49', line: '#F4E5B5' },
 };
@@ -83,6 +88,34 @@ const palette = palettes[slug] ?? palettes.medrese;
       <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
         <path d="M7 20c2-6 5-9 9-9s7 3 9 9" stroke-linecap="round"/>
         <path d="M5 20h22M10 14l2 3M20 14l-2 3M12 24h8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'goldpoint' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="16" cy="18" r="7"/>
+        <path d="M16 14v4l3 2M11 8h10l-2.5 4h-5L11 8Z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'astex' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="9" cy="9" r="3"/><circle cx="9" cy="23" r="3"/>
+        <path d="M12 10.5 25 22M12 21.5 25 10M6 16h2" stroke-linecap="round"/>
+      </svg>
+    )}
+    {slug === 'esila-zorg' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M16 25s-8-4.7-8-10a4.7 4.7 0 0 1 8-3.2A4.7 4.7 0 0 1 24 15c0 5.3-8 10-8 10Z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'kapsalon-can' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M8 6v9a4 4 0 0 0 8 0V6M12 19v7M22 6c-2 4-2 8 0 12M22 20v6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    )}
+    {slug === 'hammam' && (
+      <svg viewBox="0 0 32 32" class="h-1/2 w-1/2" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M10 26V16a6 6 0 0 1 12 0v10" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 26h18M13 11c0-2 3-2 3-4M19 11c0-2-2-2.4-2-4" stroke-linecap="round"/>
       </svg>
     )}
     {slug === 'barberhouse' && (

@@ -1,0 +1,521 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const year = new Date().getFullYear();
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="gp">
+    <header class="gp-top">
+      <a class="gp-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <a class="gp-top-phone" href={telHref}>{config.phone}</a>
+    </header>
+
+    <section class="gp-hero">
+      <img src={config.heroImage} alt="" class="gp-hero-img" width="1600" height="900" />
+      <div class="gp-hero-veil" />
+      <div class="gp-hero-inner">
+        <p class="gp-kicker">{content.tagline}</p>
+        <h1>{config.name}</h1>
+        <p class="gp-lead">{content.description}</p>
+        <a class="gp-cta" href={telHref}>{content.ctaLabel}</a>
+      </div>
+    </section>
+
+    <section class="gp-about">
+      <p>{content.about.content}</p>
+    </section>
+
+    <section class="gp-services" id="diensten">
+      <header class="gp-section-head">
+        <span class="gp-label">{content.menuSectionLabel}</span>
+        <h2>{content.menuSectionLabel}</h2>
+      </header>
+
+      <div class="gp-services-grid">
+        {content.menu.map((cat) => (
+          <div class="gp-col">
+            <h3 class="gp-col-title">{cat.name}</h3>
+            <ul class="gp-price-list">
+              {cat.items.map((item) => (
+                <li>
+                  <div class="gp-item-main">
+                    <span class="gp-item-name">{item.name}</span>
+                    <span class="gp-item-desc">{item.description}</span>
+                  </div>
+                  <span class="gp-item-price">{item.price}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="gp-gallery" aria-label={t('gallery.title')}>
+      <span class="gp-label gp-gallery-label">{t('gallery.title')}</span>
+      <div class="gp-gallery-strip">
+        {config.gallery.map((src) => (
+          <figure>
+            <img src={src} alt="" loading="lazy" width="400" height="500" />
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="gp-contact" id="contact">
+      <header class="gp-section-head">
+        <span class="gp-label">{t('contact.visitUs')}</span>
+        <h2>{t('contact.visitUs')}</h2>
+      </header>
+
+      <div class="gp-contact-grid">
+        <div class="gp-contact-info">
+          <address class="gp-address">
+            <strong>{config.name}</strong><br />
+            {config.address.street}<br />
+            {config.address.postalCode} {config.address.city}
+          </address>
+
+          <div class="gp-contact-links">
+            <a href={telHref}>{config.phone}</a>
+            <a href={`mailto:${config.email}`}>{config.email}</a>
+          </div>
+
+          <div class="gp-hours">
+            <h3>{t('hours.title')}</h3>
+            <table class="gp-hours-table">
+              <tbody>
+                {content.openingHours.map((hour) => {
+                  const row = formatOpeningHours(t, hour);
+                  return (
+                    <tr>
+                      <th scope="row">{row.label}</th>
+                      <td>{row.value}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="gp-map-wrap">
+          <iframe
+            title={`${config.name} kaart`}
+            src={config.googleMapsEmbed}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </div>
+    </section>
+
+    <footer class="gp-foot">
+      <p>&copy; {year} {config.name}. {t('footer.rights')}</p>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .gp {
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    padding-bottom: 3rem;
+  }
+
+  .gp-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Top bar ── */
+  .gp-top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.5rem;
+    background: color-mix(in srgb, var(--color-background) 92%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  .gp-brand {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gp-top-phone {
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .gp-top-phone:hover {
+    text-decoration: underline;
+  }
+
+  /* ── Hero ── */
+  .gp-hero {
+    position: relative;
+    min-height: min(88svh, 720px);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .gp-hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gp-hero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(10, 10, 10, 0.25) 0%, rgba(10, 10, 10, 0.55) 45%, rgba(10, 10, 10, 0.92) 100%);
+  }
+
+  .gp-hero-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 52rem;
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  .gp-kicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .gp-hero h1 {
+    margin: 0.85rem 0 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 7vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+  }
+
+  .gp-lead {
+    margin: 1.1rem 0 0;
+    max-width: 32rem;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--color-muted);
+  }
+
+  .gp-cta {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.75rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .gp-cta:hover {
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+  }
+
+  /* ── About line ── */
+  .gp-about {
+    padding: 2.5rem 1.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+    text-align: center;
+  }
+
+  .gp-about p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+    font-style: italic;
+    color: var(--color-muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Services ── */
+  .gp-services {
+    padding: 4.5rem 1.5rem;
+    max-width: 64rem;
+    margin: 0 auto;
+  }
+
+  .gp-section-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4.5vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .gp-services-grid {
+    display: grid;
+    gap: 3rem;
+    margin-top: 2.75rem;
+  }
+
+  @media (min-width: 720px) {
+    .gp-services-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .gp-col-title {
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+    font-family: var(--font-heading);
+    font-size: 1.55rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .gp-price-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .gp-price-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+
+  .gp-item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .gp-item-name {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .gp-item-desc {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--color-muted);
+  }
+
+  .gp-item-price {
+    flex-shrink: 0;
+    font-size: 0.92rem;
+    letter-spacing: 0.03em;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+
+  /* ── Gallery ── */
+  .gp-gallery {
+    padding: 0 0 4.5rem;
+    overflow: hidden;
+  }
+
+  .gp-gallery-label {
+    padding: 0 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .gp-gallery-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(220px, 1fr);
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 0 1.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-accent) 40%, transparent) transparent;
+  }
+
+  .gp-gallery-strip figure {
+    margin: 0;
+    scroll-snap-align: start;
+  }
+
+  .gp-gallery-strip img {
+    display: block;
+    width: 100%;
+    height: min(52vw, 320px);
+    object-fit: cover;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+
+  @media (min-width: 900px) {
+    .gp-gallery-strip {
+      grid-auto-columns: 1fr;
+      grid-auto-flow: unset;
+      grid-template-columns: repeat(4, 1fr);
+      overflow-x: visible;
+    }
+
+    .gp-gallery-strip img {
+      height: 280px;
+    }
+  }
+
+  /* ── Contact ── */
+  .gp-contact {
+    padding: 4.5rem 1.5rem;
+    max-width: 64rem;
+    margin: 0 auto;
+    border-top: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  .gp-contact-grid {
+    display: grid;
+    gap: 2.5rem;
+    margin-top: 2.75rem;
+  }
+
+  @media (min-width: 800px) {
+    .gp-contact-grid {
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+  }
+
+  .gp-address {
+    font-style: normal;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+
+  .gp-address strong {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .gp-contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+  }
+
+  .gp-contact-links a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+  }
+
+  .gp-contact-links a:hover {
+    text-decoration: underline;
+  }
+
+  .gp-hours {
+    margin-top: 2rem;
+  }
+
+  .gp-hours h3 {
+    margin: 0 0 0.85rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .gp-hours-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+
+  .gp-hours-table th,
+  .gp-hours-table td {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
+    text-align: left;
+    font-weight: 400;
+  }
+
+  .gp-hours-table th {
+    color: var(--color-muted);
+    padding-right: 1.5rem;
+    white-space: nowrap;
+  }
+
+  .gp-map-wrap iframe {
+    width: 100%;
+    min-height: 280px;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 20%, transparent);
+  }
+
+  /* ── Footer ── */
+  .gp-foot {
+    padding: 2rem 1.5rem 0;
+    text-align: center;
+    border-top: 1px solid color-mix(in srgb, var(--color-accent) 12%, transparent);
+  }
+
+  .gp-foot p {
+    margin: 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+</style>

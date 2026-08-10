@@ -27,6 +27,7 @@ const canonical = siteUrl ? `${siteUrl}${canonicalPath}` : undefined;
 {canonical && <link rel="canonical" href={canonical} />}
 
 {siteUrl &&
+  !config.singleLang &&
   languages.map((l) => <link rel="alternate" hreflang={l} href={`${siteUrl}/${l}/${config.slug}`} />)}
 
 <meta property="og:type" content="website" />

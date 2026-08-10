@@ -11,10 +11,23 @@ export type TemplateVariant =
   | 'garage'
   | 'charlois'
   | 'spangen-banden'
-  | 'maashaven-schade';
+  | 'maashaven-schade'
+  | 'goldpoint'
+  | 'astex'
+  | 'esila-zorg'
+  | 'kapsalon-can'
+  | 'hammam';
 
 /** Drives schema.org type + light copy differences; the visual design is controlled by `TemplateVariant`/theme */
-export type BusinessType = 'restaurant' | 'cafe' | 'barbershop' | 'garage';
+export type BusinessType =
+  | 'restaurant'
+  | 'cafe'
+  | 'barbershop'
+  | 'garage'
+  | 'jewelry'
+  | 'tailor'
+  | 'care'
+  | 'spa';
 
 export interface MenuItem {
   name: string;
@@ -140,5 +153,7 @@ export interface SiteConfig {
   instagramFeed?: string[];
   rating?: { value: number; count: number; source: string };
   halal?: boolean;
+  /** Dutch-only pitch demos: no /en route exists, so skip hreflang alternates */
+  singleLang?: boolean;
   content: Record<Lang, LocalizedContent>;
 }

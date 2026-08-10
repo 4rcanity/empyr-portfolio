@@ -46,6 +46,12 @@ export const DEMO_QUOTES: Record<string, DemoQuote> = {
   charlois: quote('static', ['language', 'booking', 'seo', 'brand', 'gallery']),
   'spangen-banden': quote('static', ['language', 'seo', 'brand', 'gallery']),
   'maashaven-schade': quote('static', ['language', 'booking', 'seo', 'brand', 'gallery']),
+  // Dutch-only pitch demos: single language, so no language add-on.
+  goldpoint: quote('static', ['seo', 'brand', 'gallery']),
+  astex: quote('static', ['seo', 'brand', 'gallery']),
+  'esila-zorg': quote('static', ['seo', 'brand', 'gallery']),
+  'kapsalon-can': quote('static', ['booking', 'seo', 'brand', 'gallery']),
+  hammam: quote('static', ['booking', 'seo', 'brand', 'gallery']),
 };
 
 export function formatDemoQuote(total: number, lang: 'nl' | 'en') {

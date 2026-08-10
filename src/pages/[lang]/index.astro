@@ -1,6 +1,7 @@
 ---
 import '../../styles/global.css';
 import { configs } from '../../data/configs';
+import { nlDemos } from '../../data/nl-demos';
 import { DEMO_QUOTES, formatDemoQuote } from '../../data/demo-quotes';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
@@ -19,7 +20,7 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Lang };
 const t = useTranslations(lang);
 
-type WorkStatus = 'for-sale' | 'sold' | 'commission' | 'in-consideration';
+type WorkStatus = 'for-sale' | 'sold' | 'commission' | 'in-consideration' | 'pitch';
 
 const statusLabels: Record<WorkStatus, { en: string; nl: string; className: string }> = {
   'for-sale': {
@@ -41,6 +42,11 @@ const statusLabels: Record<WorkStatus, { en: string; nl: string; className: stri
     en: 'in consideration',
     nl: 'in overweging',
     className: 'border-amber-300/40 bg-stone-950/55 text-amber-100',
+  },
+  pitch: {
+    en: 'proposal',
+    nl: 'voorstel',
+    className: 'border-sky-300/40 bg-sky-950/50 text-sky-100',
   },
 };
 
@@ -96,6 +102,36 @@ const templateMeta: Record<
     status: 'for-sale',
     kind: 'demo',
   },
+  goldpoint: {
+    bestFor: ['Jewellers', 'Watch repair', 'Rotterdam West'],
+    nlBestFor: ['Juweliers', 'Horlogereparatie', 'Rotterdam West'],
+    status: 'pitch',
+    kind: 'live',
+  },
+  astex: {
+    bestFor: ['Clothing repair', 'Alterations', 'Nieuwe Binnenweg'],
+    nlBestFor: ['Kledingreparatie', 'Vermaakwerk', 'Nieuwe Binnenweg'],
+    status: 'pitch',
+    kind: 'live',
+  },
+  'esila-zorg': {
+    bestFor: ['Home care', 'Support', 'Accessible'],
+    nlBestFor: ['Thuiszorg', 'Begeleiding', 'Toegankelijk'],
+    status: 'pitch',
+    kind: 'live',
+  },
+  'kapsalon-can': {
+    bestFor: ['Hair salons', 'Barbers', 'Walk-in'],
+    nlBestFor: ['Kapsalons', 'Barbers', 'Binnenlopen'],
+    status: 'pitch',
+    kind: 'live',
+  },
+  hammam: {
+    bestFor: ['Hammam', 'Spa & wellness', 'Massage'],
+    nlBestFor: ['Hammam', 'Spa & wellness', 'Massage'],
+    status: 'pitch',
+    kind: 'live',
+  },
   barberhouse: {
     bestFor: ['Barbershops', 'Hair salons', 'Grooming studios'],
     nlBestFor: ['Kapperszaken', 'Barbershops', 'Grooming studio\'s'],
@@ -123,6 +159,7 @@ type TemplateCard = {
   kindLabel: string;
   statusClass: string;
   quoteLabel: string | null;
+  href: string;
 };
 
 function buildCard(
@@ -132,11 +169,13 @@ function buildCard(
   description: string,
   accent: string,
   bestFor: string[],
+  /** Dutch-only demos have no /en route, so always link to the NL page */
+  nlOnly = false,
 ): TemplateCard {
   const meta = templateMeta[slug];
   const status = meta.status;
   const statusMeta = statusLabels[status];
-  const quote = status === 'for-sale' ? DEMO_QUOTES[slug] : undefined;
+  const quote = status === 'for-sale' || status === 'pitch' ? DEMO_QUOTES[slug] : undefined;
   return {
     slug,
     name,
@@ -157,6 +196,7 @@ function buildCard(
           : 'Demo',
     statusClass: statusMeta.className,
     quoteLabel: quote ? formatDemoQuote(quote.total, lang) : null,
+    href: `/${nlOnly ? 'nl' : lang}/${slug}`,
   };
 }
 
@@ -177,6 +217,20 @@ const templatesBySlug: Record<string, TemplateCard> = Object.fromEntries(
     ];
   }),
 );
+
+for (const demo of nlDemos) {
+  const content = demo.content.nl;
+  const meta = templateMeta[demo.slug];
+  templatesBySlug[demo.slug] = buildCard(
+    demo.slug,
+    demo.name,
+    content.tagline,
+    content.description,
+    demo.theme.accent,
+    lang === 'nl' ? meta.nlBestFor : meta.bestFor,
+    true,
+  );
+}
 
 templatesBySlug.medrese = buildCard(
   'medrese',
@@ -205,6 +259,12 @@ const workCategories =
           slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
         },
         {
+          id: 'rotterdam',
+          title: 'Winkels & diensten Rotterdam',
+          body: 'Nederlandse voorstellen voor zaken aan de Nieuwe Binnenweg en Rochussenstraat.',
+          slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
+        },
+        {
           id: 'barbers',
           title: 'Barbershops',
           body: 'Strak merkwerk voor kappers en grooming studio\'s.',
@@ -229,6 +289,12 @@ const workCategories =
           title: 'Garages & auto service',
           body: 'Three Rotterdam concepts — maintenance, tires and body repair.',
           slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
+        },
+        {
+          id: 'rotterdam',
+          title: 'Shops & services Rotterdam',
+          body: 'Dutch-only proposals for businesses on Nieuwe Binnenweg and Rochussenstraat.',
+          slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
         },
         {
           id: 'barbers',
@@ -496,7 +562,7 @@ const discordUrl = 'https://discord.gg/sfnQdNPNg2';
                         ))}
                       </ul>
                       <a
-                        href={`/${lang}/${tpl.slug}`}
+                        href={tpl.href}
                         class="mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
                       >
                         {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>

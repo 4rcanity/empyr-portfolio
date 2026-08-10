@@ -1,0 +1,11 @@
+---
+import Page from '../../../templates/goldpoint/Page.astro';
+import { goldpointConfig } from '../../../data/goldpoint-config';
+import { toSiteConfig } from '../../../data/nl-demo';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'nl' } }];
+}
+---
+
+<Page config={toSiteConfig(goldpointConfig)} lang="nl" />

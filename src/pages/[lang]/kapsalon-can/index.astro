@@ -1,0 +1,11 @@
+---
+import Page from '../../../templates/kapsalon-can/Page.astro';
+import { kapsalonCanConfig } from '../../../data/kapsalon-can-config';
+import { toSiteConfig } from '../../../data/nl-demo';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'nl' } }];
+}
+---
+
+<Page config={toSiteConfig(kapsalonCanConfig)} lang="nl" />

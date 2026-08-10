@@ -1,0 +1,13 @@
+---
+import Page from '../../../templates/esila-zorg/Page.astro';
+import { esilaZorgConfig } from '../../../data/esila-zorg-config';
+import { toSiteConfig } from '../../../data/nl-demo';
+
+export function getStaticPaths() {
+  return [{ params: { lang: 'nl' } }];
+}
+
+const { lang } = Astro.params as { lang: 'nl' };
+---
+
+<Page config={toSiteConfig(esilaZorgConfig)} lang={lang} />

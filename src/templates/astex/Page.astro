@@ -1,0 +1,446 @@
+---
+import type { SiteConfig } from '../../types/site-config';
+import type { Lang } from '../../i18n/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { useTranslations } from '../../i18n/utils';
+import { formatOpeningHours } from '../../utils/hours';
+
+interface Props {
+  config: SiteConfig;
+  lang: Lang;
+}
+
+const { config, lang } = Astro.props;
+const content = config.content[lang];
+const t = useTranslations(lang);
+const telHref = `tel:${config.phone.replace(/\s/g, '')}`;
+const galleryPair = config.gallery.slice(0, 2);
+const year = new Date().getFullYear();
+---
+
+<BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
+  <div class="ax">
+    <div class="ax-shell">
+      <aside class="ax-sidebar">
+        <div class="ax-sidebar-inner">
+          <a class="ax-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+          <p class="ax-tagline">{content.tagline}</p>
+          <p class="ax-about">{content.about.content}</p>
+
+          <a class="ax-cta" href={telHref}>
+            <span class="ax-cta-label">{content.ctaLabel ?? t('cta.callNow')}</span>
+            <span class="ax-cta-phone">{config.phone}</span>
+          </a>
+
+          <div class="ax-sidebar-block">
+            <h2 class="ax-sidebar-heading">{t('contact.visitUs')}</h2>
+            <address class="ax-address">
+              {config.address.street}<br />
+              {config.address.postalCode} {config.address.city}
+            </address>
+            <p class="ax-contact-links">
+              <a href={`mailto:${config.email}`}>{config.email}</a>
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <main class="ax-main">
+        <section class="ax-section" id="prijzen" aria-labelledby="ax-prices-title">
+          <header class="ax-section-head">
+            <h2 id="ax-prices-title">{content.menuSectionLabel ?? t('menu.title')}</h2>
+            <p>{content.description}</p>
+          </header>
+
+          {content.menu.map((cat) => (
+            <div class="ax-category">
+              <h3 class="ax-category-title">{cat.name}</h3>
+              <ul class="ax-price-list">
+                {cat.items.map((item) => (
+                  <li class="ax-price-row">
+                    <div class="ax-price-name">
+                      <span>{item.name}</span>
+                      {item.description && <small>{item.description}</small>}
+                    </div>
+                    <span class="ax-price-leader" aria-hidden="true" />
+                    <span class="ax-price-value">{item.price}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        {galleryPair.length > 0 && (
+          <section class="ax-gallery" aria-label="Werkplaats">
+            <div class="ax-gallery-pair">
+              {galleryPair.map((src) => (
+                <figure class="ax-gallery-item">
+                  <img src={src} alt="" loading="lazy" width="480" height="360" />
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section class="ax-section ax-hours-section" id="openingstijden" aria-labelledby="ax-hours-title">
+          <h2 id="ax-hours-title" class="ax-section-title">{t('hours.title')}</h2>
+          <ul class="ax-hours">
+            {content.openingHours.map((hour) => {
+              const row = formatOpeningHours(t, hour);
+              return (
+                <li>
+                  <span>{row.label}</span>
+                  <span class="ax-hours-leader" aria-hidden="true" />
+                  <span>{row.value}</span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <iframe
+            class="ax-map"
+            title={`${config.name} op de kaart`}
+            src={config.googleMapsEmbed}
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          />
+        </section>
+      </main>
+    </div>
+
+    <footer class="ax-foot">
+      <p>&copy; {year} {config.name}. {t('footer.rights')}</p>
+    </footer>
+  </div>
+</BaseLayout>
+
+<style>
+  .ax {
+    min-height: 100svh;
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  .ax-shell {
+    display: grid;
+    max-width: 72rem;
+    margin: 0 auto;
+    min-height: calc(100svh - 3rem);
+  }
+
+  @media (min-width: 768px) {
+    .ax-shell {
+      grid-template-columns: minmax(15rem, 22rem) 1fr;
+      gap: 0;
+    }
+  }
+
+  .ax-sidebar {
+    padding: 1.5rem 1.25rem;
+    background: var(--color-surface);
+    border-bottom: 2px dashed color-mix(in srgb, var(--color-accent) 35%, transparent);
+  }
+
+  @media (min-width: 768px) {
+    .ax-sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      min-height: 100svh;
+      padding: 2rem 1.75rem;
+      border-bottom: none;
+      border-right: 2px dashed color-mix(in srgb, var(--color-accent) 35%, transparent);
+    }
+  }
+
+  .ax-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .ax-brand {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .ax-tagline {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .ax-about {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+
+  .ax-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.35rem;
+    padding: 0.85rem 1rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent-text);
+    text-decoration: none;
+    border: 2px dashed color-mix(in srgb, var(--color-on-accent-text) 40%, transparent);
+  }
+
+  .ax-cta-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  .ax-cta-phone {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .ax-sidebar-block {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed color-mix(in srgb, var(--color-muted) 35%, transparent);
+  }
+
+  .ax-sidebar-heading {
+    margin: 0 0 0.45rem;
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text);
+  }
+
+  .ax-address {
+    margin: 0;
+    font-style: normal;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-text);
+  }
+
+  .ax-contact-links {
+    margin: 0.5rem 0 0;
+    font-size: 0.88rem;
+  }
+
+  .ax-contact-links a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .ax-main {
+    padding: 1.5rem 1.25rem 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .ax-main {
+      padding: 2rem 2rem 3rem;
+    }
+  }
+
+  .ax-section {
+    padding-bottom: 2rem;
+  }
+
+  .ax-section-head h2 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .ax-section-head p {
+    margin: 0.55rem 0 0;
+    max-width: 36rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-muted);
+  }
+
+  .ax-category {
+    margin-top: 1.75rem;
+  }
+
+  .ax-category-title {
+    margin: 0 0 0.65rem;
+    padding-bottom: 0.35rem;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border-bottom: 1px dashed color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+
+  .ax-price-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ax-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dotted color-mix(in srgb, var(--color-muted) 30%, transparent);
+  }
+
+  .ax-price-row:last-child {
+    border-bottom: none;
+  }
+
+  .ax-price-name {
+    flex-shrink: 0;
+    max-width: 70%;
+  }
+
+  .ax-price-name span {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .ax-price-name small {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-muted);
+  }
+
+  .ax-price-leader {
+    flex: 1;
+    min-width: 0.75rem;
+    border-bottom: 1px dotted color-mix(in srgb, var(--color-muted) 55%, transparent);
+    margin-bottom: 0.2em;
+  }
+
+  .ax-price-value {
+    flex-shrink: 0;
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .ax-gallery {
+    padding: 0.5rem 0 2rem;
+  }
+
+  .ax-gallery-pair {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 480px) {
+    .ax-gallery-pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .ax-gallery-item {
+    margin: 0;
+    overflow: hidden;
+    border: 2px dashed color-mix(in srgb, var(--color-accent) 30%, transparent);
+    background: var(--color-surface);
+  }
+
+  .ax-gallery-item img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .ax-hours-section {
+    padding-top: 0.5rem;
+    border-top: 2px dashed color-mix(in srgb, var(--color-accent) 25%, transparent);
+  }
+
+  .ax-section-title {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .ax-hours {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 22rem;
+  }
+
+  .ax-hours li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+  }
+
+  .ax-hours li span:first-child {
+    flex-shrink: 0;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .ax-hours-leader {
+    flex: 1;
+    border-bottom: 1px dotted color-mix(in srgb, var(--color-muted) 45%, transparent);
+    margin-bottom: 0.15em;
+  }
+
+  .ax-hours li span:last-child {
+    flex-shrink: 0;
+    color: var(--color-muted);
+  }
+
+  .ax-map {
+    width: 100%;
+    min-height: 220px;
+    margin-top: 1.25rem;
+    border: 2px dashed color-mix(in srgb, var(--color-accent) 30%, transparent);
+    background: var(--color-surface);
+  }
+
+  .ax-foot {
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px dashed color-mix(in srgb, var(--color-muted) 30%, transparent);
+    text-align: center;
+  }
+
+  .ax-foot p {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--color-muted);
+  }
+</style>
