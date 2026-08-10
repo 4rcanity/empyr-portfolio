@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200" role="img" aria-label="Voorbeeldlogo">
+  <rect width="640" height="200" rx="16" fill="#E6E3DE"/>
+  <rect x="10" y="10" width="620" height="180" rx="10" fill="none" stroke="#B4ADA3" stroke-width="3" stroke-dasharray="14 10"/>
+  <g transform="translate(96 100)" fill="none" stroke="#5F594F" stroke-width="7" stroke-linecap="round">
+    <circle cx="0" cy="0" r="38"/>
+    <path d="M-18 6l14 14 26-30"/>
+  </g>
+  <text x="176" y="88" font-family="Inter, Helvetica, Arial, sans-serif" font-size="44" font-weight="700" letter-spacing="4" fill="#5F594F">VOORBEELD</text>
+  <text x="176" y="138" font-family="Inter, Helvetica, Arial, sans-serif" font-size="28" letter-spacing="8" fill="#8C857A">LOGO</text>
+</svg>

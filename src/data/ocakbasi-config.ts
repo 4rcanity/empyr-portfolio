@@ -41,8 +41,8 @@ export const ocakbasiConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
     'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
     'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=800&q=80',
-    'https://images.unsplash.com/photo-1544510808-97d7757b1938?w=800&q=80',
-    'https://images.unsplash.com/photo-1633945274309-2a4d1710cf5d?w=800&q=80',
+    'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=1600&q=80',
+    'https://images.unsplash.com/photo-1544025162-d76694265947?w=900&q=80',
   ],
   deliveryLinks: [
     { name: 'Thuisbezorgd', url: 'https://www.thuisbezorgd.nl' },
@@ -132,7 +132,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: 'Warme Gerechten',
-          image: 'https://images.unsplash.com/photo-1574653853027-5d3ac9b9a6e7?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&q=80',
           items: [
             { name: 'Kuzu Saç Kavurma', description: 'Lamsvlees gestoofd met ui, peper, tomaat en knoflook, met rijst, brood en salade', price: '€17,00', tags: ['halal'] },
             { name: 'Saç Kavurma met Kip', description: 'Kipfilet gestoofd op de saç, met rijst, salade en brood', price: '€17,00', tags: ['halal'] },
@@ -162,7 +162,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: "Turkse Pizza's (Lahmacun)",
-          image: 'https://images.unsplash.com/photo-1595854341625-f33e69bcaf60?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
           items: [
             { name: 'Lahmacun', description: 'Dunne Turkse pizza met salade', price: '€3,99', tags: ['halal'] },
             { name: 'Lahmacun met Kaas en Salade', description: 'Met gesmolten kaas en frisse salade', price: '€4,99', tags: ['halal'] },
@@ -199,7 +199,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: 'Kapsalon',
-          image: 'https://images.unsplash.com/photo-1615719413546-198b25f3d69d?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
           items: [
             { name: 'Kapsalon Lamsdöner (Klein)', description: 'Patat, lamsdöner, gesmolten kaas, salade en saus', price: '€8,50', tags: ['halal'] },
             { name: 'Kapsalon Lamsdöner (Groot)', description: 'Patat, lamsdöner, gesmolten kaas, salade en saus', price: '€10,99', tags: ['halal'] },
@@ -343,7 +343,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: 'Hot Dishes',
-          image: 'https://images.unsplash.com/photo-1574653853027-5d3ac9b9a6e7?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=800&q=80',
           items: [
             { name: 'Kuzu Saç Kavurma', description: 'Lamb stewed with onion, pepper, tomato and garlic, with rice, bread and salad', price: '€17.00', tags: ['halal'] },
             { name: 'Saç Kavurma with Chicken', description: 'Chicken fillet stewed on the saç, with rice, salad and bread', price: '€17.00', tags: ['halal'] },
@@ -373,7 +373,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: 'Turkish Pizza (Lahmacun)',
-          image: 'https://images.unsplash.com/photo-1595854341625-f33e69bcaf60?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
           items: [
             { name: 'Lahmacun', description: 'Thin Turkish flatbread pizza with salad', price: '€3.99', tags: ['halal'] },
             { name: 'Lahmacun with Cheese & Salad', description: 'With melted cheese and fresh salad', price: '€4.99', tags: ['halal'] },
@@ -410,7 +410,7 @@ export const ocakbasiConfig: SiteConfig = {
         },
         {
           name: 'Kapsalon',
-          image: 'https://images.unsplash.com/photo-1615719413546-198b25f3d69d?w=900&q=80',
+          image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80',
           items: [
             { name: 'Kapsalon Lamb Döner (Small)', description: 'Fries, lamb döner, melted cheese, salad and sauce', price: '€8.50', tags: ['halal'] },
             { name: 'Kapsalon Lamb Döner (Large)', description: 'Fries, lamb döner, melted cheese, salad and sauce', price: '€10.99', tags: ['halal'] },

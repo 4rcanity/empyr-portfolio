@@ -2,7 +2,6 @@
 import '../../styles/global.css';
 import { configs } from '../../data/configs';
 import { nlDemos } from '../../data/nl-demos';
-import { DEMO_QUOTES, formatDemoQuote } from '../../data/demo-quotes';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
 import AllPricing from '../../components/shared/AllPricing.astro';
@@ -158,7 +157,6 @@ type TemplateCard = {
   statusLabel: string;
   kindLabel: string;
   statusClass: string;
-  quoteLabel: string | null;
   href: string;
 };
 
@@ -175,7 +173,6 @@ function buildCard(
   const meta = templateMeta[slug];
   const status = meta.status;
   const statusMeta = statusLabels[status];
-  const quote = status === 'for-sale' || status === 'pitch' ? DEMO_QUOTES[slug] : undefined;
   return {
     slug,
     name,
@@ -195,7 +192,6 @@ function buildCard(
           ? 'Demo'
           : 'Demo',
     statusClass: statusMeta.className,
-    quoteLabel: quote ? formatDemoQuote(quote.total, lang) : null,
     href: `/${nlOnly ? 'nl' : lang}/${slug}`,
   };
 }
@@ -546,11 +542,6 @@ const discordUrl = 'https://discord.gg/sfnQdNPNg2';
                         >
                           {tpl.kindLabel}
                         </span>
-                        {tpl.quoteLabel && (
-                          <span class="rounded-full border border-white/30 bg-stone-950/55 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">
-                            {tpl.quoteLabel}
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div class="flex flex-1 flex-col p-7">

@@ -34,8 +34,11 @@ const cuisine =
 const priceRange =
   config.theme.variant === 'noir' ? '€€€€' : config.theme.variant === 'trattoria' ? '€€€' : '€€';
 
+/** Demo placeholders like "Voorbeeld" are not real ranges, so keep them out of the schema. */
+const timeRange = /^\d{1,2}:\d{2}\s*–\s*\d{1,2}:\d{2}$/;
+
 const openingHoursSpecification = content.openingHours
-  .filter((h) => h.hours !== null)
+  .filter((h) => h.hours !== null && timeRange.test(h.hours))
   .flatMap((h) =>
     getSchemaDays(h.dayKey).map((day) => ({
       '@type': 'OpeningHoursSpecification',

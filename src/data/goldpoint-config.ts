@@ -19,25 +19,25 @@ export const goldpointConfig: NlDemoConfig = {
     fontBody: '"Inter", system-ui, sans-serif',
     variant: 'goldpoint',
   },
-  heroImage:
-    'https://images.unsplash.com/photo-1515562141203-7a88fb7ce338?w=1600&q=80',
+  logo: '/voorbeeld/logo.svg',
+  heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
   email: 'info@goldpoint-rotterdam.nl',
   address: {
     street: 'Rochussenstraat 517/515',
     city: 'Rotterdam',
     postalCode: '3023 DL',
-    country: 'Netherlands',
+    country: 'Nederland',
   },
   coordinates: { lat: 51.9128, lng: 4.4636 },
   googleMapsEmbed:
     'https://www.google.com/maps?q=Rochussenstraat+517,+3023+DL+Rotterdam&output=embed',
   socials: {},
   gallery: [
-    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
-    'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80',
-    'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80',
-    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80',
+    '/voorbeeld/afbeelding-1.svg',
+    '/voorbeeld/afbeelding-2.svg',
+    '/voorbeeld/afbeelding-3.svg',
+    '/voorbeeld/afbeelding-4.svg',
   ],
   content: {
     nl: {
@@ -46,10 +46,13 @@ export const goldpointConfig: NlDemoConfig = {
         'Verkoop en reparatie van gouden sieraden en horloges in Rotterdam.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Diensten & prijzen',
+      bookingNote:
+        'Voorbeeldwebsite: openingstijden, prijzen, logo en foto’s zijn voorbeelden en vullen we aan met uw eigen gegevens.',
       openingHours: [
-        { dayKey: 'mon_fri', hours: '12:00 – 17:00' },
-        { dayKey: 'sat', hours: '12:00 – 17:00' },
-        { dayKey: 'sun', hours: null },
+        { dayKey: 'mon', hours: '12:00 – 17:00' },
+        { dayKey: 'tue_thu', hours: 'Voorbeeld' },
+        { dayKey: 'fri_sat', hours: 'Voorbeeld' },
+        { dayKey: 'sun', hours: 'Voorbeeld' },
       ],
       menu: [
         {
@@ -58,12 +61,12 @@ export const goldpointConfig: NlDemoConfig = {
             {
               name: 'Ring vermaken',
               description: 'Maat aanpassen of ring herstellen',
-              price: 'vanaf €25',
+              price: 'Voorbeeld',
             },
             {
               name: 'Ketting repareren',
               description: 'Schakel, sluiting of gehele ketting',
-              price: 'vanaf €30',
+              price: 'Voorbeeld',
             },
             {
               name: 'Goud inkoop / verkoop',
@@ -78,17 +81,17 @@ export const goldpointConfig: NlDemoConfig = {
             {
               name: 'Horlogebatterij',
               description: 'Batterij vervangen, waterdichtheidstest',
-              price: 'vanaf €15',
+              price: 'Voorbeeld',
             },
             {
               name: 'Horlogeband',
               description: 'Band vervangen of maat aanpassen',
-              price: 'vanaf €35',
+              price: 'Voorbeeld',
             },
             {
               name: 'Horloge revisie',
               description: 'Volledige controle en onderhoud',
-              price: 'vanaf €75',
+              price: 'Voorbeeld',
             },
           ],
         },

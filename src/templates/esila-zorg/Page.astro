@@ -20,7 +20,10 @@ const year = new Date().getFullYear();
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
   <div class="es">
     <header class="es-header">
-      <a class="es-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <a class="es-brand" href={`/${lang}/${config.slug}`}>
+        {config.logo && <img class="es-brand-logo" src={config.logo} alt="" width="128" height="40" />}
+        <span>{config.name}</span>
+      </a>
       <a class="es-header-cta" href={telHref}>{content.ctaLabel ?? t('cta.callNow')}</a>
     </header>
 
@@ -102,6 +105,8 @@ const year = new Date().getFullYear();
             </div>
           </div>
 
+          {content.bookingNote && <p class="es-note">{content.bookingNote}</p>}
+
           <iframe
             class="es-map"
             title={`Kaart met locatie van ${config.name}`}
@@ -137,19 +142,54 @@ const year = new Date().getFullYear();
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    flex-wrap: wrap;
     padding: 1rem 1.25rem;
     background: color-mix(in srgb, var(--color-surface) 94%, transparent);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 16%, transparent);
   }
 
+  /* Keep the full name readable instead of truncating it next to the button */
+  @media (max-width: 30rem) {
+    .es-header {
+      gap: 0.5rem;
+    }
+
+    .es-brand {
+      width: 100%;
+      min-height: 0;
+    }
+
+    .es-header-cta {
+      min-height: 2.5rem;
+    }
+  }
+
   .es-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    min-height: 2.75rem;
     font-family: var(--font-heading);
     font-size: 1.125rem;
     font-weight: 700;
     color: var(--color-primary);
     text-decoration: none;
     letter-spacing: -0.02em;
+  }
+
+  .es-brand span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .es-brand-logo {
+    flex: none;
+    height: 1.9rem;
+    width: auto;
+    border-radius: 4px;
   }
 
   .es-header-cta {
@@ -365,9 +405,21 @@ const year = new Date().getFullYear();
   }
 
   .es-contact-block a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--color-accent);
     font-weight: 600;
     text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .es-note {
+    margin: 1.5rem 0 0;
+    max-width: 34rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-muted);
   }
 
   .es-contact-block a:hover {

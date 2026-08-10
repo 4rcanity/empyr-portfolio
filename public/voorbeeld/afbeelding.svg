@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Voorbeeldafbeelding">
+  <rect width="1600" height="1000" fill="#E6E3DE"/>
+  <g fill="none" stroke="#B4ADA3" stroke-width="4">
+    <rect x="48" y="48" width="1504" height="904" stroke-dasharray="18 14"/>
+  </g>
+  <g transform="translate(800 420)" fill="none" stroke="#8C857A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="-110" y="-70" width="220" height="160" rx="18"/>
+    <circle cx="0" cy="10" r="46"/>
+    <path d="M-58 -70l24-34h68l24 34"/>
+  </g>
+  <text x="800" y="640" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="96" font-weight="700" letter-spacing="14" fill="#5F594F">VOORBEELD</text>
+  <text x="800" y="710" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="40" letter-spacing="6" fill="#8C857A">AFBEELDING</text>
+</svg>

@@ -23,7 +23,10 @@ const year = new Date().getFullYear();
     <div class="ax-shell">
       <aside class="ax-sidebar">
         <div class="ax-sidebar-inner">
-          <a class="ax-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+          <a class="ax-brand" href={`/${lang}/${config.slug}`}>
+            {config.logo && <img class="ax-brand-logo" src={config.logo} alt="" width="128" height="40" />}
+            <span>{config.name}</span>
+          </a>
           <p class="ax-tagline">{content.tagline}</p>
           <p class="ax-about">{content.about.content}</p>
 
@@ -69,6 +72,8 @@ const year = new Date().getFullYear();
               </ul>
             </div>
           ))}
+
+          {content.bookingNote && <p class="ax-note">{content.bookingNote}</p>}
         </section>
 
         {galleryPair.length > 0 && (
@@ -162,6 +167,7 @@ const year = new Date().getFullYear();
   }
 
   .ax-brand {
+    display: block;
     font-family: var(--font-heading);
     font-size: 1.05rem;
     font-weight: 700;
@@ -169,6 +175,13 @@ const year = new Date().getFullYear();
     letter-spacing: -0.02em;
     color: var(--color-text);
     text-decoration: none;
+  }
+
+  .ax-brand-logo {
+    display: block;
+    height: 1.9rem;
+    width: auto;
+    margin-bottom: 0.55rem;
   }
 
   .ax-tagline {
@@ -239,14 +252,26 @@ const year = new Date().getFullYear();
   }
 
   .ax-contact-links {
-    margin: 0.5rem 0 0;
+    margin: 0.25rem 0 0;
     font-size: 0.88rem;
   }
 
   .ax-contact-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--color-accent);
     text-decoration: none;
     font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  .ax-note {
+    margin: 1.25rem 0 0;
+    max-width: 32rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-muted);
   }
 
   .ax-main {

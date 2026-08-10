@@ -19,15 +19,15 @@ export const hammamConfig: NlDemoConfig = {
     fontBody: '"DM Sans", system-ui, sans-serif',
     variant: 'hammam',
   },
-  heroImage:
-    'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1600&q=80',
+  logo: '/voorbeeld/logo.svg',
+  heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
   email: 'info@hammam-rotterdam.nl',
   address: {
     street: 'Nieuwe Binnenweg 397',
     city: 'Rotterdam',
     postalCode: '3023 EL',
-    country: 'Netherlands',
+    country: 'Nederland',
   },
   coordinates: { lat: 51.9141, lng: 4.459 },
   googleMapsEmbed:
@@ -35,10 +35,10 @@ export const hammamConfig: NlDemoConfig = {
   socials: {},
   reservationUrl: 'tel:+31100000000',
   gallery: [
-    'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1507652313519-d4e9174996cc?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1571902947732-223c4880f4b6?auto=format&fit=crop&w=800&q=80',
+    '/voorbeeld/afbeelding-1.svg',
+    '/voorbeeld/afbeelding-2.svg',
+    '/voorbeeld/afbeelding-3.svg',
+    '/voorbeeld/afbeelding-4.svg',
   ],
   content: {
     nl: {
@@ -47,10 +47,13 @@ export const hammamConfig: NlDemoConfig = {
         'Hammam, kese scrub, massage en sauna in een rustige wellnessomgeving.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Behandelingen & prijzen',
+      bookingNote:
+        'Voorbeeldwebsite: openingstijden, prijzen, logo en foto’s zijn voorbeelden en vullen we aan met uw eigen gegevens.',
       openingHours: [
-        { dayKey: 'mon_fri', hours: '11:30 – 21:30' },
-        { dayKey: 'sat', hours: '11:00 – 21:30' },
-        { dayKey: 'sun', hours: '11:00 – 20:00' },
+        { dayKey: 'mon', hours: '11:30 – 21:30' },
+        { dayKey: 'tue_thu', hours: 'Voorbeeld' },
+        { dayKey: 'fri_sat', hours: 'Voorbeeld' },
+        { dayKey: 'sun', hours: 'Voorbeeld' },
       ],
       menu: [
         {
@@ -59,22 +62,22 @@ export const hammamConfig: NlDemoConfig = {
             {
               name: 'Hammam entree',
               description: 'Toegang tot stoombad, sauna en rustruimte',
-              price: '€35',
+              price: 'Voorbeeld',
             },
             {
               name: 'Kese scrub',
               description: 'Traditionele exfoliatie met kese handschoen',
-              price: '€25',
+              price: 'Voorbeeld',
             },
             {
               name: 'Schuimmassage',
               description: 'Zeepmassage op het marmeren plataeu',
-              price: '€40',
+              price: 'Voorbeeld',
             },
             {
               name: 'Hammam ritueel',
               description: 'Kese scrub en schuimmassage',
-              price: '€65',
+              price: 'Voorbeeld',
             },
           ],
         },
@@ -84,17 +87,17 @@ export const hammamConfig: NlDemoConfig = {
             {
               name: 'Klassieke massage 30 min',
               description: 'Gerichte massage van nek, schouders en rug',
-              price: '€45',
+              price: 'Voorbeeld',
             },
             {
               name: 'Klassieke massage 60 min',
               description: 'Volledige lichaamsmassage',
-              price: '€65',
+              price: 'Voorbeeld',
             },
             {
               name: 'Ontspanningsmassage',
               description: 'Zachte massage voor diepe ontspanning',
-              price: '€55',
+              price: 'Voorbeeld',
             },
           ],
         },

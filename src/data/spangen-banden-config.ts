@@ -20,7 +20,7 @@ export const spangenBandenConfig = {
     variant: 'spangen-banden',
   },
   heroImage:
-    'https://images.unsplash.com/photo-1619642751034-765df7697e92?w=1600&q=80',
+    'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80',
   phone: '+31 10 476 2280',
   email: 'info@bandencentrale-spangen.example',
   address: {
@@ -34,9 +34,9 @@ export const spangenBandenConfig = {
     'https://www.google.com/maps?q=Mathenesserweg+164,+3026+HA+Rotterdam&output=embed',
   socials: {},
   gallery: [
-    'https://images.unsplash.com/photo-1619642751034-765df7697e92?w=800&q=80',
+    'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=800&q=80',
     'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80',
-    'https://images.unsplash.com/photo-1487754183691-f732981f98ca?w=800&q=80',
+    'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&q=80',
     'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=800&q=80',
   ],
   rating: { value: 4.6, count: 89, source: 'Google' },

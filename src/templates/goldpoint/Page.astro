@@ -20,7 +20,10 @@ const year = new Date().getFullYear();
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
   <div class="gp">
     <header class="gp-top">
-      <a class="gp-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <a class="gp-brand" href={`/${lang}/${config.slug}`}>
+        {config.logo && <img class="gp-brand-logo" src={config.logo} alt="" width="128" height="40" />}
+        <span>{config.name}</span>
+      </a>
       <a class="gp-top-phone" href={telHref}>{config.phone}</a>
     </header>
 
@@ -111,6 +114,8 @@ const year = new Date().getFullYear();
               </tbody>
             </table>
           </div>
+
+          {content.bookingNote && <p class="gp-note">{content.bookingNote}</p>}
         </div>
 
         <div class="gp-map-wrap">
@@ -157,25 +162,57 @@ const year = new Date().getFullYear();
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0 1rem;
     padding: 0.85rem 1.5rem;
     background: color-mix(in srgb, var(--color-background) 92%, transparent);
     border-bottom: 1px solid color-mix(in srgb, var(--color-accent) 22%, transparent);
     backdrop-filter: blur(10px);
   }
 
+  /* Long shop names get their own line instead of being cut off */
+  @media (max-width: 30rem) {
+    .gp-brand {
+      width: 100%;
+      min-height: 0;
+    }
+
+    .gp-top-phone {
+      min-height: 2.25rem;
+    }
+  }
+
   .gp-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    min-height: 2.75rem;
     font-family: var(--font-heading);
     font-size: 1.05rem;
     font-weight: 500;
     letter-spacing: 0.03em;
     color: var(--color-text);
     text-decoration: none;
+  }
+
+  .gp-brand span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  .gp-brand-logo {
+    flex: none;
+    height: 1.9rem;
+    width: auto;
+    border-radius: 2px;
+  }
+
   .gp-top-phone {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
     color: var(--color-accent);
@@ -451,15 +488,26 @@ const year = new Date().getFullYear();
   .gp-contact-links {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
   }
 
   .gp-contact-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--color-accent);
     text-decoration: none;
     font-size: 0.95rem;
     letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .gp-note {
+    margin: 1.5rem 0 0;
+    max-width: 30rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-muted);
   }
 
   .gp-contact-links a:hover {

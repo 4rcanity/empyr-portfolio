@@ -19,8 +19,8 @@ export const astexConfig: NlDemoConfig = {
     fontBody: '"DM Sans", system-ui, sans-serif',
     variant: 'astex',
   },
-  heroImage:
-    'https://images.unsplash.com/photo-1584974390610-ca4c8d0e8e3e?w=1600&q=80',
+  logo: '/voorbeeld/logo.svg',
+  heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
   email: 'info@astex-rotterdam.nl',
   address: {
@@ -34,10 +34,10 @@ export const astexConfig: NlDemoConfig = {
     'https://www.google.com/maps?q=Nieuwe+Binnenweg+525,+3023+EP+Rotterdam&output=embed',
   socials: {},
   gallery: [
-    'https://images.unsplash.com/photo-1558171813-4c088754af7f?w=800&q=80',
-    'https://images.unsplash.com/photo-1594938298608-c8148c4dae35?w=800&q=80',
-    'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80',
-    'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=800&q=80',
+    '/voorbeeld/afbeelding-1.svg',
+    '/voorbeeld/afbeelding-2.svg',
+    '/voorbeeld/afbeelding-3.svg',
+    '/voorbeeld/afbeelding-4.svg',
   ],
   content: {
     nl: {
@@ -46,10 +46,13 @@ export const astexConfig: NlDemoConfig = {
         'Vermaken, reparaties en kleine aanpassingen — breng uw kledingstuk langs of bel vooraf.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Reparaties & prijzen',
+      bookingNote:
+        'Voorbeeldwebsite: openingstijden, prijzen, logo en foto’s zijn voorbeelden en vullen we aan met uw eigen gegevens.',
       openingHours: [
-        { dayKey: 'mon_fri', hours: '09:00 – 18:00' },
-        { dayKey: 'sat', hours: '09:00 – 17:00' },
-        { dayKey: 'sun', hours: null },
+        { dayKey: 'mon', hours: '09:00 – 18:00' },
+        { dayKey: 'tue_thu', hours: 'Voorbeeld' },
+        { dayKey: 'fri_sat', hours: 'Voorbeeld' },
+        { dayKey: 'sun', hours: 'Voorbeeld' },
       ],
       menu: [
         {
@@ -58,22 +61,22 @@ export const astexConfig: NlDemoConfig = {
             {
               name: 'Broek innemen / korter maken',
               description: 'Taille of pijplengte aanpassen',
-              price: 'vanaf €18',
+              price: 'Voorbeeld',
             },
             {
               name: 'Rok inkorten',
               description: 'Zoom of voering meenemen waar nodig',
-              price: 'vanaf €15',
+              price: 'Voorbeeld',
             },
             {
               name: 'Jas vermaken',
               description: 'Mouwen of lengte bijstellen',
-              price: 'vanaf €35',
+              price: 'Voorbeeld',
             },
             {
               name: 'Zoom omleggen',
               description: 'Broek, rok of jas',
-              price: 'vanaf €12',
+              price: 'Voorbeeld',
             },
           ],
         },
@@ -83,17 +86,17 @@ export const astexConfig: NlDemoConfig = {
             {
               name: 'Rits vervangen (broek / jas)',
               description: 'Inclusief rits en arbeid',
-              price: 'vanaf €22',
+              price: 'Voorbeeld',
             },
             {
               name: 'Knopen vervangen',
               description: 'Per knoop of set',
-              price: 'vanaf €3',
+              price: 'Voorbeeld',
             },
             {
               name: 'Voering vervangen',
               description: 'Jas of mantel, afhankelijk van stof',
-              price: 'vanaf €45',
+              price: 'Voorbeeld',
             },
           ],
         },

@@ -43,7 +43,7 @@ export const trattoriaConfig: SiteConfig = {
     'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80',
     'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&q=80',
     'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80',
-    'https://images.unsplash.com/photo-1598866594230-a7c158562c60?w=800&q=80',
+    'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80',
   ],  content: {
     nl: {
       tagline: 'Familierecepten sinds 1987',

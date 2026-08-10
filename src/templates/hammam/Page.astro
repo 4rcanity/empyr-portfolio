@@ -20,7 +20,10 @@ const year = new Date().getFullYear();
 <BaseLayout config={config} content={content} lang={lang} canonicalPath={`/${lang}/${config.slug}`}>
   <div class="hm">
     <header class="hm-header">
-      <a class="hm-brand" href={`/${lang}/${config.slug}`}>{config.name}</a>
+      <a class="hm-brand" href={`/${lang}/${config.slug}`}>
+        {config.logo && <img class="hm-brand-logo" src={config.logo} alt="" width="128" height="40" />}
+        <span>{config.name}</span>
+      </a>
       <a class="hm-header-phone" href={telHref}>{config.phone}</a>
     </header>
 
@@ -118,6 +121,8 @@ const year = new Date().getFullYear();
                 </tbody>
               </table>
             </div>
+
+            {content.bookingNote && <p class="hm-note">{content.bookingNote}</p>}
           </div>
 
           <div class="hm-map-wrap">
@@ -170,18 +175,36 @@ const year = new Date().getFullYear();
   }
 
   .hm-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    min-height: 2.75rem;
     font-family: var(--font-heading);
     font-size: 1.05rem;
     font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--color-primary);
     text-decoration: none;
+  }
+
+  .hm-brand span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  .hm-brand-logo {
+    flex: none;
+    height: 1.9rem;
+    width: auto;
+    border-radius: 2px;
+  }
+
   .hm-header-phone {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     font-size: 0.85rem;
     color: var(--color-accent);
     text-decoration: none;
@@ -511,8 +534,7 @@ const year = new Date().getFullYear();
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
-    margin-top: 1.1rem;
+    margin-top: 0.85rem;
   }
 
   @media (min-width: 768px) {
@@ -522,9 +544,21 @@ const year = new Date().getFullYear();
   }
 
   .hm-contact-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
     color: var(--color-accent);
     text-decoration: none;
     font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+
+  .hm-note {
+    margin: 1.5rem 0 0;
+    max-width: 32rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-muted);
   }
 
   .hm-contact-links a:hover {
