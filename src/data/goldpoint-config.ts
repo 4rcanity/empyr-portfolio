@@ -2,7 +2,7 @@ import type { NlDemoConfig } from './nl-demo';
 
 export const goldpointConfig: NlDemoConfig = {
   slug: 'goldpoint',
-  name: 'Gold Point Jewelry and Watches',
+  name: 'Juwelier & Horlogemaker',
   businessType: 'jewelry',
   theme: {
     primary: '#0C0C0C',
@@ -22,16 +22,15 @@ export const goldpointConfig: NlDemoConfig = {
   logo: '/voorbeeld/logo.svg',
   heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
-  email: 'info@goldpoint-rotterdam.nl',
+  email: 'info@voorbeeld.nl',
   address: {
-    street: 'Rochussenstraat 517/515',
-    city: 'Rotterdam',
-    postalCode: '3023 DL',
+    street: 'Voorbeeldstraat 1',
+    city: 'Voorbeeldstad',
+    postalCode: '0000 AB',
     country: 'Nederland',
   },
-  coordinates: { lat: 51.9128, lng: 4.4636 },
-  googleMapsEmbed:
-    'https://www.google.com/maps?q=Rochussenstraat+517,+3023+DL+Rotterdam&output=embed',
+  coordinates: { lat: 51.9244, lng: 4.4777 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=Rotterdam&output=embed',
   socials: {},
   gallery: [
     '/voorbeeld/afbeelding-1.svg',
@@ -41,9 +40,8 @@ export const goldpointConfig: NlDemoConfig = {
   ],
   content: {
     nl: {
-      tagline: 'Juwelier & horlogemaker · Rochussenstraat',
-      description:
-        'Verkoop en reparatie van gouden sieraden en horloges in Rotterdam.',
+      tagline: 'Juwelier & horlogemaker',
+      description: 'Verkoop en reparatie van gouden sieraden en horloges.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Diensten & prijzen',
       bookingNote:
@@ -97,9 +95,8 @@ export const goldpointConfig: NlDemoConfig = {
         },
       ],
       about: {
-        heading: 'Gold Point',
-        content:
-          'Juwelier en horlogemaker aan de Rochussenstraat in Rotterdam.',
+        heading: 'Juwelier & Horlogemaker',
+        content: 'Juwelier en horlogemaker voor sieraden en horloges.',
       },
     },
   },

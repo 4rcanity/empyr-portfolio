@@ -2,7 +2,7 @@ import type { NlDemoConfig } from './nl-demo';
 
 export const esilaZorgConfig: NlDemoConfig = {
   slug: 'esila-zorg',
-  name: 'Esila Zorg',
+  name: 'Zorg & Ondersteuning',
   businessType: 'care',
   theme: {
     primary: '#2E7D6B',
@@ -22,16 +22,15 @@ export const esilaZorgConfig: NlDemoConfig = {
   logo: '/voorbeeld/logo.svg',
   heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
-  email: 'info@esilazorg.nl',
+  email: 'info@voorbeeld.nl',
   address: {
-    street: 'Nieuwe Binnenweg 507',
-    city: 'Rotterdam',
-    postalCode: '3023 EP',
+    street: 'Voorbeeldstraat 1',
+    city: 'Voorbeeldstad',
+    postalCode: '0000 AB',
     country: 'Nederland',
   },
-  coordinates: { lat: 51.9136, lng: 4.4618 },
-  googleMapsEmbed:
-    'https://www.google.com/maps?q=Nieuwe+Binnenweg+507,+3023+EP+Rotterdam&output=embed',
+  coordinates: { lat: 51.9244, lng: 4.4777 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=Rotterdam&output=embed',
   socials: {},
   gallery: [
     '/voorbeeld/afbeelding-1.svg',
@@ -40,9 +39,8 @@ export const esilaZorgConfig: NlDemoConfig = {
   ],
   content: {
     nl: {
-      tagline: 'Thuiszorg en ondersteuning · Rotterdam',
-      description:
-        'Zorgaanbieder voor thuiszorg, begeleiding en huishoudelijke hulp in Rotterdam.',
+      tagline: 'Thuiszorg en ondersteuning',
+      description: 'Zorgaanbieder voor thuiszorg, begeleiding en huishoudelijke hulp.',
       ctaLabel: 'Bel voor een gesprek',
       menuSectionLabel: 'Onze zorg',
       bookingNote:
@@ -59,14 +57,12 @@ export const esilaZorgConfig: NlDemoConfig = {
           items: [
             {
               name: 'Thuiszorg',
-              description:
-                'Professionele zorg en ondersteuning in uw eigen omgeving.',
+              description: 'Professionele zorg en ondersteuning in uw eigen omgeving.',
               price: 'op aanvraag',
             },
             {
               name: 'Persoonlijke verzorging',
-              description:
-                'Hulp bij dagelijkse persoonlijke verzorging, afgestemd op uw situatie.',
+              description: 'Hulp bij dagelijkse persoonlijke verzorging, afgestemd op uw situatie.',
               price: 'op aanvraag',
             },
             {
@@ -85,8 +81,8 @@ export const esilaZorgConfig: NlDemoConfig = {
         },
       ],
       about: {
-        heading: 'Esila Zorg',
-        content: 'Zorgaanbieder aan de Nieuwe Binnenweg in Rotterdam.',
+        heading: 'Zorg & Ondersteuning',
+        content: 'Zorgaanbieder voor thuiszorg en begeleiding.',
       },
     },
   },

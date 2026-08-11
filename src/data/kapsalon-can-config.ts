@@ -2,7 +2,7 @@ import type { NlDemoConfig } from './nl-demo';
 
 export const kapsalonCanConfig: NlDemoConfig = {
   slug: 'kapsalon-can',
-  name: 'Kapsalon Can',
+  name: 'Kapsalon',
   businessType: 'barbershop',
   theme: {
     primary: '#33527A',
@@ -22,16 +22,15 @@ export const kapsalonCanConfig: NlDemoConfig = {
   logo: '/voorbeeld/logo.svg',
   heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
-  email: 'info@kapsaloncan.nl',
+  email: 'info@voorbeeld.nl',
   address: {
-    street: 'Nieuwe Binnenweg 434B',
-    city: 'Rotterdam',
-    postalCode: '3023 EX',
+    street: 'Voorbeeldstraat 1',
+    city: 'Voorbeeldstad',
+    postalCode: '0000 AB',
     country: 'Nederland',
   },
-  coordinates: { lat: 51.9139, lng: 4.4605 },
-  googleMapsEmbed:
-    'https://www.google.com/maps?q=Nieuwe+Binnenweg+434B,+3023+EX+Rotterdam&output=embed',
+  coordinates: { lat: 51.9244, lng: 4.4777 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=Rotterdam&output=embed',
   socials: {},
   reservationUrl: 'tel:+31100000000',
   gallery: [
@@ -42,8 +41,8 @@ export const kapsalonCanConfig: NlDemoConfig = {
   ],
   content: {
     nl: {
-      tagline: 'Kapsalon · Nieuwe Binnenweg',
-      description: 'Knippen en baardverzorging op de Nieuwe Binnenweg in Rotterdam.',
+      tagline: 'Kapsalon & barber',
+      description: 'Knippen en baardverzorging.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Behandelingen & prijzen',
       bookingNote:
@@ -102,9 +101,8 @@ export const kapsalonCanConfig: NlDemoConfig = {
         },
       ],
       about: {
-        heading: 'Kapsalon Can',
-        content:
-          'Kapsalon aan de Nieuwe Binnenweg in Rotterdam. Binnenlopen kan, bellen is sneller.',
+        heading: 'Kapsalon',
+        content: 'Kapsalon voor knippen en baardverzorging. Binnenlopen kan, bellen is sneller.',
       },
     },
   },

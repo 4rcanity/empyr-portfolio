@@ -2,7 +2,7 @@ import type { NlDemoConfig } from './nl-demo';
 
 export const astexConfig: NlDemoConfig = {
   slug: 'astex',
-  name: 'Astex Textiel Kledingreparatie',
+  name: 'Textiel & Kledingreparatie',
   businessType: 'tailor',
   theme: {
     primary: '#1C1917',
@@ -22,16 +22,15 @@ export const astexConfig: NlDemoConfig = {
   logo: '/voorbeeld/logo.svg',
   heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
-  email: 'info@astex-rotterdam.nl',
+  email: 'info@voorbeeld.nl',
   address: {
-    street: 'Nieuwe Binnenweg 525',
-    city: 'Rotterdam',
-    postalCode: '3023 EP',
+    street: 'Voorbeeldstraat 1',
+    city: 'Voorbeeldstad',
+    postalCode: '0000 AB',
     country: 'Nederland',
   },
-  coordinates: { lat: 51.9134, lng: 4.4622 },
-  googleMapsEmbed:
-    'https://www.google.com/maps?q=Nieuwe+Binnenweg+525,+3023+EP+Rotterdam&output=embed',
+  coordinates: { lat: 51.9244, lng: 4.4777 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=Rotterdam&output=embed',
   socials: {},
   gallery: [
     '/voorbeeld/afbeelding-1.svg',
@@ -41,7 +40,7 @@ export const astexConfig: NlDemoConfig = {
   ],
   content: {
     nl: {
-      tagline: 'Kledingreparatie · Nieuwe Binnenweg',
+      tagline: 'Kledingreparatie & vermaak',
       description:
         'Vermaken, reparaties en kleine aanpassingen — breng uw kledingstuk langs of bel vooraf.',
       ctaLabel: 'Bel voor een afspraak',
@@ -102,9 +101,8 @@ export const astexConfig: NlDemoConfig = {
         },
       ],
       about: {
-        heading: 'Astex Textiel Kledingreparatie',
-        content:
-          'Kledingreparatie en vermaakwerk aan de Nieuwe Binnenweg in Rotterdam.',
+        heading: 'Textiel & Kledingreparatie',
+        content: 'Kledingreparatie en vermaakwerk.',
       },
     },
   },

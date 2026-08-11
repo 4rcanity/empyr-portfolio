@@ -2,7 +2,7 @@ import type { NlDemoConfig } from './nl-demo';
 
 export const hammamConfig: NlDemoConfig = {
   slug: 'hammam',
-  name: 'Spa & Wellness Hammam',
+  name: 'Spa & Wellness',
   businessType: 'spa',
   theme: {
     primary: '#1F4E4A',
@@ -22,16 +22,15 @@ export const hammamConfig: NlDemoConfig = {
   logo: '/voorbeeld/logo.svg',
   heroImage: '/voorbeeld/afbeelding.svg',
   phone: '+31 10 000 0000',
-  email: 'info@hammam-rotterdam.nl',
+  email: 'info@voorbeeld.nl',
   address: {
-    street: 'Nieuwe Binnenweg 397',
-    city: 'Rotterdam',
-    postalCode: '3023 EL',
+    street: 'Voorbeeldstraat 1',
+    city: 'Voorbeeldstad',
+    postalCode: '0000 AB',
     country: 'Nederland',
   },
-  coordinates: { lat: 51.9141, lng: 4.459 },
-  googleMapsEmbed:
-    'https://www.google.com/maps?q=Nieuwe+Binnenweg+397,+3023+EL+Rotterdam&output=embed',
+  coordinates: { lat: 51.9244, lng: 4.4777 },
+  googleMapsEmbed: 'https://www.google.com/maps?q=Rotterdam&output=embed',
   socials: {},
   reservationUrl: 'tel:+31100000000',
   gallery: [
@@ -42,9 +41,8 @@ export const hammamConfig: NlDemoConfig = {
   ],
   content: {
     nl: {
-      tagline: 'Traditionele hammam · Nieuwe Binnenweg',
-      description:
-        'Hammam, kese scrub, massage en sauna in een rustige wellnessomgeving.',
+      tagline: 'Hammam & wellness',
+      description: 'Hammam, kese scrub, massage en sauna in een rustige wellnessomgeving.',
       ctaLabel: 'Bel voor een afspraak',
       menuSectionLabel: 'Behandelingen & prijzen',
       bookingNote:
@@ -71,7 +69,7 @@ export const hammamConfig: NlDemoConfig = {
             },
             {
               name: 'Schuimmassage',
-              description: 'Zeepmassage op het marmeren plataeu',
+              description: 'Zeepmassage op het marmeren plateau',
               price: 'Voorbeeld',
             },
             {
@@ -103,8 +101,8 @@ export const hammamConfig: NlDemoConfig = {
         },
       ],
       about: {
-        heading: 'Spa & Wellness Hammam',
-        content: 'Traditionele hammam aan de Nieuwe Binnenweg in Rotterdam.',
+        heading: 'Spa & Wellness',
+        content: 'Traditionele hammam en wellness.',
       },
     },
   },
