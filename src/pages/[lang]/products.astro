@@ -14,11 +14,42 @@ const { lang } = Astro.params as { lang: Lang };
 const templatesBySlug = getTemplatesBySlug(lang);
 const forSaleCards = Object.values(templatesBySlug).filter((card) => card.status === 'for-sale');
 
-const pageTitle = lang === 'nl' ? 'Producten — Empyr Studio' : 'Products — Empyr Studio';
+const copy =
+  lang === 'nl'
+    ? {
+        eyebrow: 'Producten',
+        heading: 'Overnemen mag. Aanpassen ook.',
+        body: 'Deze concepten zijn te koop. Ontwerp, teksten en techniek zitten erin. De prijs op de kaart is een vanaf-prijs — we passen het aan jouw zaak aan.',
+        moreTab: 'Meer',
+        priceNote: 'Vanaf-prijzen. De echte prijs hangt af van wat je erin wilt.',
+        moreBadge: 'Onderweg',
+        moreHeading: 'Nog meer spul onderweg',
+        moreBody: 'We maken ook tools en templates. Wil je het horen als er iets bij komt? Stuur een mailtje.',
+        moreCta: 'Stuur een mailtje',
+        customHeading: 'Past geen van deze?',
+        customPrimary: 'Stuur een bericht',
+        customSecondary: 'Bekijk de prijzen',
+      }
+    : {
+        eyebrow: 'Products',
+        heading: 'Take one as-is. Or we’ll adapt it.',
+        body: 'These concepts are for sale. Design, copy and build included. The price on the card is a starting point — we fit it to your shop.',
+        moreTab: 'More',
+        priceNote: 'Starting prices. The real number depends on what you want in it.',
+        moreBadge: 'On the way',
+        moreHeading: 'More stuff on the way',
+        moreBody: 'We’re also making tools and templates. Want to hear when something new lands? Send an email.',
+        moreCta: 'Email us',
+        customHeading: 'None of these fit?',
+        customPrimary: 'Send a message',
+        customSecondary: 'See prices',
+      };
+
+const pageTitle = lang === 'nl' ? 'Producten — Empyr Studios' : 'Products — Empyr Studios';
 const pageDescription =
   lang === 'nl'
-    ? 'Kant-en-klare websiteconcepten en digitale producten van Empyr Studio — direct inzetbaar voor jouw zaak.'
-    : 'Ready-made website concepts and digital products by Empyr Studio — deployable for your business right away.';
+    ? 'Websiteconcepten van Empyr Studios die je kunt overnemen of laten aanpassen. Vanaf-prijs op de kaart, demo erbij.'
+    : 'Website concepts from Empyr Studios you can take over or have adapted. Starting price on the card, demo included.';
 ---
 
 <PortfolioLayout lang={lang} current="products" title={pageTitle} description={pageDescription} path="/products">
@@ -28,17 +59,13 @@ const pageDescription =
     <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
         <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
-        {lang === 'nl' ? 'Producten' : 'Products'}
+        {copy.eyebrow}
       </span>
       <h1 class="mt-7 max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
-        {lang === 'nl' ? 'Kant-en-klaar voor jouw zaak.' : 'Ready-made for your business.'}
+        {copy.heading}
       </h1>
       <p class="mt-6 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">
-        {
-          lang === 'nl'
-            ? 'Kant-en-klare websiteconcepten die direct voor jouw zaak in te zetten zijn — inclusief ontwerp, teksten en techniek. Prijzen zijn richtprijzen.'
-            : 'Ready-made website concepts that can be deployed for your business right away — design, copy and tech included. Prices are guide prices.'
-        }
+        {copy.body}
       </p>
     </div>
   </section>
@@ -59,7 +86,7 @@ const pageDescription =
           data-tab="more"
           class="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-bold text-stone-700 transition hover:border-stone-300"
         >
-          {lang === 'nl' ? 'Meer' : 'More'}
+          {copy.moreTab}
         </button>
       </div>
     </div>
@@ -83,11 +110,7 @@ const pageDescription =
           }
         </div>
         <p class="mt-10 text-center text-xs text-stone-400">
-          {
-            lang === 'nl'
-              ? 'Alle prijzen zijn vanaf-prijzen en indicatief — de definitieve prijs hangt af van jouw wensen.'
-              : 'All prices are starting prices and indicative — the final price depends on your requirements.'
-          }
+          {copy.priceNote}
         </p>
       </div>
     </div>
@@ -97,23 +120,19 @@ const pageDescription =
       <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div class="rounded-[2rem] border-2 border-dashed border-stone-300 py-20 text-center">
           <span class="inline-flex rounded-full border border-amber-300/40 bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">
-            WIP
+            {copy.moreBadge}
           </span>
           <h2 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">
-            {lang === 'nl' ? 'Meer producten onderweg' : 'More products on the way'}
+            {copy.moreHeading}
           </h2>
           <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-stone-500">
-            {
-              lang === 'nl'
-                ? 'We werken aan digitale producten, templates en tools. Laat je gegevens achter en je hoort het als eerste.'
-                : "We're working on digital products, templates and tools. Leave your details and you'll be the first to know."
-            }
+            {copy.moreBody}
           </p>
           <a
             href={`/${lang}/#contact`}
             class="mt-8 inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-900 transition hover:border-stone-400 hover:bg-stone-50"
           >
-            {lang === 'nl' ? 'Blijf op de hoogte' : 'Stay in the loop'}
+            {copy.moreCta}
           </a>
         </div>
       </div>
@@ -124,20 +143,20 @@ const pageDescription =
   <section class="py-20 text-center">
     <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
       <h2 class="text-3xl font-semibold tracking-[-0.04em] text-(--heading) sm:text-4xl">
-        {lang === 'nl' ? 'Liever maatwerk?' : 'Prefer custom work?'}
+        {copy.customHeading}
       </h2>
       <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <a
           href={`/${lang}/#contact`}
           class="inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-orange-400"
         >
-          {lang === 'nl' ? 'Start een project' : 'Start a project'}
+          {copy.customPrimary}
         </a>
         <a
           href={`/${lang}/pricing`}
           class="inline-flex items-center justify-center rounded-full border border-(--line-strong) bg-(--card) px-6 py-3.5 text-sm font-bold text-(--heading) transition hover:border-(--line-strong) hover:bg-(--card-hover)"
         >
-          {lang === 'nl' ? 'Bekijk tarieven' : 'View pricing'}
+          {copy.customSecondary}
         </a>
       </div>
     </div>

@@ -17,33 +17,33 @@ const totalCount = categories.reduce((sum, cat) => sum + cat.slugs.length, 0);
 const copy =
   lang === 'nl'
     ? {
-        eyebrow: 'Portfolio',
-        heading: 'Websites die werken voor jouw zaak.',
-        body: 'Veertien concepten in vijf categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel. Filter op categorie om te zien wat bij jou past.',
+        eyebrow: 'Websites',
+        heading: 'Van een garage in Charlois tot een Italiaan.',
+        body: 'Restaurants, garages, winkels, een kapsalon, een hammam. Filter op wat op jouw zaak lijkt — het zijn demo’s, geen stocktemplates.',
         allTab: 'Alles',
-        countTemplate: '{n} projecten',
-        ctaHeading: 'Zit jouw categorie er niet bij?',
-        ctaBody: 'We bouwen maatwerk voor elke lokale zaak — vertel ons over jouw project.',
-        ctaPrimary: 'Start een project',
-        ctaSecondary: 'Bekijk tarieven',
+        countTemplate: '{n} websites',
+        ctaHeading: 'Niet jouw soort zaak?',
+        ctaBody: 'Maakt niet uit. We bouwen ook iets dat nergens in dit overzicht staat. App ons even.',
+        ctaPrimary: 'Stuur een bericht',
+        ctaSecondary: 'Bekijk de prijzen',
       }
     : {
-        eyebrow: 'Portfolio',
-        heading: 'Websites that work for your business.',
-        body: 'Fourteen concepts across five categories — each with its own brand feel, audience and conversion goal. Filter by category to find your fit.',
+        eyebrow: 'Websites',
+        heading: 'From a Charlois garage to an Italian restaurant.',
+        body: 'Restaurants, garages, shops, a salon, a hammam. Filter by what looks like your business — these are demos, not stock templates.',
         allTab: 'All',
-        countTemplate: '{n} projects',
-        ctaHeading: "Don't see your category?",
-        ctaBody: 'We build custom work for any local business — tell us about your project.',
-        ctaPrimary: 'Start a project',
-        ctaSecondary: 'View pricing',
+        countTemplate: '{n} sites',
+        ctaHeading: 'Not your kind of shop?',
+        ctaBody: 'That’s fine. We also build things that aren’t on this list. WhatsApp us.',
+        ctaPrimary: 'Send a message',
+        ctaSecondary: 'See prices',
       };
 
-const pageTitle = 'Websites — Empyr Studio';
+const pageTitle = lang === 'nl' ? 'Websites — Empyr Studios' : 'Websites — Empyr Studios';
 const pageDescription =
   lang === 'nl'
-    ? 'Bekijk alle websiteconcepten van Empyr Studio — restaurants, garages, winkels, barbershops en educatieve platforms.'
-    : 'Browse all website concepts by Empyr Studio — restaurants, garages, shops, barbershops and education platforms.';
+    ? 'Voorbeelden van Empyr Studios: restaurants, garages, winkels, kapsalons en meer. Open een demo en kijk of het bij jouw zaak past.'
+    : 'Examples from Empyr Studios: restaurants, garages, shops, salons and more. Open a demo and see if it fits your business.';
 ---
 
 <PortfolioLayout
