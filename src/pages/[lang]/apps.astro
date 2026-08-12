@@ -1,0 +1,183 @@
+---
+import PortfolioLayout from '../../components/portfolio/PortfolioLayout.astro';
+import { apps, appStatusMeta, platformLabels, type AppEntry } from '../../data/apps';
+import { languages, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        eyebrow: 'Apps',
+        heading: 'Tools die we zelf bouwen.',
+        body: 'Eigen producten van Empyr Studio — downloadbaar, lokaal en zonder accountgedoe waar het kan.',
+        empty: 'Nog geen apps gepubliceerd.',
+        requirements: 'Systeemvereisten',
+        features: 'Functies',
+      }
+    : {
+        eyebrow: 'Apps',
+        heading: 'Tools we build ourselves.',
+        body: 'First-party Empyr Studio products — downloadable, local-first, and account-light where possible.',
+        empty: 'No apps published yet.',
+        requirements: 'Requirements',
+        features: 'Features',
+      };
+
+const pageTitle = lang === 'nl' ? 'Apps — Empyr Studio' : 'Apps — Empyr Studio';
+const pageDescription =
+  lang === 'nl'
+    ? 'Download Empyr Studio apps zoals CostPulse — Windows-abonnementen tracker met browser-sync.'
+    : 'Download Empyr Studio apps like CostPulse — Windows subscription tracker with browser sync.';
+
+function monogram(name: string) {
+  return name
+    .split(/\s+/)
+    .map((w) => w[0] ?? '')
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+---
+
+<PortfolioLayout lang={lang} current="apps" title={pageTitle} description={pageDescription} path="/apps">
+  <section class="relative isolate overflow-hidden py-20">
+    <div
+      class="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-cyan-500/15 blur-[120px]"
+    >
+    </div>
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <span
+        class="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-cyan-300"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_12px_#22d3ee]"></span>
+        {copy.eyebrow}
+      </span>
+      <h1 class="mt-7 max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
+        {copy.heading}
+      </h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">{copy.body}</p>
+    </div>
+  </section>
+
+  <section class="bg-stone-50 pb-24 pt-4 text-stone-950">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {
+        apps.length === 0 ? (
+          <p class="py-20 text-center text-stone-500">{copy.empty}</p>
+        ) : (
+          <div class="grid gap-8">
+            {apps.map((app: AppEntry) => {
+              const status = appStatusMeta[app.status];
+              return (
+                <article class="overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_24px_80px_-48px_rgba(0,0,0,0.45)]">
+                  <div class="grid gap-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                    <div class="flex flex-col gap-6 p-8 sm:p-10">
+                      <div class="flex flex-wrap items-start gap-4">
+                        <div
+                          class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-stone-200 bg-stone-950 text-lg font-bold text-white"
+                          style={`box-shadow: inset 0 0 0 1px ${app.accent}33`}
+                        >
+                          {app.icon ? (
+                            <img src={app.icon} alt="" width="64" height="64" class="h-full w-full object-cover" />
+                          ) : (
+                            <span>{monogram(app.name)}</span>
+                          )}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl">
+                              {app.name}
+                            </h2>
+                            <span
+                              class={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${status.className}`}
+                            >
+                              {status[lang]}
+                            </span>
+                          </div>
+                          <p class="mt-2 text-sm font-medium text-stone-600 sm:text-base">{app.tagline[lang]}</p>
+                          <div class="mt-3 flex flex-wrap gap-2">
+                            {app.platforms.map((p) => (
+                              <span class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-semibold text-stone-700">
+                                {platformLabels[p]}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <p class="text-sm leading-7 text-stone-600 sm:text-base">{app.description[lang]}</p>
+
+                      <div>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-stone-400">{copy.features}</h3>
+                        <ul class="mt-3 grid gap-2 sm:grid-cols-2">
+                          {app.features[lang].map((feature) => (
+                            <li class="flex items-start gap-2 text-sm text-stone-700">
+                              <span
+                                class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                                style={`background:${app.accent}`}
+                              />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flex flex-col justify-between gap-6 border-t border-stone-200 p-8 sm:p-10 lg:border-l lg:border-t-0"
+                      style={`background: linear-gradient(160deg, ${app.accent}14, transparent 55%), #fafaf9`}
+                    >
+                      <div>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-stone-400">
+                          {copy.requirements}
+                        </h3>
+                        {app.downloadMeta && (
+                          <p class="mt-3 text-sm leading-6 text-stone-600">{app.downloadMeta[lang]}</p>
+                        )}
+                      </div>
+
+                      <div class="flex flex-col gap-3">
+                        {app.storeUrl ? (
+                          <a
+                            href={app.storeUrl}
+                            download={app.id === 'costpulse' ? 'CostPulse-Setup.exe' : undefined}
+                            class="inline-flex items-center justify-center rounded-full px-6 py-3.5 text-sm font-bold text-stone-950 transition hover:brightness-110"
+                            style={`background:${app.accent}`}
+                          >
+                            {app.storeLabel?.[lang] ?? (lang === 'nl' ? 'Download' : 'Download')}
+                          </a>
+                        ) : (
+                          <span class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3.5 text-sm font-bold text-stone-500">
+                            {lang === 'nl' ? 'Binnenkort beschikbaar' : 'Coming soon'}
+                          </span>
+                        )}
+                        {app.secondaryUrl && app.secondaryLabel && (
+                          <a
+                            href={app.secondaryUrl}
+                            class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-800 transition hover:border-stone-400"
+                          >
+                            {app.secondaryLabel[lang]}
+                          </a>
+                        )}
+                        <p class="text-center text-xs text-stone-500">
+                          {lang === 'nl'
+                            ? 'Gratis · lokale data · geen account vereist'
+                            : 'Free · local data · no account required'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</PortfolioLayout>

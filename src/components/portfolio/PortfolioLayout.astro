@@ -1,0 +1,275 @@
+---
+/**
+ * Shared shell for all Empyr portfolio pages — sticky glass header with
+ * primary nav, mobile menu, language switcher, and a professional
+ * multi-column footer. Every portfolio page (Home, Websites, Products,
+ * Apps, Pricing) renders inside this layout.
+ */
+import '../../styles/global.css';
+import { languages, type Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import PortfolioSEO from '../shared/PortfolioSEO.astro';
+import LocaleRedirect from '../shared/LocaleRedirect.astro';
+import StudioToggle from '../shared/StudioToggle.astro';
+import ThemeToggle from '../shared/ThemeToggle.astro';
+
+export type PortfolioPage = 'home' | 'websites' | 'products' | 'apps' | 'pricing';
+
+interface Props {
+  lang: Lang;
+  current: PortfolioPage;
+  title: string;
+  description: string;
+  /** Path after /{lang} for canonical/hreflang, e.g. '/websites' */
+  path?: string;
+}
+
+const { lang, current, title, description, path = '' } = Astro.props;
+const t = useTranslations(lang);
+
+const navItems: { id: PortfolioPage; label: { nl: string; en: string }; href: string }[] = [
+  { id: 'home', label: { nl: 'Home', en: 'Home' }, href: `/${lang}/` },
+  { id: 'websites', label: { nl: 'Websites', en: 'Websites' }, href: `/${lang}/websites` },
+  { id: 'products', label: { nl: 'Producten', en: 'Products' }, href: `/${lang}/products` },
+  { id: 'apps', label: { nl: 'Apps', en: 'Apps' }, href: `/${lang}/apps` },
+  { id: 'pricing', label: { nl: 'Tarieven', en: 'Pricing' }, href: `/${lang}/pricing` },
+];
+
+const ctaLabel = lang === 'nl' ? 'Start een project' : 'Start a project';
+const menuLabel = lang === 'nl' ? 'Menu' : 'Menu';
+const closeLabel = lang === 'nl' ? 'Sluiten' : 'Close';
+
+const footerCopy =
+  lang === 'nl'
+    ? {
+        tagline: 'Design & development studio voor lokale ondernemers — websites, webapps en apps met karakter.',
+        pagesTitle: 'Pagina’s',
+        moreTitle: 'Meer',
+        contactTitle: 'Contact',
+        minigames: 'Minigames',
+        games: 'Game development',
+        rights: 'Alle rechten voorbehouden.',
+      }
+    : {
+        tagline: 'Design & development studio for local businesses — websites, web apps and apps with character.',
+        pagesTitle: 'Pages',
+        moreTitle: 'More',
+        contactTitle: 'Contact',
+        minigames: 'Minigames',
+        games: 'Game development',
+        rights: 'All rights reserved.',
+      };
+
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <PortfolioSEO lang={lang} title={title} description={description} path={path} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script is:inline>
+      (function () {
+        try {
+          if (localStorage.getItem('empyr-theme') === 'light') {
+            document.documentElement.dataset.theme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <LocaleRedirect lang={lang} />
+  </head>
+  <body class="min-h-screen bg-(--page-bg) text-(--page-text) antialiased transition-colors duration-300" style="font-family: Inter, system-ui, sans-serif;">
+    <header class="sticky top-0 z-50 border-b border-(--line) bg-(--header-bg) backdrop-blur-xl">
+      <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex shrink-0 items-center gap-3">
+          <a href={`/${lang}/`} class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-(--heading)">
+            <img
+              src="/images/empyr-logo.png"
+              alt="Empyr"
+              class="h-9 w-9 rounded-xl object-cover"
+              width="36"
+              height="36"
+            />
+            Empyr
+          </a>
+          <StudioToggle lang={lang} current="portfolio" />
+        </div>
+
+        <nav class="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                'rounded-full px-4 py-2 text-sm font-medium transition',
+                current === item.id
+                  ? 'bg-(--card-hover) text-(--heading)'
+                  : 'text-(--muted) hover:bg-(--card) hover:text-(--heading)',
+              ]}
+              aria-current={current === item.id ? 'page' : undefined}
+            >
+              {item.label[lang]}
+            </a>
+          ))}
+        </nav>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle lang={lang} />
+          <div class="flex items-center gap-1 rounded-full border border-(--line) bg-(--card) px-1 py-1 text-xs font-semibold">
+            {languages.map((l) => (
+              <a
+                href={`/${l}${path === '' ? '/' : path}`}
+                class="rounded-full px-3 py-1 transition-colors"
+                style={l === lang ? 'background: white; color: #1c1917;' : 'color: #a8a29e;'}
+              >
+                {l.toUpperCase()}
+              </a>
+            ))}
+          </div>
+          <a
+            href={`/${lang}/#contact`}
+            class="hidden rounded-full bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-400 sm:inline-flex"
+          >
+            {ctaLabel}
+          </a>
+          <button
+            id="portfolio-menu-open"
+            type="button"
+            class="inline-flex items-center justify-center rounded-full border border-(--line) bg-(--card) p-2.5 text-(--muted) transition hover:text-(--heading) lg:hidden"
+            aria-label={menuLabel}
+            aria-expanded="false"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5" aria-hidden="true">
+              <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="portfolio-mobile-menu" class="hidden border-t border-(--line) bg-(--header-bg) backdrop-blur-xl lg:hidden">
+        <nav class="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4 sm:px-6" aria-label="Mobile">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                'rounded-2xl px-4 py-3 text-base font-semibold transition',
+                current === item.id
+                  ? 'bg-(--card-hover) text-(--heading)'
+                  : 'text-(--muted) hover:bg-(--card) hover:text-(--heading)',
+              ]}
+              aria-current={current === item.id ? 'page' : undefined}
+            >
+              {item.label[lang]}
+            </a>
+          ))}
+          <a
+            href={`/${lang}/#contact`}
+            class="mt-2 inline-flex items-center justify-center rounded-full bg-orange-500 px-5 py-3 text-sm font-semibold text-white"
+          >
+            {ctaLabel}
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-white/10 bg-[#0c0a09]">
+      <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+        <div>
+          <a href={`/${lang}/`} class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-white">
+            <img src="/images/empyr-logo.png" alt="Empyr" class="h-9 w-9 rounded-xl object-cover" width="36" height="36" />
+            Empyr
+          </a>
+          <p class="mt-4 max-w-xs text-sm leading-6 text-stone-500">{footerCopy.tagline}</p>
+        </div>
+        <nav aria-label={footerCopy.pagesTitle}>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-stone-500">{footerCopy.pagesTitle}</p>
+          <ul class="mt-4 space-y-2.5">
+            {navItems.map((item) => (
+              <li>
+                <a href={item.href} class="text-sm text-stone-400 transition hover:text-white">
+                  {item.label[lang]}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <nav aria-label={footerCopy.moreTitle}>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-stone-500">{footerCopy.moreTitle}</p>
+          <ul class="mt-4 space-y-2.5">
+            <li>
+              <a href={`/${lang}/minigames`} class="text-sm text-stone-400 transition hover:text-white">
+                {footerCopy.minigames}
+              </a>
+            </li>
+            <li>
+              <a href={`/${lang}/games`} class="text-sm text-stone-400 transition hover:text-white">
+                {footerCopy.games}
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-stone-500">{footerCopy.contactTitle}</p>
+          <ul class="mt-4 space-y-2.5 text-sm text-stone-400">
+            <li>
+              <a href="mailto:business@empyr-portfolio.com" class="transition hover:text-white">
+                business@empyr-portfolio.com
+              </a>
+            </li>
+            <li>
+              <a href="https://wa.me/31638269872" target="_blank" rel="noopener noreferrer" class="transition hover:text-white">
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <a href="https://discord.gg/sfnQdNPNg2" target="_blank" rel="noopener noreferrer" class="transition hover:text-white">
+                Discord
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/[0.06] py-6 text-center text-xs text-stone-600">
+        © {year} Empyr Studio — {footerCopy.rights}
+      </div>
+    </footer>
+
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('portfolio-menu-open');
+        var menu = document.getElementById('portfolio-mobile-menu');
+        if (btn && menu) {
+          btn.addEventListener('click', function () {
+            var open = menu.classList.toggle('hidden') === false;
+            btn.setAttribute('aria-expanded', String(open));
+          });
+        }
+        var themeBtn = document.getElementById('theme-toggle');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', function () {
+            var light = document.documentElement.dataset.theme === 'light';
+            if (light) {
+              delete document.documentElement.dataset.theme;
+            } else {
+              document.documentElement.dataset.theme = 'light';
+            }
+            try {
+              localStorage.setItem('empyr-theme', light ? 'dark' : 'light');
+            } catch (e) {}
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

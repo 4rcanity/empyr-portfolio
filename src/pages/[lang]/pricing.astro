@@ -1,0 +1,73 @@
+---
+import PortfolioLayout from '../../components/portfolio/PortfolioLayout.astro';
+import AllPricing from '../../components/shared/AllPricing.astro';
+import { languages, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const copy =
+  lang === 'nl'
+    ? {
+        eyebrow: 'Tarieven',
+        heading: 'Heldere prijzen, geen verrassingen.',
+        body: 'Van complete websites tot apps, Roblox en muziek — kies een categorie en stel je eigen pakket samen.',
+        ctaHeading: 'Vragen over een pakket?',
+        ctaButton: 'Neem contact op',
+      }
+    : {
+        eyebrow: 'Pricing',
+        heading: 'Clear pricing, no surprises.',
+        body: 'From complete websites to apps, Roblox and music — pick a category and build your own package.',
+        ctaHeading: 'Questions about a package?',
+        ctaButton: 'Get in touch',
+      };
+
+const pageTitle = lang === 'nl' ? 'Tarieven — Empyr Studio' : 'Pricing — Empyr Studio';
+const pageDescription =
+  lang === 'nl'
+    ? 'Bekijk de tarieven van Empyr Studio — websites, apps, Roblox en muziek. Stel je eigen pakket samen.'
+    : 'See Empyr Studio pricing — websites, apps, Roblox and music. Build your own package.';
+---
+
+<PortfolioLayout
+  lang={lang}
+  current="pricing"
+  title={pageTitle}
+  description={pageDescription}
+  path="/pricing"
+>
+  <!-- Page header -->
+  <section class="relative isolate overflow-hidden py-20 text-center">
+    <div class="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[120px]"></div>
+
+    <div class="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+        <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
+        {copy.eyebrow}
+      </span>
+      <h1 class="mt-7 text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
+        {copy.heading}
+      </h1>
+      <p class="mx-auto mt-6 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">{copy.body}</p>
+    </div>
+  </section>
+
+  <AllPricing lang={lang} />
+
+  <!-- Bottom CTA -->
+  <section class="py-20 text-center">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6">
+      <h2 class="text-3xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-4xl">{copy.ctaHeading}</h2>
+      <a
+        href={`/${lang}/#contact`}
+        class="mt-10 inline-flex items-center justify-center rounded-full bg-orange-500 px-8 py-3.5 text-sm font-bold text-white transition hover:bg-orange-400"
+      >
+        {copy.ctaButton}
+      </a>
+    </div>
+  </section>
+</PortfolioLayout>

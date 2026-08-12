@@ -1,16 +1,11 @@
 ---
-import '../../styles/global.css';
-import { configs } from '../../data/configs';
-import { nlDemos } from '../../data/nl-demos';
+import PortfolioLayout from '../../components/portfolio/PortfolioLayout.astro';
+import { getTemplatesBySlug } from '../../data/work';
+import WorkCard from '../../components/portfolio/WorkCard.astro';
+import ProjectIcon from '../../components/portfolio/ProjectIcon.astro';
+import Jobs from '../../components/shared/Jobs.astro';
 import { languages, type Lang } from '../../i18n/ui';
 import { useTranslations } from '../../i18n/utils';
-import AllPricing from '../../components/shared/AllPricing.astro';
-import PortfolioSEO from '../../components/shared/PortfolioSEO.astro';
-import PortfolioChooser from '../../components/shared/PortfolioChooser.astro';
-import DisciplineNav from '../../components/shared/DisciplineNav.astro';
-import LocaleRedirect from '../../components/shared/LocaleRedirect.astro';
-import Jobs from '../../components/shared/Jobs.astro';
-import ProjectIcon from '../../components/portfolio/ProjectIcon.astro';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
@@ -19,601 +14,305 @@ export function getStaticPaths() {
 const { lang } = Astro.params as { lang: Lang };
 const t = useTranslations(lang);
 
-type WorkStatus = 'for-sale' | 'sold' | 'commission' | 'in-consideration' | 'pitch';
-
-const statusLabels: Record<WorkStatus, { en: string; nl: string; className: string }> = {
-  'for-sale': {
-    en: 'for sale',
-    nl: 'te koop',
-    className: 'border-emerald-400/35 bg-emerald-950/45 text-emerald-100',
-  },
-  sold: {
-    en: 'sold',
-    nl: 'verkocht',
-    className: 'border-stone-400/30 bg-stone-950/50 text-stone-300',
-  },
-  commission: {
-    en: 'commission',
-    nl: 'commissie',
-    className: 'border-orange-400/40 bg-orange-950/45 text-orange-100',
-  },
-  'in-consideration': {
-    en: 'in consideration',
-    nl: 'in overweging',
-    className: 'border-amber-300/40 bg-stone-950/55 text-amber-100',
-  },
-  pitch: {
-    en: 'proposal',
-    nl: 'voorstel',
-    className: 'border-sky-300/40 bg-sky-950/50 text-sky-100',
-  },
-};
-
-const templateMeta: Record<
-  string,
-  {
-    bestFor: string[];
-    nlBestFor: string[];
-    status: WorkStatus;
-    /** Fictional demos get a Demo pill; real consideration cases get Live case. */
-    kind: 'demo' | 'live';
-  }
-> = {
-  trattoria: {
-    bestFor: ['Italian restaurants', 'Family dining', 'Alcohol-free'],
-    nlBestFor: ['Italiaanse restaurants', 'Familierestaurants', 'Alcoholvrij'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  noir: {
-    bestFor: ['Fine dining', 'Alcohol-free', 'Tasting menus'],
-    nlBestFor: ['Fine dining', 'Alcoholvrij', 'Proeverijen'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  corner: {
-    bestFor: ['Cafés', 'Brunch spots', 'All-day plates'],
-    nlBestFor: ['Cafés', 'Brunchzaken', 'All-day dishes'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  ocakbasi: {
-    bestFor: ['Turkish grill', 'Kebab & döner', '100% Halal'],
-    nlBestFor: ['Turkse grill', 'Kebab & döner', '100% halal'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  charlois: {
-    bestFor: ['APK', 'Maintenance', 'Rotterdam Charlois'],
-    nlBestFor: ['APK', 'Onderhoud', 'Rotterdam Charlois'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  'spangen-banden': {
-    bestFor: ['Tires', 'Alignment', 'Rotterdam Spangen'],
-    nlBestFor: ['Banden', 'Uitlijnen', 'Rotterdam Spangen'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  'maashaven-schade': {
-    bestFor: ['Body repair', 'Insurance claims', 'Rotterdam Maashaven'],
-    nlBestFor: ['Schadeherstel', 'Verzekeringsschade', 'Rotterdam Maashaven'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  goldpoint: {
-    bestFor: ['Jewellers', 'Watch repair'],
-    nlBestFor: ['Juweliers', 'Horlogereparatie'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  astex: {
-    bestFor: ['Clothing repair', 'Alterations'],
-    nlBestFor: ['Kledingreparatie', 'Vermaakwerk'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  'esila-zorg': {
-    bestFor: ['Home care', 'Support'],
-    nlBestFor: ['Thuiszorg', 'Begeleiding'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  'kapsalon-can': {
-    bestFor: ['Hair salons', 'Barbers'],
-    nlBestFor: ['Kapsalons', 'Barbers'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  hammam: {
-    bestFor: ['Hammam', 'Spa & wellness'],
-    nlBestFor: ['Hammam', 'Spa & wellness'],
-    status: 'for-sale',
-    kind: 'demo',
-  },
-  barberhouse: {
-    bestFor: ['Barbershops', 'Hair salons', 'Grooming studios'],
-    nlBestFor: ['Kapperszaken', 'Barbershops', 'Grooming studio\'s'],
-    status: 'in-consideration',
-    kind: 'live',
-  },
-  medrese: {
-    bestFor: ['Education', 'Community', 'NL · TR · EN'],
-    nlBestFor: ['Educatie', 'Gemeenschap', 'NL · TR · EN'],
-    status: 'commission',
-    kind: 'demo',
-  },
-};
-
-type TemplateCard = {
-  slug: string;
-  name: string;
-  tagline: string;
-  description: string;
-  accent: string;
-  bestFor: string[];
-  status: WorkStatus;
-  kind: 'demo' | 'live';
-  statusLabel: string;
-  kindLabel: string;
-  statusClass: string;
-  href: string;
-};
-
-function buildCard(
-  slug: string,
-  name: string,
-  tagline: string,
-  description: string,
-  accent: string,
-  bestFor: string[],
-  /** Dutch-only demos have no /en route, so always link to the NL page */
-  nlOnly = false,
-): TemplateCard {
-  const meta = templateMeta[slug];
-  const status = meta.status;
-  const statusMeta = statusLabels[status];
-  return {
-    slug,
-    name,
-    tagline,
-    description,
-    accent,
-    bestFor,
-    status,
-    kind: meta.kind,
-    statusLabel: lang === 'nl' ? statusMeta.nl : statusMeta.en,
-    kindLabel:
-      meta.kind === 'live'
-        ? lang === 'nl'
-          ? 'Echte zaak'
-          : 'Live case'
-        : lang === 'nl'
-          ? 'Demo'
-          : 'Demo',
-    statusClass: statusMeta.className,
-    href: `/${nlOnly ? 'nl' : lang}/${slug}`,
-  };
-}
-
-const templatesBySlug: Record<string, TemplateCard> = Object.fromEntries(
-  configs.map((config) => {
-    const content = config.content[lang];
-    const meta = templateMeta[config.slug];
-    return [
-      config.slug,
-      buildCard(
-        config.slug,
-        config.name,
-        content.tagline,
-        content.description,
-        config.theme.accent,
-        lang === 'nl' ? meta.nlBestFor : meta.bestFor,
-      ),
-    ];
-  }),
-);
-
-for (const demo of nlDemos) {
-  const content = demo.content.nl;
-  const meta = templateMeta[demo.slug];
-  templatesBySlug[demo.slug] = buildCard(
-    demo.slug,
-    demo.name,
-    content.tagline,
-    content.description,
-    demo.theme.accent,
-    lang === 'nl' ? meta.nlBestFor : meta.bestFor,
-    true,
-  );
-}
-
-templatesBySlug.medrese = buildCard(
-  'medrese',
-  'Medrese',
-  lang === 'nl' ? 'Kennis die hart en verstand verbindt' : 'Knowledge that connects heart and mind',
-  lang === 'nl'
-    ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
-    : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
-  '#BD8B35',
-  lang === 'nl' ? templateMeta.medrese.nlBestFor : templateMeta.medrese.bestFor,
-);
-
-const workCategories =
-  lang === 'nl'
-    ? [
-        {
-          id: 'restaurants',
-          title: 'Restaurants & cafés',
-          body: 'Vier concepten voor horeca — van familiezaak tot fine dining.',
-          slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
-        },
-        {
-          id: 'garages',
-          title: 'Garages & autoservice',
-          body: 'Drie Rotterdamse concepten — onderhoud, banden en schadeherstel.',
-          slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
-        },
-        {
-          id: 'winkels',
-          title: 'Winkels & diensten',
-          body: 'Vijf concepten voor lokale zaken — van juwelier tot hammam.',
-          slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
-        },
-        {
-          id: 'barbers',
-          title: 'Barbershops',
-          body: 'Strak merkwerk voor kappers en grooming studio\'s.',
-          slugs: ['barberhouse'],
-        },
-        {
-          id: 'education',
-          title: 'Educatie & platforms',
-          body: 'Meertalige leerervaringen voor gemeenschap en kennis.',
-          slugs: ['medrese'],
-        },
-      ]
-    : [
-        {
-          id: 'restaurants',
-          title: 'Restaurants & cafés',
-          body: 'Four concepts for hospitality — from family dining to fine dining.',
-          slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
-        },
-        {
-          id: 'garages',
-          title: 'Garages & auto service',
-          body: 'Three Rotterdam concepts — maintenance, tires and body repair.',
-          slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
-        },
-        {
-          id: 'winkels',
-          title: 'Shops & services',
-          body: 'Five concepts for local businesses — from jeweller to hammam.',
-          slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
-        },
-        {
-          id: 'barbers',
-          title: 'Barbershops',
-          body: 'Sharp brand work for barbers and grooming studios.',
-          slugs: ['barberhouse'],
-        },
-        {
-          id: 'education',
-          title: 'Education & platforms',
-          body: 'Multilingual learning experiences for community and knowledge.',
-          slugs: ['medrese'],
-        },
-      ];
+const templatesBySlug = getTemplatesBySlug(lang);
 
 const heroPreview = ['trattoria', 'noir', 'corner', 'medrese']
+  .map((slug) => templatesBySlug[slug])
+  .filter(Boolean);
+
+const featuredSlugs = ['trattoria', 'noir', 'charlois', 'goldpoint'];
+const featuredCards = featuredSlugs
   .map((slug) => templatesBySlug[slug])
   .filter(Boolean);
 
 const copy =
   lang === 'nl'
     ? {
-        featurePills: ['Mobielvriendelijk', 'AVG-vriendelijk', 'Meertalig'],
         heroEyebrow: 'Design & development studio',
         heroLead: 'Digitale ervaringen met karakter.',
         heroBody:
-          'Empyr ontwerpt snelle, onderscheidende websites voor ambitieuze lokale ondernemers — van eerste concept tot live product.',
+          'Empyr ontwerpt snelle, onderscheidende websites en apps voor ambitieuze lokale ondernemers — van eerste concept tot live product.',
         primaryCta: 'Ontdek het werk',
         secondaryCta: 'Start een project',
-        workEyebrow: 'Geselecteerd werk',
-        workTitle: 'Gebouwd om op te vallen.',
-        workBody:
-          'Zes concepten in drie categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel.',
-        workJump: 'Spring naar',
-        projectsLabel: 'projecten',
-        projectLabel: 'project',
-        pricingNav: 'Tarieven',
+        featurePills: ['Mobielvriendelijk', 'AVG-vriendelijk', 'Meertalig'],
+        disciplinesEyebrow: 'Wat we doen',
+        disciplinesTitle: 'Alles onder één dak.',
+        featuredEyebrow: 'Uitgelicht werk',
+        featuredTitle: 'Gebouwd om op te vallen.',
+        featuredBody:
+          'Vier concepten die laten zien wat Empyr kan — elk met een eigen merk, doelgroep en conversiedoel.',
+        viewAllWebsites: 'Bekijk alle websites',
         contactTitle: 'Klaar om te beginnen?',
         contactSubtitle: 'Neem contact op en we bouwen jouw website of webapp binnen een week.',
         contactDiscord: 'Discord server',
         whatsAppMessage:
           'Hoi Empyr! Ik ben geïnteresseerd in een website/webapp. Kunnen we even praten over mijn project?',
+        stats: [
+          { value: '14', label: 'websiteconcepten' },
+          { value: '9', label: 'minigames' },
+          { value: '2', label: 'talen' },
+          { value: '1 week', label: 'oplevering' },
+        ],
+        disciplines: [
+          {
+            num: '01',
+            title: 'Websites',
+            body: 'Websites en webshops voor lokale ondernemers — snel, meertalig en gebouwd om te converteren.',
+            href: `/${lang}/websites`,
+          },
+          {
+            num: '02',
+            title: 'Producten',
+            body: 'Kant-en-klare websiteconcepten en digitale producten, direct inzetbaar voor jouw zaak.',
+            href: `/${lang}/products`,
+          },
+          {
+            num: '03',
+            title: 'Apps',
+            body: 'Apps uitgegeven door Empyr Studio — van mobiele apps tot webgames.',
+            href: `/${lang}/apps`,
+          },
+        ],
       }
     : {
-        featurePills: ['Mobile-first', 'GDPR-friendly', 'Multilingual'],
         heroEyebrow: 'Design & development studio',
         heroLead: 'Digital experiences with character.',
         heroBody:
-          'Empyr designs fast, distinctive websites for ambitious local businesses — from first concept to live product.',
+          'Empyr designs fast, distinctive websites and apps for ambitious local businesses — from first concept to live product.',
         primaryCta: 'Explore the work',
         secondaryCta: 'Start a project',
-        workEyebrow: 'Selected work',
-        workTitle: 'Built to stand out.',
-        workBody:
-          'Six concepts across three categories — each with its own brand feel, audience and conversion goal.',
-        workJump: 'Jump to',
-        projectsLabel: 'projects',
-        projectLabel: 'project',
-        pricingNav: 'Pricing',
+        featurePills: ['Mobile-first', 'GDPR-friendly', 'Multilingual'],
+        disciplinesEyebrow: 'What we do',
+        disciplinesTitle: 'Everything under one roof.',
+        featuredEyebrow: 'Featured work',
+        featuredTitle: 'Built to stand out.',
+        featuredBody:
+          'Four concepts that show what Empyr can do — each with its own brand, audience and conversion goal.',
+        viewAllWebsites: 'View all websites',
         contactTitle: 'Ready to get started?',
         contactSubtitle: "Get in touch and we'll have your site or web app live within a week.",
         contactDiscord: 'Discord server',
         whatsAppMessage:
           'Hi Empyr! I am interested in a website/web app. Can we talk about my project?',
+        stats: [
+          { value: '14', label: 'website concepts' },
+          { value: '9', label: 'minigames' },
+          { value: '2', label: 'languages' },
+          { value: '1 week', label: 'delivery' },
+        ],
+        disciplines: [
+          {
+            num: '01',
+            title: 'Websites',
+            body: 'Websites and webshops for local businesses — fast, multilingual and built to convert.',
+            href: `/${lang}/websites`,
+          },
+          {
+            num: '02',
+            title: 'Products',
+            body: 'Ready-made website concepts and digital products, ready to deploy for your business.',
+            href: `/${lang}/products`,
+          },
+          {
+            num: '03',
+            title: 'Apps',
+            body: 'Apps published by Empyr Studio — from mobile apps to web games.',
+            href: `/${lang}/apps`,
+          },
+        ],
       };
 
-const pageTitle = 'Empyr Portfolio — Websites & Web Apps';
+const pageTitle = 'Empyr Studio — Websites, Apps & Games';
 const pageDescription =
   lang === 'nl'
-    ? 'Empyr Portfolio — professionele websites en webapps voor lokale ondernemers. Snel, mobielvriendelijk en gebouwd met Astro.'
-    : 'Empyr Portfolio — professional websites and web apps for local businesses. Fast, mobile-first, and built with Astro.';
+    ? 'Empyr Studio — professionele websites, apps en games voor lokale ondernemers. Snel, mobielvriendelijk en gebouwd met Astro.'
+    : 'Empyr Studio — professional websites, apps and games for local businesses. Fast, mobile-first, and built with Astro.';
 
 const whatsAppUrl = `https://wa.me/31638269872?text=${encodeURIComponent(copy.whatsAppMessage)}`;
 const discordUrl = 'https://discord.gg/sfnQdNPNg2';
 ---
 
-<!doctype html>
-<html lang={lang}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{pageTitle}</title>
-    <meta name="description" content={pageDescription} />
-    <PortfolioSEO lang={lang} title={pageTitle} description={pageDescription} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <LocaleRedirect lang={lang} />
-  </head>
-  <body class="min-h-screen bg-[#0c0a09] text-stone-100 antialiased" style="font-family: Inter, system-ui, sans-serif;">
-    <PortfolioChooser lang={lang} />
+<PortfolioLayout
+  lang={lang}
+  current="home"
+  title={pageTitle}
+  description={pageDescription}
+  path=""
+>
+  <!-- Hero -->
+  <section class="relative isolate overflow-hidden">
+    <div class="pointer-events-none absolute left-1/2 top-[-20rem] h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[120px]"></div>
+    <div class="pointer-events-none absolute right-[-12rem] top-32 h-96 w-96 rounded-full bg-rose-500/10 blur-[110px]"></div>
+    <div
+      class="absolute inset-0 -z-10 opacity-[0.035]"
+      style="background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 64px 64px;"
+    ></div>
 
-    <header class="sticky top-0 z-50 border-b border-white/10 bg-[#0c0a09]/80 backdrop-blur-xl">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <a href={`/${lang}`} class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-white">
-          <img
-            src="/images/empyr-logo.png"
-            alt="Empyr"
-            class="h-9 w-9 rounded-xl object-cover"
-            width="36"
-            height="36"
-          />
-          Empyr
-        </a>
-        <div class="flex items-center gap-3 sm:gap-4">
-          <DisciplineNav lang={lang} current="websites" />
-          <a href="#pricing" class="hidden text-sm font-medium text-stone-400 transition hover:text-white md:block">
-            {copy.pricingNav}
+    <div class="relative mx-auto grid min-h-[82vh] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
+      <div>
+        <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+          <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
+          {copy.heroEyebrow}
+        </span>
+        <h1 class="mt-7 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-(--heading) sm:text-7xl lg:text-[5.7rem]">
+          {copy.heroLead}
+        </h1>
+        <p class="mt-7 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">{copy.heroBody}</p>
+
+        <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+          <a
+            href={`/${lang}/websites`}
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-(--btn-bg) px-6 py-3.5 text-sm font-bold text-(--btn-text) transition hover:-translate-y-0.5 hover:opacity-90"
+          >
+            {copy.primaryCta} <span aria-hidden="true">→</span>
           </a>
-          <div class="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-1 py-1 text-xs font-semibold">
-            {languages.map((l) => (
-              <a
-                href={`/${l}`}
-                class="rounded-full px-3 py-1 transition-colors"
-                style={l === lang ? 'background: white; color: #1c1917;' : 'color: #a8a29e;'}
-              >
-                {l.toUpperCase()}
-              </a>
-            ))}
-          </div>
-          <a href="#contact" class="hidden rounded-full bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:bg-orange-400 sm:inline-flex">
+          <a
+            href={`/${lang}/#contact`}
+            class="inline-flex items-center justify-center rounded-full border border-(--line-strong) bg-(--card) px-6 py-3.5 text-sm font-bold text-(--heading) transition hover:border-(--line-strong) hover:bg-(--card-hover)"
+          >
             {copy.secondaryCta}
           </a>
         </div>
-      </div>
-    </header>
 
-    <main>
-    <section class="relative isolate overflow-hidden">
-      <div class="pointer-events-none absolute left-1/2 top-[-20rem] h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[120px]"></div>
-      <div class="pointer-events-none absolute right-[-12rem] top-32 h-96 w-96 rounded-full bg-rose-500/10 blur-[110px]"></div>
-      <div class="absolute inset-0 -z-10 opacity-[0.035]" style="background-image: linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px); background-size: 64px 64px;"></div>
-
-      <div class="relative mx-auto grid min-h-[82vh] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.1fr_.9fr] lg:px-8">
-        <div>
-          <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
-            <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
-            {copy.heroEyebrow}
-          </span>
-          <h1 class="mt-7 max-w-4xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-white sm:text-7xl lg:text-[5.7rem]">
-            {copy.heroLead}
-          </h1>
-          <p class="mt-7 max-w-2xl text-base leading-7 text-stone-400 sm:text-lg">{copy.heroBody}</p>
-
-          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-            <a href="#work" class="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-bold text-stone-950 transition hover:-translate-y-0.5 hover:bg-orange-50">
-              {copy.primaryCta} <span aria-hidden="true">↓</span>
-            </a>
-            <a href="#contact" class="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-6 py-3.5 text-sm font-bold text-white transition hover:border-white/30 hover:bg-white/[0.08]">
-              {copy.secondaryCta}
-            </a>
-          </div>
-
-          <div class="mt-10 flex flex-wrap gap-2">
+        <div class="mt-10 flex flex-wrap gap-2">
           {copy.featurePills.map((pill) => (
-              <span class="rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-stone-400">{pill}</span>
+            <span class="rounded-full border border-(--line) px-3 py-1.5 text-xs font-medium text-(--muted)">{pill}</span>
           ))}
-          </div>
         </div>
+      </div>
 
-        <div class="relative mx-auto w-full max-w-lg">
-          <div class="absolute -inset-8 rounded-full bg-orange-500/10 blur-3xl"></div>
-          <div class="relative rotate-2 overflow-hidden rounded-[2.2rem] border border-white/10 bg-white/[0.06] p-3 shadow-2xl shadow-black/40 backdrop-blur">
-            <div class="overflow-hidden rounded-[1.65rem] bg-stone-950">
-              <div class="flex items-center gap-2 border-b border-white/10 px-5 py-4">
-                <span class="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
-                <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-                <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
-                <span class="ml-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-600">Empyr / Selected work</span>
-              </div>
-              <div class="grid grid-cols-2 gap-3 p-3">
-                {heroPreview.map((tpl, index) => (
-                  <a href={`/${lang}/${tpl.slug}`} class:list={["group relative overflow-hidden rounded-2xl", index === 0 && "col-span-2 aspect-[2/1]", index !== 0 && "aspect-square"]}>
-                    <ProjectIcon slug={tpl.slug} name={tpl.name} compact={true} />
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                    <span class="absolute bottom-3 left-3 text-xs font-bold text-white">{tpl.name}</span>
-                  </a>
-                ))}
-              </div>
+      <div class="relative mx-auto w-full max-w-lg">
+        <div class="absolute -inset-8 rounded-full bg-orange-500/10 blur-3xl"></div>
+        <div class="relative rotate-2 overflow-hidden rounded-[2.2rem] border border-(--line) bg-(--card) p-3 shadow-2xl shadow-black/40 backdrop-blur">
+          <div class="overflow-hidden rounded-[1.65rem] bg-stone-950">
+            <div class="flex items-center gap-2 border-b border-white/10 px-5 py-4">
+              <span class="h-2.5 w-2.5 rounded-full bg-rose-400"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-emerald-400"></span>
+              <span class="ml-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-stone-600">Empyr / Selected work</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 p-3">
+              {heroPreview.map((tpl, index) => (
+                <a
+                  href={tpl.href}
+                  class:list={[
+                    'group relative overflow-hidden rounded-2xl',
+                    index === 0 && 'col-span-2 aspect-[2/1]',
+                    index !== 0 && 'aspect-square',
+                  ]}
+                >
+                  <ProjectIcon slug={tpl.slug} name={tpl.name} compact={true} />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                  <span class="absolute bottom-3 left-3 text-xs font-bold text-white">{tpl.name}</span>
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="work" class="bg-stone-50 py-24 text-stone-950 sm:py-32">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="grid gap-10 border-b border-stone-200 pb-12 lg:grid-cols-[minmax(0,36rem)_1fr] lg:items-end lg:gap-16">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-600">{copy.workEyebrow}</p>
-            <h2 class="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-6xl">{copy.workTitle}</h2>
-            <p class="mt-5 text-base leading-7 text-stone-600">{copy.workBody}</p>
+  <!-- Disciplines -->
+  <section class="border-t border-(--line) bg-(--page-bg) py-24 sm:py-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-300">{copy.disciplinesEyebrow}</p>
+      <h2 class="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
+        {copy.disciplinesTitle}
+      </h2>
+
+      <div class="mt-14 grid gap-6 md:grid-cols-3">
+        {copy.disciplines.map((discipline) => (
+          <a
+            href={discipline.href}
+            class="group flex flex-col rounded-[2rem] border border-(--line) bg-(--card) p-8 transition hover:-translate-y-1 hover:border-(--line-strong)"
+          >
+            <span class="text-xs font-bold uppercase tracking-[0.24em] text-orange-400">{discipline.num}</span>
+            <h3 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-(--heading)">{discipline.title}</h3>
+            <p class="mt-4 flex-1 text-sm leading-6 text-(--muted)">{discipline.body}</p>
+            <span class="mt-8 inline-flex text-lg font-bold text-orange-400 transition group-hover:translate-x-1" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured work -->
+  <section class="bg-(--alt-bg) py-24 text-(--alt-text) sm:py-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="text-xs font-bold uppercase tracking-[0.24em] text-orange-600">{copy.featuredEyebrow}</p>
+      <h2 class="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">{copy.featuredTitle}</h2>
+      <p class="mt-5 max-w-xl text-base leading-7 text-stone-600">{copy.featuredBody}</p>
+
+      <div class="mt-14 grid gap-6 sm:grid-cols-2">
+        {featuredCards.map((card) => (
+          <WorkCard card={card} lang={lang} />
+        ))}
+      </div>
+
+      <div class="mt-14 text-center">
+        <a
+          href={`/${lang}/websites`}
+          class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-transparent px-8 py-3.5 text-sm font-bold text-stone-900 transition hover:border-stone-900 hover:bg-stone-100"
+        >
+          {copy.viewAllWebsites}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats strip -->
+  <section class="border-t border-(--line) bg-(--page-bg) py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 gap-10 lg:grid-cols-4">
+        {copy.stats.map((stat) => (
+          <div class="text-center lg:text-left">
+            <p class="text-4xl font-bold text-(--heading)">{stat.value}</p>
+            <p class="mt-2 text-xs font-bold uppercase tracking-[0.2em] text-(--faint)">{stat.label}</p>
           </div>
-          <nav class="flex flex-wrap items-center gap-2 lg:justify-end" aria-label={copy.workJump}>
-            <span class="mr-1 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400">{copy.workJump}</span>
-            {workCategories.map((category) => (
-              <a
-                href={`#work-${category.id}`}
-                class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
-              >
-                {category.title}
-                <span class="text-xs font-bold text-stone-400">{category.slugs.length}</span>
-              </a>
-            ))}
-          </nav>
-        </div>
-
-      <div class="divide-y divide-stone-200">
-        {workCategories.map((category, index) => {
-          const items = category.slugs.map((slug) => templatesBySlug[slug]).filter(Boolean);
-          return (
-            <div
-              id={`work-${category.id}`}
-              class="grid scroll-mt-24 gap-8 py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14 sm:py-16"
-            >
-              <div class="lg:sticky lg:top-24 lg:self-start">
-                <p class="text-[11px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                  {String(index + 1).padStart(2, '0')} / {String(workCategories.length).padStart(2, '0')}
-                </p>
-                <h3 class="mt-4 text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">{category.title}</h3>
-                <p class="mt-3 text-sm leading-6 text-stone-500">{category.body}</p>
-                <p class="mt-5 inline-flex rounded-full bg-stone-200/70 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-stone-600">
-                  {items.length} {items.length === 1 ? copy.projectLabel : copy.projectsLabel}
-                </p>
-              </div>
-
-              <div class="grid gap-6 sm:grid-cols-2">
-                {items.map((tpl) => (
-                  <article class="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
-                    <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
-                      <ProjectIcon slug={tpl.slug} name={tpl.name} />
-                      <div class="absolute left-5 top-5 flex flex-wrap gap-2">
-                        <span
-                          class:list={[
-                            'rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
-                            tpl.statusClass,
-                          ]}
-                        >
-                          {tpl.statusLabel}
-                        </span>
-                        <span
-                          class:list={[
-                            'rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
-                            tpl.kind === 'live'
-                              ? 'border-white/25 bg-stone-950/50 text-stone-100'
-                              : 'border-orange-300/35 bg-orange-950/40 text-orange-50',
-                          ]}
-                        >
-                          {tpl.kindLabel}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="flex flex-1 flex-col p-7">
-                      <p class="text-lg font-semibold leading-snug tracking-tight text-stone-900">{tpl.tagline}</p>
-                      <p class="mt-3 line-clamp-3 text-sm leading-6 text-stone-500">{tpl.description}</p>
-                      <ul class="mt-5 flex flex-wrap gap-2">
-                        {tpl.bestFor.map((tag) => (
-                          <li class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">{tag}</li>
-                        ))}
-                      </ul>
-                      <a
-                        href={tpl.href}
-                        class="mt-auto inline-flex items-center gap-2 pt-7 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
-                      >
-                        {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
-                      </a>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          );
-        })}
+        ))}
       </div>
+    </div>
+  </section>
+
+  <Jobs lang={lang} />
+
+  <!-- Contact -->
+  <section id="contact" class="scroll-mt-20 bg-stone-900 py-24 text-center sm:py-28">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6">
+      <h2 class="text-3xl font-semibold tracking-[-0.05em] text-white sm:text-4xl">{copy.contactTitle}</h2>
+      <p class="mt-4 text-stone-300">{copy.contactSubtitle}</p>
+      <p class="mt-8 text-sm italic text-stone-400">{t('portfolio.pitch')}</p>
+      <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap">
+        <a
+          href={whatsAppUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#25D366]/30 transition-colors hover:bg-[#20bd5a]"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.882 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          {t('portfolio.contactWhatsApp')}
+        </a>
+        <a
+          href="mailto:business@empyr-portfolio.com"
+          class="inline-flex items-center justify-center rounded-full border border-stone-600 bg-transparent px-8 py-3.5 text-base font-semibold text-white transition-colors hover:border-stone-400 hover:bg-stone-800"
+        >
+          {t('portfolio.contactEmail')}
+        </a>
+        <a
+          href={discordUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-[#5865F2] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#5865F2]/30 transition-colors hover:bg-[#4752c4]"
+        >
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c1.9938 1.4738 3.9256 2.3567 5.8306 2.9358a.0774.0774 0 0 0 .0842-.0276c.4535-.6193.8571-1.2721 1.204-1.9578a.0764.0764 0 0 0-.0417-.1057c-.6408-.2428-1.2504-.5406-1.8341-.8794a.0763.0763 0 0 1-.0076-.1267c.1235-.0926.247-.1888.3644-.2861a.0763.0763 0 0 1 .0785-.0104c3.8483 1.7595 8.0193 1.7595 11.8324 0a.0763.0763 0 0 1 .0788.0095c.1174.0973.2409.1945.3652.2861a.0763.0763 0 0 1-.0067.1268 12.299 12.299 0 0 1-1.8342.8788.0764.0764 0 0 0-.0416.1064c.3549.6853.7583 1.3376 1.203 1.9569a.0771.0771 0 0 0 .0842.0286c1.9109-.5788 3.8427-1.4617 5.8367-2.9364a.078.078 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286ZM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189Zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+          </svg>
+          {copy.contactDiscord}
+        </a>
       </div>
-    </section>
-
-    <AllPricing lang={lang} />
-
-    <Jobs lang={lang} />
-
-    <section id="contact" class="bg-stone-900 py-24 text-center">
-      <div class="mx-auto max-w-2xl px-4 sm:px-6">
-        <h2 class="text-3xl font-bold text-white sm:text-4xl">{copy.contactTitle}</h2>
-        <p class="mt-4 text-stone-300">{copy.contactSubtitle}</p>
-        <p class="mt-8 text-sm italic text-stone-400">{t('portfolio.pitch')}</p>
-        <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a
-            href={whatsAppUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#25D366]/30 transition-colors hover:bg-[#20bd5a]"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.882 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            {t('portfolio.contactWhatsApp')}
-          </a>
-          <a
-            href="mailto:business@empyr-portfolio.com"
-            class="inline-flex items-center justify-center rounded-full border border-stone-600 bg-transparent px-8 py-3.5 text-base font-semibold text-white transition-colors hover:border-stone-400 hover:bg-stone-800"
-          >
-            {t('portfolio.contactEmail')}
-          </a>
-          <a
-            href={discordUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center justify-center gap-2 rounded-full bg-[#5865F2] px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-[#5865F2]/30 transition-colors hover:bg-[#4752c4]"
-          >
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
-              <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c1.9938 1.4738 3.9256 2.3567 5.8306 2.9358a.0774.0774 0 0 0 .0842-.0276c.4535-.6193.8571-1.2721 1.204-1.9578a.0764.0764 0 0 0-.0417-.1057c-.6408-.2428-1.2504-.5406-1.8341-.8794a.0763.0763 0 0 1-.0076-.1267c.1235-.0926.247-.1888.3644-.2861a.0763.0763 0 0 1 .0785-.0104c3.8483 1.7595 8.0193 1.7595 11.8324 0a.0763.0763 0 0 1 .0788.0095c.1174.0973.2409.1945.3652.2861a.0763.0763 0 0 1-.0067.1268 12.299 12.299 0 0 1-1.8342.8788.0764.0764 0 0 0-.0416.1064c.3549.6853.7583 1.3376 1.203 1.9569a.0771.0771 0 0 0 .0842.0286c1.9109-.5788 3.8427-1.4617 5.8367-2.9364a.078.078 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286ZM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189Zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
-            </svg>
-            {copy.contactDiscord}
-          </a>
-        </div>
-      </div>
-    </section>
-    </main>
-
-    <footer class="border-t border-white/10 bg-[#0c0a09] py-8 text-center text-sm text-stone-500">
-      {t('portfolio.footer')}
-    </footer>
-  </body>
-</html>
+    </div>
+  </section>
+</PortfolioLayout>

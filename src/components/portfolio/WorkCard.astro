@@ -1,0 +1,66 @@
+---
+/**
+ * Reusable portfolio work card — used by the Websites page, the Products
+ * page and the Home featured-work section.
+ */
+import type { TemplateCard } from '../../data/work';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import ProjectIcon from './ProjectIcon.astro';
+
+interface Props {
+  card: TemplateCard;
+  lang: Lang;
+  /** Show the "from €X" sale price under the card (Products page). */
+  priceLabel?: string;
+}
+
+const { card, lang, priceLabel } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<article class="group relative flex flex-col overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
+  <div class="relative aspect-[4/3] overflow-hidden bg-stone-200">
+    <ProjectIcon slug={card.slug} name={card.name} />
+    <div class="absolute left-5 top-5 flex flex-wrap gap-2">
+      <span
+        class:list={[
+          'rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
+          card.statusClass,
+        ]}
+      >
+        {card.statusLabel}
+      </span>
+      <span
+        class:list={[
+          'rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md',
+          card.kind === 'live'
+            ? 'border-white/25 bg-stone-950/50 text-stone-100'
+            : 'border-orange-300/35 bg-orange-950/40 text-orange-50',
+        ]}
+      >
+        {card.kindLabel}
+      </span>
+    </div>
+  </div>
+  <div class="flex flex-1 flex-col p-7">
+    <p class="text-lg font-semibold leading-snug tracking-tight text-stone-900">{card.tagline}</p>
+    <p class="mt-3 line-clamp-3 text-sm leading-6 text-stone-500">{card.description}</p>
+    <ul class="mt-5 flex flex-wrap gap-2">
+      {card.bestFor.map((tag) => (
+        <li class="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600">{tag}</li>
+      ))}
+    </ul>
+    <div class="mt-auto flex items-center justify-between gap-3 pt-7">
+      <a
+        href={card.href}
+        class="inline-flex items-center gap-2 text-sm font-bold text-stone-900 transition-colors hover:text-orange-600"
+      >
+        {t('portfolio.viewDemo')} <span class="transition-transform group-hover:translate-x-1" aria-hidden="true">↗</span>
+      </a>
+      {priceLabel && (
+        <span class="rounded-full bg-stone-900 px-3.5 py-1.5 text-xs font-bold text-white">{priceLabel}</span>
+      )}
+    </div>
+  </div>
+</article>

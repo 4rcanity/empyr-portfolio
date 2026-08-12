@@ -3,7 +3,7 @@ import '../../styles/global.css';
 import { languages, type Lang } from '../../i18n/ui';
 import PortfolioSEO from '../../components/shared/PortfolioSEO.astro';
 import LocaleRedirect from '../../components/shared/LocaleRedirect.astro';
-import DisciplineNav from '../../components/shared/DisciplineNav.astro';
+import StudioToggle from '../../components/shared/StudioToggle.astro';
 
 export function getStaticPaths() {
   return languages.map((lang) => ({ params: { lang } }));
@@ -114,12 +114,18 @@ const copy =
 
     <header class="border-b border-white/10 bg-black/10 backdrop-blur-xl">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <a href={`/${lang}`} class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-white">
-          <img src="/images/empyr-logo.png" alt="Empyr" class="h-9 w-9 rounded-xl object-cover" width="36" height="36" />
-          Empyr
-        </a>
         <div class="flex items-center gap-3">
-          <DisciplineNav lang={lang} current="minigames" />
+          <a href={`/${lang}`} class="flex items-center gap-2.5 text-lg font-extrabold tracking-tight text-white">
+            <img src="/images/empyr-logo.png" alt="Empyr" class="h-9 w-9 rounded-xl object-cover" width="36" height="36" />
+            Empyr
+          </a>
+          <StudioToggle lang={lang} current="minigames" />
+        </div>
+        <div class="flex items-center gap-3">
+          <nav class="hidden items-center gap-4 md:flex" aria-label="Minigames">
+            <a href={`/${lang}/minigames`} class="text-sm font-medium text-white" aria-current="page">Minigames</a>
+            <a href={`/${lang}/games`} class="text-sm font-medium text-zinc-400 transition hover:text-white">Game development</a>
+          </nav>
           <span class="hidden rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300 sm:inline-flex">
             {copy.status}
           </span>

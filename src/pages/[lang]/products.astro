@@ -1,0 +1,193 @@
+---
+import PortfolioLayout from '../../components/portfolio/PortfolioLayout.astro';
+import { getTemplatesBySlug } from '../../data/work';
+import WorkCard from '../../components/portfolio/WorkCard.astro';
+import { DEMO_QUOTES, formatDemoQuote } from '../../data/demo-quotes';
+import { languages, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const templatesBySlug = getTemplatesBySlug(lang);
+const forSaleCards = Object.values(templatesBySlug).filter((card) => card.status === 'for-sale');
+
+const pageTitle = lang === 'nl' ? 'Producten — Empyr Studio' : 'Products — Empyr Studio';
+const pageDescription =
+  lang === 'nl'
+    ? 'Kant-en-klare websiteconcepten en digitale producten van Empyr Studio — direct inzetbaar voor jouw zaak.'
+    : 'Ready-made website concepts and digital products by Empyr Studio — deployable for your business right away.';
+---
+
+<PortfolioLayout lang={lang} current="products" title={pageTitle} description={pageDescription} path="/products">
+  <!-- Page header -->
+  <section class="relative isolate overflow-hidden py-20">
+    <div class="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[120px]"></div>
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+        <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
+        {lang === 'nl' ? 'Producten' : 'Products'}
+      </span>
+      <h1 class="mt-7 max-w-3xl text-4xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
+        {lang === 'nl' ? 'Kant-en-klaar voor jouw zaak.' : 'Ready-made for your business.'}
+      </h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">
+        {
+          lang === 'nl'
+            ? 'Kant-en-klare websiteconcepten die direct voor jouw zaak in te zetten zijn — inclusief ontwerp, teksten en techniek. Prijzen zijn richtprijzen.'
+            : 'Ready-made website concepts that can be deployed for your business right away — design, copy and tech included. Prices are guide prices.'
+        }
+      </p>
+    </div>
+  </section>
+
+  <!-- Tabbed content -->
+  <section class="bg-(--alt-bg) text-(--alt-text)">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap gap-2 border-b border-stone-200 pb-6 pt-8" data-products-tabs>
+        <button
+          type="button"
+          data-tab="websites"
+          class="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-bold text-white transition"
+        >
+          Websites
+        </button>
+        <button
+          type="button"
+          data-tab="more"
+          class="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-bold text-stone-700 transition hover:border-stone-300"
+        >
+          {lang === 'nl' ? 'Meer' : 'More'}
+        </button>
+      </div>
+    </div>
+
+    <!-- Websites tab -->
+    <div data-panel="websites" class="py-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            forSaleCards.map((card) => (
+              <WorkCard
+                card={card}
+                lang={lang}
+                priceLabel={
+                  DEMO_QUOTES[card.slug]
+                    ? formatDemoQuote(DEMO_QUOTES[card.slug].total, lang)
+                    : undefined
+                }
+              />
+            ))
+          }
+        </div>
+        <p class="mt-10 text-center text-xs text-stone-400">
+          {
+            lang === 'nl'
+              ? 'Alle prijzen zijn vanaf-prijzen en indicatief — de definitieve prijs hangt af van jouw wensen.'
+              : 'All prices are starting prices and indicative — the final price depends on your requirements.'
+          }
+        </p>
+      </div>
+    </div>
+
+    <!-- More tab -->
+    <div data-panel="more" class="hidden py-16">
+      <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+        <div class="rounded-[2rem] border-2 border-dashed border-stone-300 py-20 text-center">
+          <span class="inline-flex rounded-full border border-amber-300/40 bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+            WIP
+          </span>
+          <h2 class="mt-6 text-2xl font-semibold tracking-[-0.04em] text-stone-900 sm:text-3xl">
+            {lang === 'nl' ? 'Meer producten onderweg' : 'More products on the way'}
+          </h2>
+          <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-stone-500">
+            {
+              lang === 'nl'
+                ? 'We werken aan digitale producten, templates en tools. Laat je gegevens achter en je hoort het als eerste.'
+                : "We're working on digital products, templates and tools. Leave your details and you'll be the first to know."
+            }
+          </p>
+          <a
+            href={`/${lang}/#contact`}
+            class="mt-8 inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-900 transition hover:border-stone-400 hover:bg-stone-50"
+          >
+            {lang === 'nl' ? 'Blijf op de hoogte' : 'Stay in the loop'}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="py-20 text-center">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-semibold tracking-[-0.04em] text-(--heading) sm:text-4xl">
+        {lang === 'nl' ? 'Liever maatwerk?' : 'Prefer custom work?'}
+      </h2>
+      <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a
+          href={`/${lang}/#contact`}
+          class="inline-flex items-center justify-center rounded-full bg-orange-500 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-orange-400"
+        >
+          {lang === 'nl' ? 'Start een project' : 'Start a project'}
+        </a>
+        <a
+          href={`/${lang}/pricing`}
+          class="inline-flex items-center justify-center rounded-full border border-(--line-strong) bg-(--card) px-6 py-3.5 text-sm font-bold text-(--heading) transition hover:border-(--line-strong) hover:bg-(--card-hover)"
+        >
+          {lang === 'nl' ? 'Bekijk tarieven' : 'View pricing'}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      const root = document.querySelector('[data-products-tabs]');
+      if (!root) return;
+
+      const tabs = root.querySelectorAll('[data-tab]');
+      const panels = document.querySelectorAll('[data-panel]');
+
+      const activeClasses = ['bg-stone-900', 'text-white'];
+      const inactiveClasses = ['border', 'border-stone-200', 'bg-white', 'text-stone-700'];
+
+      function setTab(name) {
+        tabs.forEach(function (tab) {
+          const isActive = tab.getAttribute('data-tab') === name;
+          if (isActive) {
+            inactiveClasses.forEach(function (c) {
+              tab.classList.remove(c);
+            });
+            activeClasses.forEach(function (c) {
+              tab.classList.add(c);
+            });
+          } else {
+            activeClasses.forEach(function (c) {
+              tab.classList.remove(c);
+            });
+            inactiveClasses.forEach(function (c) {
+              tab.classList.add(c);
+            });
+          }
+        });
+
+        panels.forEach(function (panel) {
+          if (panel.getAttribute('data-panel') === name) {
+            panel.classList.remove('hidden');
+          } else {
+            panel.classList.add('hidden');
+          }
+        });
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          setTab(tab.getAttribute('data-tab'));
+        });
+      });
+    })();
+  </script>
+</PortfolioLayout>

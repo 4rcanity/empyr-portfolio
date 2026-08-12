@@ -1,0 +1,200 @@
+---
+import PortfolioLayout from '../../components/portfolio/PortfolioLayout.astro';
+import { getTemplatesBySlug, getWorkCategories } from '../../data/work';
+import WorkCard from '../../components/portfolio/WorkCard.astro';
+import { languages, type Lang } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return languages.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params as { lang: Lang };
+
+const templatesBySlug = getTemplatesBySlug(lang);
+const categories = getWorkCategories(lang);
+const totalCount = categories.reduce((sum, cat) => sum + cat.slugs.length, 0);
+
+const copy =
+  lang === 'nl'
+    ? {
+        eyebrow: 'Portfolio',
+        heading: 'Websites die werken voor jouw zaak.',
+        body: 'Veertien concepten in vijf categorieën — elk met een eigen merkgevoel, doelgroep en conversiedoel. Filter op categorie om te zien wat bij jou past.',
+        allTab: 'Alles',
+        countTemplate: '{n} projecten',
+        ctaHeading: 'Zit jouw categorie er niet bij?',
+        ctaBody: 'We bouwen maatwerk voor elke lokale zaak — vertel ons over jouw project.',
+        ctaPrimary: 'Start een project',
+        ctaSecondary: 'Bekijk tarieven',
+      }
+    : {
+        eyebrow: 'Portfolio',
+        heading: 'Websites that work for your business.',
+        body: 'Fourteen concepts across five categories — each with its own brand feel, audience and conversion goal. Filter by category to find your fit.',
+        allTab: 'All',
+        countTemplate: '{n} projects',
+        ctaHeading: "Don't see your category?",
+        ctaBody: 'We build custom work for any local business — tell us about your project.',
+        ctaPrimary: 'Start a project',
+        ctaSecondary: 'View pricing',
+      };
+
+const pageTitle = 'Websites — Empyr Studio';
+const pageDescription =
+  lang === 'nl'
+    ? 'Bekijk alle websiteconcepten van Empyr Studio — restaurants, garages, winkels, barbershops en educatieve platforms.'
+    : 'Browse all website concepts by Empyr Studio — restaurants, garages, shops, barbershops and education platforms.';
+---
+
+<PortfolioLayout
+  lang={lang}
+  current="websites"
+  title={pageTitle}
+  description={pageDescription}
+  path="/websites"
+>
+  <!-- Page header -->
+  <section class="relative isolate overflow-hidden py-20">
+    <div class="pointer-events-none absolute left-1/2 top-[-12rem] h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-[120px]"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <span class="inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-orange-300">
+        <span class="h-1.5 w-1.5 rounded-full bg-orange-400 shadow-[0_0_12px_#fb923c]"></span>
+        {copy.eyebrow}
+      </span>
+      <h1 class="mt-7 max-w-4xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-(--heading) sm:text-5xl lg:text-6xl">
+        {copy.heading}
+      </h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-(--muted) sm:text-lg">{copy.body}</p>
+    </div>
+  </section>
+
+  <!-- Filter + grid -->
+  <section class="bg-(--alt-bg) text-(--alt-text)">
+    <div class="sticky top-[73px] z-40 border-b border-stone-200 bg-(--alt-bg)/90 backdrop-blur-md">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-2 overflow-x-auto py-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label={lang === 'nl' ? 'Categorieën' : 'Categories'}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-filter="all"
+            class="filter-tab shrink-0 rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition"
+          >
+            {copy.allTab}
+            <span class="ml-1.5 rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">{totalCount}</span>
+          </button>
+          {categories.map((category) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-filter={category.id}
+              class="filter-tab shrink-0 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 transition hover:border-stone-900"
+            >
+              {category.title}
+              <span class="ml-1.5 rounded-full bg-stone-100 px-2 py-0.5 text-xs font-bold text-stone-600">{category.slugs.length}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <p
+        id="work-count"
+        class="mb-8 text-sm font-medium text-stone-500"
+        data-template={copy.countTemplate}
+      >
+        {copy.countTemplate.replace('{n}', String(totalCount))}
+      </p>
+
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {categories.map((category) =>
+          category.slugs.map((slug) => {
+            const card = templatesBySlug[slug];
+            if (!card) return null;
+            return (
+              <div data-category={category.id} class="work-item">
+                <WorkCard card={card} lang={lang} />
+              </div>
+            );
+          }),
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="py-20 text-center">
+    <div class="mx-auto max-w-2xl px-4 sm:px-6">
+      <h2 class="text-3xl font-semibold tracking-[-0.05em] text-(--heading) sm:text-4xl">{copy.ctaHeading}</h2>
+      <p class="mt-4 text-base leading-7 text-(--muted)">{copy.ctaBody}</p>
+      <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <a
+          href={`/${lang}/#contact`}
+          class="inline-flex items-center justify-center rounded-full bg-orange-500 px-8 py-3.5 text-sm font-bold text-white transition hover:bg-orange-400"
+        >
+          {copy.ctaPrimary}
+        </a>
+        <a
+          href={`/${lang}/pricing`}
+          class="inline-flex items-center justify-center rounded-full border border-(--line-strong) bg-transparent px-8 py-3.5 text-sm font-bold text-(--heading) transition hover:border-(--line-strong) hover:bg-(--card)"
+        >
+          {copy.ctaSecondary}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      const tabs = document.querySelectorAll('.filter-tab');
+      const items = document.querySelectorAll('.work-item');
+      const countEl = document.getElementById('work-count');
+      const countTemplate = countEl ? countEl.dataset.template || '{n}' : '{n}';
+
+      const activeClasses = ['bg-stone-900', 'text-white'];
+      const inactiveClasses = ['border', 'border-stone-200', 'bg-white', 'text-stone-700', 'hover:border-stone-900'];
+
+      function setActiveTab(filter) {
+        tabs.forEach((tab) => {
+          const isActive = tab.dataset.filter === filter;
+          tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          activeClasses.forEach((cls) => tab.classList.toggle(cls, isActive));
+          inactiveClasses.forEach((cls) => tab.classList.toggle(cls, !isActive));
+        });
+      }
+
+      function updateCount(filter) {
+        let n;
+        if (filter === 'all') {
+          n = items.length;
+        } else {
+          n = Array.from(items).filter((el) => el.dataset.category === filter).length;
+        }
+        if (countEl) {
+          countEl.textContent = countTemplate.replace('{n}', String(n));
+        }
+      }
+
+      function applyFilter(filter) {
+        items.forEach((item) => {
+          if (filter === 'all' || item.dataset.category === filter) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+        setActiveTab(filter);
+        updateCount(filter);
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          applyFilter(tab.dataset.filter || 'all');
+        });
+      });
+    })();
+  </script>
+</PortfolioLayout>

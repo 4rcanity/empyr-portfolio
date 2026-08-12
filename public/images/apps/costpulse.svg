@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="CostPulse">
+  <defs>
+    <linearGradient id="g" x1="16" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14E0EC"/>
+      <stop offset="1" stop-color="#008C96"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0B1214"/>
+  <circle cx="64" cy="64" r="38" fill="none" stroke="url(#g)" stroke-width="10"/>
+  <path d="M64 34v30l22 12" fill="none" stroke="#E8FBFD" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="6" fill="#00B7C3"/>
+</svg>
