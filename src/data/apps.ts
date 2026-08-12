@@ -1,5 +1,5 @@
 /**
- * Apps published by Empyr Studio — single source for the /apps page.
+ * Apps published by Empyr Studios — single source for the /apps page.
  */
 
 export type AppPlatform = 'ios' | 'android' | 'windows' | 'web' | 'cross-platform';
@@ -59,12 +59,12 @@ export const apps: AppEntry[] = [
     platforms: ['windows'],
     status: 'live',
     tagline: {
-      nl: 'Abonnementen en terugkerende kosten bijhouden — met browser-detectie.',
-      en: 'Track subscriptions and recurring costs — with browser detection.',
+      nl: 'Houd bij wat je elke maand aan abonnementen kwijt bent.',
+      en: 'See what you actually spend on subscriptions each month.',
     },
     description: {
-      nl: 'CostPulse is een Windows-app van Empyr Studio die je maandelijkse burn rate, aankomende betalingen en kostenprofielen overzichtelijk houdt. De bijbehorende browserextensie herkent abonnementsprijzen op websites en synchroniseert ze lokaal via localhost.',
-      en: 'CostPulse is an Empyr Studio Windows app that keeps monthly burn rate, upcoming payments and cost profiles in one place. The companion browser extension detects subscription prices on websites and syncs them locally over localhost.',
+      nl: 'CostPulse is een Windows-app van Empyr Studios. Je ziet je maandelijkse lasten, wat eraan komt, en je kunt meerdere profielen bijhouden. De browserextensie herkent prijzen op websites en stuurt ze naar de app op je pc — via localhost, niet via onze servers.',
+      en: 'CostPulse is a Windows app from Empyr Studios. It shows your monthly spend, what’s coming up, and lets you keep separate profiles. The browser extension spots prices on websites and sends them to the app on your PC — over localhost, not through our servers.',
     },
     storeUrl: '/downloads/CostPulse-Setup.exe',
     storeLabel: { nl: 'Download voor Windows', en: 'Download for Windows' },
@@ -76,15 +76,15 @@ export const apps: AppEntry[] = [
     },
     features: {
       nl: [
-        'Profielen & maandelijkse burn rate',
+        'Profielen en wat je per maand kwijt bent',
         'Lokale sync-server (localhost:48123)',
-        'Browserextensie voor abonnementsdetectie',
+        'Browserextensie die prijzen herkent',
         'SQLite-opslag op je eigen pc',
       ],
       en: [
-        'Profiles & monthly burn rate',
+        'Profiles and monthly spend',
         'Local sync server (localhost:48123)',
-        'Browser extension for subscription detection',
+        'Browser extension that spots prices',
         'SQLite storage on your own PC',
       ],
     },

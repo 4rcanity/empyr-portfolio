@@ -21,13 +21,13 @@ export const statusLabels: Record<WorkStatus, { en: string; nl: string; classNam
     className: 'border-stone-400/30 bg-stone-950/50 text-stone-300',
   },
   commission: {
-    en: 'commission',
-    nl: 'commissie',
+    en: 'client work',
+    nl: 'opdracht',
     className: 'border-orange-400/40 bg-orange-950/45 text-orange-100',
   },
   'in-consideration': {
-    en: 'in consideration',
-    nl: 'in overweging',
+    en: 'in talks',
+    nl: 'in gesprek',
     className: 'border-amber-300/40 bg-stone-950/55 text-amber-100',
   },
   pitch: {
@@ -41,7 +41,7 @@ export interface TemplateMeta {
   bestFor: string[];
   nlBestFor: string[];
   status: WorkStatus;
-  /** Fictional demos get a Demo pill; real consideration cases get Live case. */
+  /** Fictional demos get a Demo pill; real shops in talks get Real shop / Echte zaak. */
   kind: 'demo' | 'live';
 }
 
@@ -60,7 +60,7 @@ export const templateMeta: Record<string, TemplateMeta> = {
   },
   corner: {
     bestFor: ['Cafés', 'Brunch spots', 'All-day plates'],
-    nlBestFor: ['Cafés', 'Brunchzaken', 'All-day dishes'],
+    nlBestFor: ['Cafés', 'Brunchzaken', 'Gerechten de hele dag'],
     status: 'for-sale',
     kind: 'demo',
   },
@@ -108,7 +108,7 @@ export const templateMeta: Record<string, TemplateMeta> = {
   },
   'kapsalon-can': {
     bestFor: ['Hair salons', 'Barbers'],
-    nlBestFor: ['Kapsalons', 'Barbers'],
+    nlBestFor: ['Kapsalons', 'Herenkappers'],
     status: 'for-sale',
     kind: 'demo',
   },
@@ -178,7 +178,7 @@ function buildCard(
     status,
     kind: meta.kind,
     statusLabel: lang === 'nl' ? statusMeta.nl : statusMeta.en,
-    kindLabel: meta.kind === 'live' ? (lang === 'nl' ? 'Echte zaak' : 'Live case') : 'Demo',
+    kindLabel: meta.kind === 'live' ? (lang === 'nl' ? 'Echte zaak' : 'Real shop') : 'Demo',
     statusClass: statusMeta.className,
     href: `/${nlOnly ? 'nl' : lang}/${slug}`,
   };
@@ -223,10 +223,10 @@ export function getTemplatesBySlug(lang: Lang): Record<string, TemplateCard> {
     lang,
     'medrese',
     'Medrese',
-    lang === 'nl' ? 'Kennis die hart en verstand verbindt' : 'Knowledge that connects heart and mind',
+    lang === 'nl' ? 'Lessen in het Nederlands, Turks en Engels' : 'Classes in Dutch, Turkish and English',
     lang === 'nl'
-      ? 'Een meertalig educatief platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
-      : 'A multilingual learning platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
+      ? 'Een meertalig platform voor islamitische basiskennis, Koran, hadith, Risale-i Nur, lessen en activiteiten.'
+      : 'A multilingual platform for Islamic foundations, Quran, hadith, Risale-i Nur, classes and activities.',
     '#BD8B35',
     lang === 'nl' ? templateMeta.medrese.nlBestFor : templateMeta.medrese.bestFor,
   );
@@ -240,31 +240,31 @@ export function getWorkCategories(lang: Lang): WorkCategory[] {
         {
           id: 'restaurants',
           title: 'Restaurants & cafés',
-          body: 'Vier concepten voor horeca — van familiezaak tot fine dining.',
+          body: 'Van een familie-Italiaan tot een ocakbaşı.',
           slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
         },
         {
           id: 'garages',
           title: 'Garages & autoservice',
-          body: 'Drie Rotterdamse concepten — onderhoud, banden en schadeherstel.',
+          body: 'Drie Rotterdamse voorbeelden: APK in Charlois, banden in Spangen, schade in Maashaven.',
           slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
         },
         {
           id: 'winkels',
           title: 'Winkels & diensten',
-          body: 'Vijf concepten voor lokale zaken — van juwelier tot hammam.',
+          body: 'Juwelier, kledingreparatie, thuiszorg, kapsalon, hammam.',
           slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
         },
         {
           id: 'barbers',
           title: 'Barbershops',
-          body: "Strak merkwerk voor kappers en grooming studio's.",
+          body: 'Een echte zaak waar we naar kijken — geen verzonnen demo.',
           slugs: ['barberhouse'],
         },
         {
           id: 'education',
           title: 'Educatie & platforms',
-          body: 'Meertalige leerervaringen voor gemeenschap en kennis.',
+          body: 'Een meertalig leerplatform. Nederlands, Turks en Engels.',
           slugs: ['medrese'],
         },
       ]
@@ -272,31 +272,31 @@ export function getWorkCategories(lang: Lang): WorkCategory[] {
         {
           id: 'restaurants',
           title: 'Restaurants & cafés',
-          body: 'Four concepts for hospitality — from family dining to fine dining.',
+          body: 'From a family Italian to an ocakbaşı grill.',
           slugs: ['trattoria', 'noir', 'corner', 'ocakbasi'],
         },
         {
           id: 'garages',
           title: 'Garages & auto service',
-          body: 'Three Rotterdam concepts — maintenance, tires and body repair.',
+          body: 'Three Rotterdam examples: MOT in Charlois, tyres in Spangen, bodywork in Maashaven.',
           slugs: ['charlois', 'spangen-banden', 'maashaven-schade'],
         },
         {
           id: 'winkels',
           title: 'Shops & services',
-          body: 'Five concepts for local businesses — from jeweller to hammam.',
+          body: 'A jeweller, clothing repairs, home care, a salon, a hammam.',
           slugs: ['goldpoint', 'astex', 'esila-zorg', 'kapsalon-can', 'hammam'],
         },
         {
           id: 'barbers',
           title: 'Barbershops',
-          body: 'Sharp brand work for barbers and grooming studios.',
+          body: 'A real shop we’re talking to — not a made-up demo.',
           slugs: ['barberhouse'],
         },
         {
           id: 'education',
           title: 'Education & platforms',
-          body: 'Multilingual learning experiences for community and knowledge.',
+          body: 'A multilingual learning platform. Dutch, Turkish and English.',
           slugs: ['medrese'],
         },
       ];
