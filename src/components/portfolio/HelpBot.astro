@@ -1,0 +1,111 @@
+---
+/**
+ * Floating help widget for Empyr portfolio marketing pages.
+ * Language follows the layout. Mounted from PortfolioLayout only — not on
+ * minigame play routes or client demo templates.
+ */
+import type { Lang } from '../../i18n/ui';
+import { getHelpStrings } from '../../data/help-bot';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const strings = getHelpStrings(lang);
+---
+
+<div id="empyr-help" class="pointer-events-none fixed bottom-4 right-4 z-[70] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6" data-help-root data-help-lang={lang}>
+  <div
+    id="empyr-help-panel"
+    data-help-panel
+    hidden
+    role="dialog"
+    aria-labelledby="empyr-help-title"
+    aria-modal="false"
+    class="pointer-events-auto flex w-[min(22rem,calc(100vw-1.75rem))] max-h-[min(34rem,calc(100dvh-6rem))] flex-col overflow-hidden rounded-[1.75rem] border border-(--line) bg-(--page-bg) shadow-2xl shadow-black/40"
+  >
+    <div class="flex items-center justify-between gap-3 border-b border-(--line) px-4 py-3">
+      <div class="min-w-0">
+        <p id="empyr-help-title" class="truncate text-sm font-bold text-(--heading)">{strings.title}</p>
+        <p class="text-[11px] text-(--faint)">Empyr Studios</p>
+      </div>
+      <button
+        type="button"
+        data-help-close
+        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-(--line) text-(--muted) transition hover:text-(--heading)"
+        aria-label={strings.close}
+      >
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+
+    <div
+      data-help-log
+      class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto px-3 py-3"
+      aria-live="polite"
+      aria-relevant="additions"
+    >
+    </div>
+
+    <div data-help-chips class="flex flex-wrap gap-1.5 px-3 pb-2"></div>
+
+    <form data-help-form class="relative border-t border-(--line) p-3">
+      <label class="sr-only" for="empyr-help-input">{strings.placeholder}</label>
+      <div class="flex gap-2">
+        <input
+          id="empyr-help-input"
+          data-help-input
+          type="text"
+          autocomplete="off"
+          maxlength="400"
+          placeholder={strings.placeholder}
+          class="min-w-0 flex-1 rounded-full border border-(--line) bg-(--card) px-4 py-2.5 text-sm text-(--heading) outline-none placeholder:text-(--faint) focus:border-orange-400/60"
+        />
+        <input
+          data-help-honey
+          type="text"
+          tabindex="-1"
+          autocomplete="off"
+          aria-hidden="true"
+          class="absolute -left-[9999px] h-0 w-0 opacity-0"
+          name="company_url"
+        />
+        <button
+          type="submit"
+          data-help-send
+          class="shrink-0 rounded-full bg-orange-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-400"
+        >
+          {strings.send}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <button
+    type="button"
+    data-help-toggle
+    class="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-orange-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/30 transition hover:bg-orange-400"
+    aria-expanded="false"
+    aria-controls="empyr-help-panel"
+  >
+    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.2-.9L3 20l1.05-3.15A7.5 7.5 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+    </svg>
+    {strings.launcher}
+  </button>
+</div>
+
+<script>
+  import { mountHelpBot } from './help-bot-client';
+  import type { Lang } from '../../i18n/ui';
+
+  const root = document.querySelector<HTMLElement>('[data-help-root]');
+  const lang = (root?.dataset.helpLang === 'en' ? 'en' : 'nl') as Lang;
+  if (root && !root.dataset.helpMounted) {
+    root.dataset.helpMounted = 'true';
+    mountHelpBot(root, lang);
+  }
+</script>
