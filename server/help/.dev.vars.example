@@ -1,0 +1,4 @@
+# Web3Forms access key for local wrangler dev.
+# Never commit the real value. Create a free key at https://web3forms.com
+# bound to business@empyr-portfolio.com.
+WEB3FORMS_ACCESS_KEY=
