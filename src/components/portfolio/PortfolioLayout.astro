@@ -7,11 +7,11 @@
  */
 import '../../styles/global.css';
 import { languages, type Lang } from '../../i18n/ui';
-import { useTranslations } from '../../i18n/utils';
 import PortfolioSEO from '../shared/PortfolioSEO.astro';
 import LocaleRedirect from '../shared/LocaleRedirect.astro';
 import StudioToggle from '../shared/StudioToggle.astro';
 import ThemeToggle from '../shared/ThemeToggle.astro';
+import HelpBot from './HelpBot.astro';
 
 export type PortfolioPage = 'home' | 'websites' | 'products' | 'apps' | 'pricing';
 
@@ -25,7 +25,6 @@ interface Props {
 }
 
 const { lang, current, title, description, path = '' } = Astro.props;
-const t = useTranslations(lang);
 
 const navItems: { id: PortfolioPage; label: { nl: string; en: string }; href: string }[] = [
   { id: 'home', label: { nl: 'Home', en: 'Home' }, href: `/${lang}/` },
@@ -244,6 +243,8 @@ const year = new Date().getFullYear();
         © {year} Empyr Studios — {footerCopy.rights}
       </div>
     </footer>
+
+    <HelpBot lang={lang} />
 
     <script is:inline>
       (function () {
