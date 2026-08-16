@@ -1,6 +1,6 @@
-# Deploying empyr-portfolio.com on GitHub Pages
+# Deploying empyr.studio on GitHub Pages
 
-This repo is the **Empyr Portfolio** site. It deploys to [empyr-portfolio.com](https://empyr-portfolio.com) via GitHub Actions.
+This repo is the **Empyr Portfolio** site. It deploys to [empyr.studio](https://empyr.studio) via GitHub Actions.
 
 ## 1. Create GitHub repositories
 
@@ -25,13 +25,13 @@ git push -u origin main
 
 ## 3. Configure custom domain
 
-1. In **Settings → Pages → Custom domain**, enter `empyr-portfolio.com`
+1. In **Settings → Pages → Custom domain**, enter `empyr.studio`
 2. Enable **Enforce HTTPS** once DNS propagates
 3. The `public/CNAME` file in this repo keeps the domain on redeploys
 
 ### DNS records (at your domain registrar)
 
-For the **apex** domain `empyr-portfolio.com`:
+For the **apex** domain `empyr.studio`:
 
 | Type | Name | Value |
 |------|------|-------|
@@ -59,9 +59,9 @@ npm run dev
 
 | Page | URL |
 |------|-----|
-| Portfolio (NL) | https://empyr-portfolio.com/nl |
-| Portfolio (EN) | https://empyr-portfolio.com/en |
-| Template demos | https://empyr-portfolio.com/nl/barberhouse |
+| Portfolio (NL) | https://empyr.studio/nl |
+| Portfolio (EN) | https://empyr.studio/en |
+| Template demos | https://empyr.studio/nl/barberhouse |
 
 ## Troubleshooting
 
