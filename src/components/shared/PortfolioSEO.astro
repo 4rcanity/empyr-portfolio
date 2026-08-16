@@ -10,7 +10,7 @@ interface Props {
 }
 
 const { lang, title, description, path = '' } = Astro.props;
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr.studio';
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
 const canonical = `${siteUrl}/${lang}${path}/`;
 const ogImage = `${siteUrl}/images/empyr-logo.png`;
 const locale = lang === 'nl' ? 'nl_NL' : 'en_US';
@@ -43,7 +43,7 @@ const locale = lang === 'nl' ? 'nl_NL' : 'en_US';
     '@type': 'ProfessionalService',
     name: 'Empyr Portfolio',
     url: siteUrl,
-    email: 'business@empyr.studio',
+    email: 'business@empyr-portfolio.com',
     description,
     areaServed: ['NL', 'EU'],
     availableLanguage: ['Dutch', 'English'],

@@ -24,7 +24,7 @@ const {
   path = '',
 } = Astro.props;
 const copy = getMedreseCopy(lang);
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr.studio';
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
 const canonical = `${siteUrl}/${lang}/medrese${path}/`;
 const routeSuffix = Astro.url.pathname.split('/').slice(2).join('/');
 const searchIndex = medreseItems.map((item) => ({
@@ -171,7 +171,7 @@ const searchIndex = medreseItems.map((item) => ({
           <button type="button" data-med-rights class="hover:med-primary">{copy.rights}</button>
           <a href={`/${lang}/medrese/admin/`} class="hover:med-primary">{copy.adminLink}</a>
           <a href={`/${lang}/`} class="hover:med-primary">{copy.backPortfolio}</a>
-          <a href="mailto:business@empyr.studio" class="hover:med-primary">Contact</a>
+          <a href="mailto:business@empyr-portfolio.com" class="hover:med-primary">Contact</a>
         </div>
       </div>
     </footer>
@@ -353,7 +353,7 @@ interface Props {
 
 const { lang, title, description, path = '' } = Astro.props;
 const copy = medreseCopy[lang];
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr.studio';
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://empyr-portfolio.com';
 const pageTitle = title ? `${title} — Medrese` : 'Medrese — Kennis die hart en verstand verbindt';
 const pageDescription =
   description ??
@@ -426,7 +426,7 @@ const searchIndex = getMedreseSearchIndex(lang);
           <span><strong>Medrese</strong><small>by Empyr</small></span>
         </a>
         <p>{copy.footer}</p>
-        <a href="mailto:business@empyr.studio">business@empyr.studio</a>
+        <a href="mailto:business@empyr-portfolio.com">business@empyr-portfolio.com</a>
       </div>
     </footer>
   </body>
