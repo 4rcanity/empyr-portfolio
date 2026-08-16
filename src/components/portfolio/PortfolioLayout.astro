@@ -7,11 +7,11 @@
  */
 import '../../styles/global.css';
 import { languages, type Lang } from '../../i18n/ui';
-import { useTranslations } from '../../i18n/utils';
 import PortfolioSEO from '../shared/PortfolioSEO.astro';
 import LocaleRedirect from '../shared/LocaleRedirect.astro';
 import StudioToggle from '../shared/StudioToggle.astro';
 import ThemeToggle from '../shared/ThemeToggle.astro';
+import HelpBot from './HelpBot.astro';
 
 export type PortfolioPage = 'home' | 'websites' | 'products' | 'apps' | 'pricing';
 
@@ -25,24 +25,23 @@ interface Props {
 }
 
 const { lang, current, title, description, path = '' } = Astro.props;
-const t = useTranslations(lang);
 
 const navItems: { id: PortfolioPage; label: { nl: string; en: string }; href: string }[] = [
   { id: 'home', label: { nl: 'Home', en: 'Home' }, href: `/${lang}/` },
   { id: 'websites', label: { nl: 'Websites', en: 'Websites' }, href: `/${lang}/websites` },
   { id: 'products', label: { nl: 'Producten', en: 'Products' }, href: `/${lang}/products` },
   { id: 'apps', label: { nl: 'Apps', en: 'Apps' }, href: `/${lang}/apps` },
-  { id: 'pricing', label: { nl: 'Tarieven', en: 'Pricing' }, href: `/${lang}/pricing` },
+  { id: 'pricing', label: { nl: 'Tarieven', en: 'Prices' }, href: `/${lang}/pricing` },
 ];
 
-const ctaLabel = lang === 'nl' ? 'Start een project' : 'Start a project';
+const ctaLabel = lang === 'nl' ? 'Stuur een bericht' : 'Send a message';
 const menuLabel = lang === 'nl' ? 'Menu' : 'Menu';
 const closeLabel = lang === 'nl' ? 'Sluiten' : 'Close';
 
 const footerCopy =
   lang === 'nl'
     ? {
-        tagline: 'Design & development studio voor lokale ondernemers — websites, webapps en apps met karakter.',
+        tagline: 'Kleine studio. We bouwen snelle sites voor lokale zaken, plus een paar apps.',
         pagesTitle: 'Pagina’s',
         moreTitle: 'Meer',
         contactTitle: 'Contact',
@@ -51,7 +50,7 @@ const footerCopy =
         rights: 'Alle rechten voorbehouden.',
       }
     : {
-        tagline: 'Design & development studio for local businesses — websites, web apps and apps with character.',
+        tagline: 'A small design and development studio. Fast sites for local businesses, plus a few apps.',
         pagesTitle: 'Pages',
         moreTitle: 'More',
         contactTitle: 'Contact',
@@ -241,9 +240,11 @@ const year = new Date().getFullYear();
         </div>
       </div>
       <div class="border-t border-white/[0.06] py-6 text-center text-xs text-stone-600">
-        © {year} Empyr Studio — {footerCopy.rights}
+        © {year} Empyr Studios — {footerCopy.rights}
       </div>
     </footer>
+
+    <HelpBot lang={lang} />
 
     <script is:inline>
       (function () {

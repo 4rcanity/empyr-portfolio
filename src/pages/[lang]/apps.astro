@@ -13,26 +13,30 @@ const copy =
   lang === 'nl'
     ? {
         eyebrow: 'Apps',
-        heading: 'Tools die we zelf bouwen.',
-        body: 'Eigen producten van Empyr Studio — downloadbaar, lokaal en zonder accountgedoe waar het kan.',
+        heading: 'Dingen die we zelf nodig hadden.',
+        body: 'Geen extra abonnement. CostPulse draait op je eigen Windows-pc, data blijft lokaal, geen account.',
         empty: 'Nog geen apps gepubliceerd.',
-        requirements: 'Systeemvereisten',
-        features: 'Functies',
+        requirements: 'Wat je nodig hebt',
+        features: 'Wat erin zit',
+        comingSoon: 'Binnenkort beschikbaar',
+        localNote: 'Gratis. Draait bij jou thuis. Geen account.',
       }
     : {
         eyebrow: 'Apps',
-        heading: 'Tools we build ourselves.',
-        body: 'First-party Empyr Studio products — downloadable, local-first, and account-light where possible.',
+        heading: 'Things we needed ourselves.',
+        body: 'Not another subscription. CostPulse runs on your own Windows PC, data stays local, no account.',
         empty: 'No apps published yet.',
-        requirements: 'Requirements',
-        features: 'Features',
+        requirements: 'What you need',
+        features: 'What’s in it',
+        comingSoon: 'Coming soon',
+        localNote: 'Free. Runs on your machine. No account.',
       };
 
-const pageTitle = lang === 'nl' ? 'Apps — Empyr Studio' : 'Apps — Empyr Studio';
+const pageTitle = lang === 'nl' ? 'Apps — Empyr Studios' : 'Apps — Empyr Studios';
 const pageDescription =
   lang === 'nl'
-    ? 'Download Empyr Studio apps zoals CostPulse — Windows-abonnementen tracker met browser-sync.'
-    : 'Download Empyr Studio apps like CostPulse — Windows subscription tracker with browser sync.';
+    ? 'Apps van Empyr Studios, zoals CostPulse — een Windows-app die je abonnementen bijhoudt, zonder account.'
+    : 'Apps from Empyr Studios, like CostPulse — a Windows app that tracks your subscriptions, no account needed.';
 
 function monogram(name: string) {
   return name
@@ -153,7 +157,7 @@ function monogram(name: string) {
                           </a>
                         ) : (
                           <span class="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3.5 text-sm font-bold text-stone-500">
-                            {lang === 'nl' ? 'Binnenkort beschikbaar' : 'Coming soon'}
+                            {copy.comingSoon}
                           </span>
                         )}
                         {app.secondaryUrl && app.secondaryLabel && (
@@ -165,9 +169,7 @@ function monogram(name: string) {
                           </a>
                         )}
                         <p class="text-center text-xs text-stone-500">
-                          {lang === 'nl'
-                            ? 'Gratis · lokale data · geen account vereist'
-                            : 'Free · local data · no account required'}
+                          {copy.localNote}
                         </p>
                       </div>
                     </div>

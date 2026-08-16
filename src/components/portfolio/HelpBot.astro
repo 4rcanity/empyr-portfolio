@@ -1,0 +1,17 @@
+---
+/**
+ * Floating help widget for Empyr portfolio marketing pages.
+ * Language follows the layout. Mounted from PortfolioLayout only — not on
+ * minigame play routes or client demo templates.
+ */
+import type { Lang } from '../../i18n/ui';
+import HelpBotIsland from './HelpBotIsland';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<HelpBotIsland client:load lang={lang} />

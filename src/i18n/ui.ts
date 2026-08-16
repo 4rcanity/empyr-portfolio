@@ -78,18 +78,18 @@ export const ui: Record<Lang, Record<string, string>> = {
     'days.closed': 'Gesloten',
 
     'portfolio.tag': 'Empyr Portfolio',
-    'portfolio.title1': 'Websites en webapps die',
-    'portfolio.title2': 'echt resultaat opleveren',
+    'portfolio.title1': 'Websites voor',
+    'portfolio.title2': 'echte lokale zaken',
     'portfolio.subtitle':
-      'Professionele templates voor lokale ondernemers — snel, mobielvriendelijk en gebouwd met Astro.',
+      'Empyr Studios bouwt snelle sites voor restaurants, garages, winkels en salons. Meestal binnen een week live.',
     'portfolio.viewPricing': 'Bekijk prijzen',
-    'portfolio.viewDemo': 'Bekijk live demo →',
+    'portfolio.viewDemo': 'Open de demo',
     'portfolio.pricingTitle': 'Aanbevolen prijzen (EU)',
     'portfolio.pricingSubtitle':
       'Begin iets onder de marktprijs om je eerste klanten te winnen, verhoog daarna zodra je referenties hebt.',
     'portfolio.pitch': '"Als deze site je een paar extra klanten per maand oplevert, heeft hij zichzelf terugbetaald."',
     'portfolio.contactWhatsApp': 'WhatsApp ons',
-    'portfolio.contactEmail': 'Stuur een e-mail',
+    'portfolio.contactEmail': 'Mail ons',
     'portfolio.footer': 'Gebouwd met Astro · Statisch · Gehost op GitHub Pages',
 
   },
@@ -161,18 +161,18 @@ export const ui: Record<Lang, Record<string, string>> = {
     'days.closed': 'Closed',
 
     'portfolio.tag': 'Empyr Portfolio',
-    'portfolio.title1': 'Websites and web apps that',
-    'portfolio.title2': 'deliver real results',
+    'portfolio.title1': 'Websites for',
+    'portfolio.title2': 'real local businesses',
     'portfolio.subtitle':
-      'Professional, ready-to-customize templates for local businesses — fast, mobile-first, and built with Astro.',
+      'Empyr Studios builds fast sites for restaurants, garages, shops and salons. Usually live in about a week.',
     'portfolio.viewPricing': 'View Pricing',
-    'portfolio.viewDemo': 'View Live Demo →',
+    'portfolio.viewDemo': 'Open the demo',
     'portfolio.pricingTitle': 'Suggested Pricing (EU)',
     'portfolio.pricingSubtitle':
       'Start slightly under market to win first clients, then raise as you build references.',
     'portfolio.pitch': '"If this site brings you a few extra customers a month, it\'s paid for itself."',
     'portfolio.contactWhatsApp': 'WhatsApp us',
-    'portfolio.contactEmail': 'Send an email',
+    'portfolio.contactEmail': 'Email us',
     'portfolio.footer': 'Built with Astro · Static · Hosted on GitHub Pages',
 
   },

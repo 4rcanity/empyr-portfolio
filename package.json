@@ -17,7 +17,9 @@
     "uno:dev": "npm run dev --prefix server/uno",
     "uno:deploy": "npm run deploy --prefix server/uno",
     "monopoly:dev": "npm run dev --prefix server/monopoly",
-    "monopoly:deploy": "npm run deploy --prefix server/monopoly"
+    "monopoly:deploy": "npm run deploy --prefix server/monopoly",
+    "help:dev": "npm run dev --prefix server/help",
+    "help:deploy": "npm run deploy --prefix server/help"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",
