@@ -3,14 +3,14 @@
  *
  * GitHub Pages cannot send email. This worker accepts a POST from the site,
  * checks the visitor email, and forwards a transcript through Web3Forms to
- * business@empyr-portfolio.com. The access key stays on the worker.
+ * business@empyr.studio. The access key stays on the worker.
  */
 
 export interface Env {
   WEB3FORMS_ACCESS_KEY?: string;
 }
 
-const BUSINESS = 'business@empyr-portfolio.com';
+const BUSINESS = 'business@empyr.studio';
 const WEB3FORMS = 'https://api.web3forms.com/submit';
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_HITS = 5;
@@ -21,7 +21,12 @@ const hits = new Map<string, number[]>();
 
 function corsOrigin(origin: string | null): string | null {
   if (!origin) return null;
-  if (origin === 'https://empyr-portfolio.com' || origin === 'https://www.empyr-portfolio.com') {
+  if (
+    origin === 'https://empyr.studio' ||
+    origin === 'https://www.empyr.studio' ||
+    origin === 'https://empyr-portfolio.com' ||
+    origin === 'https://www.empyr-portfolio.com'
+  ) {
     return origin;
   }
   try {
@@ -34,7 +39,7 @@ function corsOrigin(origin: string | null): string | null {
 }
 
 function corsHeaders(origin: string | null): HeadersInit {
-  const allow = corsOrigin(origin) ?? 'https://empyr-portfolio.com';
+  const allow = corsOrigin(origin) ?? 'https://empyr.studio';
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
@@ -112,7 +117,7 @@ export default {
     const key = env.WEB3FORMS_ACCESS_KEY?.trim();
     if (!key) {
       return json(
-        { error: 'mail_unconfigured', hint: 'Set WEB3FORMS_ACCESS_KEY on the worker, then email business@empyr-portfolio.com.' },
+        { error: 'mail_unconfigured', hint: 'Set WEB3FORMS_ACCESS_KEY on the worker, then email business@empyr.studio.' },
         503,
         origin,
       );

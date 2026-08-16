@@ -2,12 +2,12 @@
  * Copy and intent matching for the portfolio help widget.
  *
  * Handoff goes to `server/help` (Cloudflare Worker → Web3Forms →
- * business@empyr-portfolio.com). The static GitHub Pages site never sees the
+ * business@empyr.studio). The static GitHub Pages site never sees the
  * access key; it only posts to PUBLIC_HELP_HOST.
  */
 import type { Lang } from '../i18n/ui';
 
-export const HELP_HANDOFF_TO = 'business@empyr-portfolio.com';
+export const HELP_HANDOFF_TO = 'business@empyr.studio';
 export const HELP_WHATSAPP = 'https://wa.me/31638269872';
 export const HELP_FALLBACK_HOST = 'empyr-help.arcanearthenden.workers.dev';
 export const HELP_DEV_HOST = 'localhost:8790';
@@ -101,7 +101,7 @@ export function getHelpStrings(lang: Lang): HelpStrings {
           text: 'Voor een gewone zaak-site: meestal binnen een week live. Iets met accounts, bestellen of een heel platform duurt langer. Dat is geen belofte voor een app van drie maanden.',
         },
         buy: {
-          text: 'Twee smaken. Een bestaande demo overnemen — naam, foto’s, teksten aanpassen — die staan onder Producten. Of iets nieuws laten bouwen. WhatsApp of mail is het begin: het nummer in de footer, of business@empyr-portfolio.com.',
+          text: 'Twee smaken. Een bestaande demo overnemen — naam, foto’s, teksten aanpassen — die staan onder Producten. Of iets nieuws laten bouwen. WhatsApp of mail is het begin: het nummer in de footer, of business@empyr.studio.',
           links: [
             { href: l.products, label: 'Producten' },
             { href: HELP_WHATSAPP, label: 'WhatsApp' },
@@ -120,9 +120,9 @@ export function getHelpStrings(lang: Lang): HelpStrings {
           links: [{ href: l.pricing, label: 'Tarieven' }],
         },
         contact: {
-          text: 'Mail business@empyr-portfolio.com of WhatsApp via de link hieronder. Dat staat ook in de footer. Als je wilt dat iemand van de studio jóu terugschrijft, zeg dat hier — dan heb ik eerst je e-mail nodig.',
+          text: 'Mail business@empyr.studio of WhatsApp via de link hieronder. Dat staat ook in de footer. Als je wilt dat iemand van de studio jóu terugschrijft, zeg dat hier — dan heb ik eerst je e-mail nodig.',
           links: [
-            { href: 'mailto:business@empyr-portfolio.com', label: 'E-mail' },
+            { href: 'mailto:business@empyr.studio', label: 'E-mail' },
             { href: HELP_WHATSAPP, label: 'WhatsApp' },
           ],
         },
@@ -141,11 +141,11 @@ export function getHelpStrings(lang: Lang): HelpStrings {
         'Dat lijkt geen geldig e-mailadres. Iets als naam@zaak.nl — dan stuur ik dit gesprek naar de studio.',
       emailCancel: 'Oké, we blijven hier. Vraag maar.',
       handoffThanks:
-        'Binnen. We hebben je e-mail en een samenvatting van dit gesprek naar business@empyr-portfolio.com gestuurd. Je hoort van ons op {email}.',
+        'Binnen. We hebben je e-mail en een samenvatting van dit gesprek naar business@empyr.studio gestuurd. Je hoort van ons op {email}.',
       handoffFail:
-        'Kon de studio niet bereiken. Mail zelf naar business@empyr-portfolio.com en plak gerust wat je hier typte. Jouw adres is niet doorgezet.',
+        'Kon de studio niet bereiken. Mail zelf naar business@empyr.studio en plak gerust wat je hier typte. Jouw adres is niet doorgezet.',
       alreadyHandedOff:
-        'Dit gesprek is al doorgestuurd. Check je inbox, of mail business@empyr-portfolio.com als je iets wilt toevoegen.',
+        'Dit gesprek is al doorgestuurd. Check je inbox, of mail business@empyr.studio als je iets wilt toevoegen.',
       transcriptYou: 'Jij',
       transcriptBot: 'Empyr',
     };
@@ -183,7 +183,7 @@ export function getHelpStrings(lang: Lang): HelpStrings {
         text: 'For a normal shop site: usually live in about a week. Anything with accounts, ordering, or a full platform takes longer. That’s not a promise for a three-month app.',
       },
       buy: {
-        text: 'Two routes. Take over an existing demo — name, photos, copy — those are under Products. Or have something new built. WhatsApp or email is the start: the number in the footer, or business@empyr-portfolio.com.',
+        text: 'Two routes. Take over an existing demo — name, photos, copy — those are under Products. Or have something new built. WhatsApp or email is the start: the number in the footer, or business@empyr.studio.',
         links: [
           { href: l.products, label: 'Products' },
           { href: HELP_WHATSAPP, label: 'WhatsApp' },
@@ -202,9 +202,9 @@ export function getHelpStrings(lang: Lang): HelpStrings {
         links: [{ href: l.pricing, label: 'Prices' }],
       },
       contact: {
-        text: 'Email business@empyr-portfolio.com or WhatsApp via the link below. Same as the footer. If you want someone at the studio to write you back, say so here — I’ll need your email first.',
+        text: 'Email business@empyr.studio or WhatsApp via the link below. Same as the footer. If you want someone at the studio to write you back, say so here — I’ll need your email first.',
         links: [
-          { href: 'mailto:business@empyr-portfolio.com', label: 'Email' },
+          { href: 'mailto:business@empyr.studio', label: 'Email' },
           { href: HELP_WHATSAPP, label: 'WhatsApp' },
         ],
       },
@@ -223,11 +223,11 @@ export function getHelpStrings(lang: Lang): HelpStrings {
       'That doesn’t look like an email. Something like name@shop.com — then I’ll send this chat to the studio.',
     emailCancel: 'Okay, we’ll stay here. Ask away.',
     handoffThanks:
-      'Sent. We emailed your address and a short recap of this chat to business@empyr-portfolio.com. We’ll reply to {email}.',
+      'Sent. We emailed your address and a short recap of this chat to business@empyr.studio. We’ll reply to {email}.',
     handoffFail:
-      'Couldn’t reach the studio. Email business@empyr-portfolio.com yourself and paste what you typed here. Your address was not forwarded.',
+      'Couldn’t reach the studio. Email business@empyr.studio yourself and paste what you typed here. Your address was not forwarded.',
     alreadyHandedOff:
-      'This chat was already forwarded. Check your inbox, or email business@empyr-portfolio.com if you want to add something.',
+      'This chat was already forwarded. Check your inbox, or email business@empyr.studio if you want to add something.',
     transcriptYou: 'You',
     transcriptBot: 'Empyr',
   };
