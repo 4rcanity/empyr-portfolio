@@ -1,6 +1,17 @@
-# Deploying empyr-portfolio.com on GitHub Pages
+# Deploying empyr.studio on GitHub Pages
 
-This repo is the **Empyr Portfolio** site. It deploys to [empyr-portfolio.com](https://empyr-portfolio.com) via GitHub Actions.
+This repo is the **Empyr Studios** site. After cutover it deploys to [empyr.studio](https://empyr.studio) via GitHub Actions.
+
+## Cutover (not done in this PR)
+
+Prep only. This PR updates the repo’s public host, CNAME, sitemap, mailto, and help-worker CORS. It does **not** change live GitHub Pages settings or registrar DNS.
+
+Later, Ops / Chief of Staff (not this PR):
+
+1. Point GitHub Pages custom domain at `empyr.studio` and enable HTTPS after DNS lands.
+2. At the registrar, attach the Pages A records below to the **empyr.studio** apex (and optional www CNAME).
+3. The old apex **empyr-portfolio.com** must **301** to `https://empyr.studio`. Do not invent a redirect service in this repo; that is a DNS / Pages step after this PR merges.
+4. `business@empyr-portfolio.com` still forwards until Google Workspace is cut over. The public site already shows `business@empyr.studio`.
 
 ## 1. Create GitHub repositories
 
@@ -23,15 +34,17 @@ git push -u origin main
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**
 3. Push to `main` — the workflow in `.github/workflows/deploy.yml` builds and deploys automatically
 
-## 3. Configure custom domain
+## 3. Custom domain (later step — Ops / CoS)
 
-1. In **Settings → Pages → Custom domain**, enter `empyr-portfolio.com`
+Do not change GitHub Pages or registrar DNS as part of this PR.
+
+1. In **Settings → Pages → Custom domain**, enter `empyr.studio`
 2. Enable **Enforce HTTPS** once DNS propagates
 3. The `public/CNAME` file in this repo keeps the domain on redeploys
 
-### DNS records (at your domain registrar)
+### DNS records (at your domain registrar) — later step
 
-For the **apex** domain `empyr-portfolio.com`:
+For the **apex** domain `empyr.studio`:
 
 | Type | Name | Value |
 |------|------|-------|
@@ -55,13 +68,13 @@ npm install
 npm run dev
 ```
 
-## 5. Live URLs after deploy
+## 5. Live URLs after cutover
 
 | Page | URL |
 |------|-----|
-| Portfolio (NL) | https://empyr-portfolio.com/nl |
-| Portfolio (EN) | https://empyr-portfolio.com/en |
-| Template demos | https://empyr-portfolio.com/nl/barberhouse |
+| Portfolio (NL) | https://empyr.studio/nl |
+| Portfolio (EN) | https://empyr.studio/en |
+| Template demos | https://empyr.studio/nl/barberhouse |
 
 ## Troubleshooting
 

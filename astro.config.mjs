@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://empyr-portfolio.com',
+  site: 'https://empyr.studio',
   vite: {
     plugins: [tailwindcss()],
   },

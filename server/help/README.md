@@ -1,7 +1,7 @@
 # Empyr help widget — mail pipe
 
 Tiny Cloudflare Worker. No Durable Objects. Accepts a POST from the portfolio
-help widget and emails a transcript to `business@empyr-portfolio.com` via
+help widget and emails a transcript to `business@empyr.studio` via
 [Web3Forms](https://web3forms.com) (free tier).
 
 The GitHub Pages site is static. **Pages deploy alone does not send mail.**
@@ -15,7 +15,7 @@ before live handoff works.
 | `GET /health` | liveness probe |
 | `POST /handoff` | `{ email, lang, messages, summary?, page? }` → Web3Forms |
 
-CORS allows `https://empyr-portfolio.com` and `localhost` / `127.0.0.1`.
+CORS allows `https://empyr.studio` / `www`, `https://empyr-portfolio.com` / `www` (transition), and `localhost` / `127.0.0.1`.
 
 If the secret is missing the worker returns **503** so the widget can tell
 people to mail `business@` themselves.
@@ -66,5 +66,5 @@ The widget falls back to that host when the env var is unset in production.
 
 | Name | Where | Notes |
 |------|--------|--------|
-| `WEB3FORMS_ACCESS_KEY` | Worker secret / `.dev.vars` | Never put this in the Astro bundle or a `PUBLIC_*` var. Create a free key at web3forms.com bound to `business@empyr-portfolio.com`. |
+| `WEB3FORMS_ACCESS_KEY` | Worker secret / `.dev.vars` | Never put this in the Astro bundle or a `PUBLIC_*` var. Create a free key at web3forms.com bound to `business@empyr.studio`. |
 | `PUBLIC_HELP_HOST` | Site `.env` | Hostname only. Safe to commit the production workers.dev name in `.env.example`. |

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://empyr-portfolio.com/sitemap-index.xml
+Sitemap: https://empyr.studio/sitemap-index.xml
