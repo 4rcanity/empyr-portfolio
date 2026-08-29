@@ -112,7 +112,7 @@ export function getHelpStrings(lang: Lang): HelpStrings {
           links: [{ href: l.apps, label: 'Naar apps' }],
         },
         jobs: {
-          text: 'Soms zoeken we designers, app-bouwers en mensen die lokale zaken benaderen. Dat staat onderaan de homepage.',
+          text: 'De open rol is freelance sales, wereldwijd: jij sluit lokale zaken in hun taal, Empyr bouwt de site. €300 per gesloten klant, plus €1.000 bij 10 in een maand. Geen ervaring nodig. Staat op de homepage.',
           links: [{ href: `${l.home}#jobs`, label: 'Vacatures' }],
         },
         languages: {
@@ -193,10 +193,10 @@ export function getHelpStrings(lang: Lang): HelpStrings {
         text: 'CostPulse is ours: a Windows app that tracks subscriptions, locally on your PC, no account. Free to download. Minigames live separately.',
         links: [{ href: l.apps, label: 'See apps' }],
       },
-      jobs: {
-        text: 'We sometimes hire designers, app builders, and people who talk to local shops. That’s at the bottom of the home page.',
-        links: [{ href: `${l.home}#jobs`, label: 'Open roles' }],
-      },
+        jobs: {
+          text: 'The open role is freelance sales, worldwide: you close local businesses in their language, Empyr builds the site. €300 per closed customer, plus €1.000 at 10 in a month. No experience needed. That’s on the home page.',
+          links: [{ href: `${l.home}#jobs`, label: 'Open roles' }],
+        },
       languages: {
         text: 'This site is Dutch and English. Client sites can get an extra language — that’s an option on the prices page, not a default for every job.',
         links: [{ href: l.pricing, label: 'Prices' }],
@@ -271,7 +271,7 @@ const INTENT_PATTERNS: { intent: Exclude<HelpIntent, 'human'>; re: RegExp }[] = 
   },
   {
     intent: 'jobs',
-    re: /\b(vacature|vacatures|sollicit|hiring|werken bij|job|jobs|pitcher|werft)\b/,
+    re: /\b(vacature|vacatures|sollicit|hiring|werken bij|job|jobs|pitcher|werft|freelance sales|sales)\b/,
   },
   {
     intent: 'languages',
